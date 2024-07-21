@@ -22,7 +22,10 @@ function Navigation() {
 
   return (
     <div className="Navigation">
-      <div className="bg-primaryColor fixed left-0 right-0 p-3 md:p-5 z-10" ref={navRef}>
+      <div
+        className="bg-primaryColor fixed left-0 right-0 p-3 md:p-5 z-10"
+        ref={navRef}
+      >
         <div className="max-w-screen-2xl m-auto">
           <div className="flex items-center justify-between px-2 md:px-4">
             <div className="flex items-center gap-6">
@@ -38,9 +41,9 @@ function Navigation() {
                 <div className="hover:bg-[#303137] hover:text-[#a3b7ea] duration-100 px-3 py-2 rounded-full">
                   <Link to="/">Market</Link>
                 </div>
-                <div className="hover:bg-[#303137] hover:text-[#a3b7ea] duration-100 px-3 py-2 rounded-full">
+                <div className="group hover:bg-[#303137] hover:text-[#a3b7ea] duration-100 px-3 py-2 rounded-full">
                   <Link to="/" className="flex items-center">
-                    Earn{" "}
+                    Earn
                     <svg
                       viewBox="0 0 24 24"
                       xmlns="http://www.w3.org/2000/svg"
@@ -48,7 +51,7 @@ function Navigation() {
                       height="24"
                       fill="currentColor"
                       data-slot="icon"
-                      className="remixicon size-4 shrink-0 transition-transform"
+                      className="size-4 duration-300 group-hover:rotate-180"
                     >
                       <path d="M12 16L6 10H18L12 16Z"></path>
                     </svg>
