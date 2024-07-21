@@ -10,9 +10,9 @@ function Navigation() {
               <img
                 src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721491707/xqjsie1x0o884byjfbmz.svg"
                 alt="logo"
-                className="w-7"
+                className="w-10 sm:w-7"
               />
-              <div className="hidden lg:flex justify-between gap-6 text-textPrimary font-semibold">
+              <div className="hidden lg:flex justify-between lg:gap-3 text-textPrimary font-semibold">
                 <div className="hover:bg-[#303137] hover:text-[#a3b7ea] duration-100 px-3 py-2 rounded-full">
                   <Link to="/">Trade</Link>
                 </div>
@@ -43,7 +43,7 @@ function Navigation() {
               </div>
             </div>
 
-            <div className="max-w-[400px] w-full">
+            <div className="xl:max-w-[400px] lg:max-w-[300px] w-full">
               <div className="hidden lg:flex items-center justify-between cursor-text border border-stone-700 hover:border-[2px] rounded-full px-4 py-2 w-full">
                 <div className="flex items-center flex-grow">
                   <i className="fa-solid fa-magnifying-glass text-textSecondary"></i>
