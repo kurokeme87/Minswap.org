@@ -6,3 +6,6 @@ html {
 * {
   font-family: "Inter", sans-serif;
 }
+.nav-shadow {
+  box-shadow: 0 2px 4px rgba(126, 126, 126, 0.1);
+}

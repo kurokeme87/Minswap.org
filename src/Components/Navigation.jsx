@@ -1,10 +1,29 @@
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 
 function Navigation() {
+  const navRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 0) {
+        navRef.current.classList.add("nav-shadow");
+      } else {
+        navRef.current.classList.remove("nav-shadow");
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
     <div className="Navigation">
-      <div className="bg-primaryColor fixed left-0 right-0 p-3 md:p-5 z-10">
-        <div className=" max-w-screen-2xl m-auto">
+      <div className="bg-primaryColor fixed left-0 right-0 p-3 md:p-5 z-10" ref={navRef}>
+        <div className="max-w-screen-2xl m-auto">
           <div className="flex items-center justify-between px-2 md:px-4">
             <div className="flex items-center gap-6">
               <img
