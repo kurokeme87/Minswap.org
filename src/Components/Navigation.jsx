@@ -29,11 +29,13 @@ function Navigation() {
         <div className="max-w-screen-2xl m-auto">
           <div className="flex items-center justify-between px-2 md:px-4">
             <div className="flex items-center gap-6">
-              <img
-                src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721491707/xqjsie1x0o884byjfbmz.svg"
-                alt="logo"
-                className="w-10 sm:w-7"
-              />
+              <Link>
+                <img
+                  src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721491707/xqjsie1x0o884byjfbmz.svg"
+                  alt="logo"
+                  className="w-10 sm:w-7"
+                />
+              </Link>
               <div className="hidden lg:flex justify-between lg:gap-3 text-textPrimary font-semibold">
                 <div className="hover:bg-[#303137] hover:text-[#a3b7ea] duration-100 px-3 py-2 rounded-full">
                   <Link to="/">Trade</Link>
