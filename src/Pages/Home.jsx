@@ -110,13 +110,13 @@ function Home() {
 
           <div className="text-textPrimary font-medium max-w-[390px] m-auto">
             <p>
-              Trade your favorite Cardano tokens with low fees, earn
-              yields and stake for real yield.
+              Trade your favorite Cardano tokens with low fees, earn yields and
+              stake for real yield.
             </p>
           </div>
         </div>
 
-        <div className="px-4 md:px-20 mt-[150px]">
+        <div className="px-4 md:px-20 md:mx-14 mt-[150px]">
           <div>
             <h1 className="text-textSecondary font-semibold text-3xl">
               DeFi Beats Here: Our Numbers
@@ -157,6 +157,41 @@ function Home() {
               </p>
             </div>
           </div>
+        </div>
+
+        <div>
+          <div className="max-w-screen-xl m-auto px-5 mt-[150px]">
+            <h1 className="text-3xl text-textSecondary font-bold mb-8">
+              Trade Smarter, Not Harder
+            </h1>
+            <div className="flex flex-wrap justify-between">
+              <img
+                src="/one.png"
+                className="w-full md:w-[48%] mb-5 rounded-lg"
+                alt="one"
+              />
+              <img
+                src="/two.png"
+                className="w-full md:w-[48%] mb-5 rounded-lg"
+                alt="two"
+              />
+              <img
+                src="/three.png"
+                className="w-full md:w-[48%] mb-5 rounded-lg"
+                alt="three"
+              />
+              <img
+                src="/four.png"
+                className="w-full md:w-[48%] mb-5 rounded-lg"
+                alt="four"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-screen-xl m-auto p-5">
+          <img src="/banner.png" className="rounded-xl hidden md:block" alt="banner" />
+          <img src="/bannermobile.png" className="rounded-xl md:hidden block w-full" alt="banner" />
         </div>
       </div>
     </div>
