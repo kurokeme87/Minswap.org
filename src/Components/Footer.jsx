@@ -4,9 +4,7 @@ function Footer() {
       <footer class="space-y-4 pt-4 md:space-y-8 md:pt-8 px-4 max-w-screen-xl m-auto pb-6">
         <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
           <div class="space-y-4 p-2">
-            <div class="text-xl font-semibold text-textSecondary">
-              Product
-            </div>
+            <div class="text-xl font-semibold text-textSecondary">Product</div>
             <div>
               <a
                 class="text-p-sm text-textPrimary hover:text-textSecondary"
@@ -57,9 +55,7 @@ function Footer() {
             </div>
           </div>
           <div class="space-y-4 p-2">
-            <div class="text-xl font-semibold text-textSecondary">
-              Learn
-            </div>
+            <div class="text-xl font-semibold text-textSecondary">Learn</div>
             <div>
               <a
                 class="text-p-sm text-textPrimary hover:text-textSecondary"
@@ -120,9 +116,7 @@ function Footer() {
             </div>
           </div>
           <div class="space-y-4 p-2">
-            <div class="text-xl font-semibold text-textSecondary">
-              About
-            </div>
+            <div class="text-xl font-semibold text-textSecondary">About</div>
             <div>
               <a
                 class="text-p-sm text-textPrimary hover:text-textSecondary"
@@ -163,9 +157,7 @@ function Footer() {
             </div>
           </div>
           <div class="space-y-4 p-2">
-            <div class="text-xl font-semibold text-textSecondary">
-              Join Us
-            </div>
+            <div class="text-xl font-semibold text-textSecondary">Join Us</div>
             <div>
               <a
                 class="text-p-sm text-textPrimary hover:text-textSecondary"
@@ -238,9 +230,7 @@ function Footer() {
             </div>
           </div>
           <div class="space-y-4 p-2">
-            <div class="text-xl font-semibold text-textSecondary">
-              Others
-            </div>
+            <div class="text-xl font-semibold text-textSecondary">Others</div>
             <div>
               <a
                 class="text-p-sm text-textPrimary hover:text-textSecondary"
