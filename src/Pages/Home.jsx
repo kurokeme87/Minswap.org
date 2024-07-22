@@ -160,8 +160,8 @@ function Home() {
         </div>
 
         <div>
-          <div className="max-w-screen-xl m-auto px-5 mt-[150px]">
-            <h1 className="text-3xl text-textSecondary font-bold mb-8">
+          <div className="max-w-screen-xl m-auto px-5 mt-[70px] md:mt-[120px]">
+            <h1 className="text-3xl text-textSecondary font-bold mb-5">
               Trade Smarter, Not Harder
             </h1>
             <div className="flex flex-wrap justify-between">
