@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Navigation from "../Components/Navigation";
 
 function Home() {
@@ -190,8 +191,19 @@ function Home() {
         </div>
 
         <div className="max-w-screen-xl m-auto p-5">
-          <img src="/banner.png" className="rounded-xl hidden md:block" alt="banner" />
-          <img src="/bannermobile.png" className="rounded-xl md:hidden block w-full" alt="banner" />
+          <Link to="https://play.google.com/store/apps/details?id=org.minswap.app&pli=1">
+            {" "}
+            <img
+              src="/banner.png"
+              className="rounded-xl hidden md:block"
+              alt="banner"
+            />
+            <img
+              src="/bannermobile.png"
+              className="rounded-xl md:hidden block w-full"
+              alt="banner"
+            />
+          </Link>
         </div>
       </div>
     </div>
