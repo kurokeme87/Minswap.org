@@ -11,7 +11,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 to="/en-US/swap"
               >
                 Trade
@@ -19,7 +19,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 to="/en-US/market?crypto=token"
               >
                 Tokens
@@ -27,7 +27,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 to="/en-US/market?crypto=pool"
               >
                 Pools
@@ -35,7 +35,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 to="/en-US/liquidity?type=zap"
               >
                 Zap In
@@ -43,7 +43,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 to="/en-US/farm"
               >
                 Farm
@@ -51,7 +51,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 to="/en-US/launch-bowl"
               >
                 Launch Bowl
@@ -64,7 +64,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="https://docs.minswap.org/"
@@ -74,7 +74,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="https://docs.minswap.org/whitepaper"
@@ -84,7 +84,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="https://minswap-labs.medium.com/"
@@ -94,7 +94,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 to="/en-US/governance"
               >
                 Governance
@@ -102,7 +102,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="https://minswap.org/pol/"
@@ -112,7 +112,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="https://minswap.org/rebalance/"
@@ -127,7 +127,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="https://drive.google.com/file/d/1S7aU2adt3Vrwxd-fVIFfkJ0hxCk9-qWO/view?usp=sharing"
@@ -137,7 +137,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="https://coinmarketcap.com/exchanges/minswap/"
@@ -147,7 +147,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="https://www.coingecko.com/en/exchanges/minswap"
@@ -157,7 +157,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 to="mailto:contact@minswap.org"
               >
                 Contact us
@@ -170,7 +170,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="https://x.com/MinswapDEX"
@@ -180,7 +180,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="https://discord.gg/minswap"
@@ -190,7 +190,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="https://www.reddit.com/r/MinSwap/"
@@ -200,7 +200,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="https://t.me/MinswapMafia"
@@ -210,7 +210,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="https://github.com/minswap"
@@ -220,7 +220,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="https://minswap-labs.medium.com/"
@@ -230,7 +230,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="https://forum.minswap.org/"
@@ -245,7 +245,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="/"
@@ -255,7 +255,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="/"
@@ -265,7 +265,7 @@ function Footer() {
             </div>
             <div>
               <Link
-                className="text-p-sm text-textPrimary hover:text-textSecondary"
+                className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
                 rel="noopener noreferrer"
                 target="_blank"
                 to="https://merch.minswap.org/"
@@ -276,11 +276,11 @@ function Footer() {
           </div>
         </div>
         <div className="h-px bg-[#767a8291]"></div>
-        <div className="-ml-4 -mt-4 flex flex-wrap items-center p-2 text-p-sm text-textPrimary md:ml-0 md:mt-0 md:justify-between md:space-x-2">
+        <div className="-ml-4 -mt-4 flex flex-wrap items-center p-2 text-p-sm text-textPrimary text-sm font-semibold md:ml-0 md:mt-0 md:justify-between md:space-x-2 text-sm">
           <div className="ml-4 mt-4 md:ml-0 md:mt-0">© Minswap Labs</div>
           <div className="ml-4 mt-4 md:ml-0 md:mt-0">
             <Link
-              className="text-p-sm text-textPrimary hover:text-textSecondary"
+              className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
               to="/en-US/terms-of-service"
             >
               Terms of service
@@ -288,7 +288,7 @@ function Footer() {
           </div>
           <div className="ml-4 mt-4 md:ml-0 md:mt-0">
             <Link
-              className="text-p-sm text-textPrimary hover:text-textSecondary"
+              className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
               to="/en-US/cookie-policy"
             >
               Cookie policy
@@ -306,7 +306,7 @@ function Footer() {
               >
                 <path d="M11.3807 2.01886C9.91573 3.38768 9 5.3369 9 7.49999C9 11.6421 12.3579 15 16.5 15C18.6631 15 20.6123 14.0843 21.9811 12.6193C21.6613 17.8537 17.3149 22 12 22C6.47715 22 2 17.5228 2 12C2 6.68514 6.14629 2.33869 11.3807 2.01886Z"></path>
               </svg>
-              <span className="text-sm text-textPrimary">Dark</span>
+              <span className="text-sm text-textPrimary text-sm font-semibold">Dark</span>
             </div>
           </div>
         </div>
