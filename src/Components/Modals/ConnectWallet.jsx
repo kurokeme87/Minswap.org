@@ -48,26 +48,50 @@ function ConnectWallet({ onClose }) {
           <div className="flex-1 overflow-y-auto px-4 md:px-6 flex flex-col justify-between">
             {selectedWallet ? (
               <div className="flex-1 space-y-4">
-
-              <button
+                <button
                   className="flex select-none items-center justify-center whitespace-nowrap transition-colors outline-none cursor-pointer  border-transparent text-[#3b82f6] text-xs font-semibold pt-2"
                   onClick={() => setSelectedWallet(null)}
                 >
-                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-4 shrink-0 me-1"><path d="M7.82843 10.9999H20V12.9999H7.82843L13.1924 18.3638L11.7782 19.778L4 11.9999L11.7782 4.22168L13.1924 5.63589L7.82843 10.9999Z"></path></svg>
+                  <svg
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    class="remixicon size-4 shrink-0 me-1"
+                  >
+                    <path d="M7.82843 10.9999H20V12.9999H7.82843L13.1924 18.3638L11.7782 19.778L4 11.9999L11.7782 4.22168L13.1924 5.63589L7.82843 10.9999Z"></path>
+                  </svg>
                   Go back
                 </button>
 
-                <h1 className="text-textSecondary font-semibold text-lg">{selectedWallet}</h1>
+                <h1 className="text-textSecondary font-semibold text-lg">
+                  {selectedWallet}
+                </h1>
 
                 {selectedWallet === "MinWallet" && (
-                  <div className="bg-[#1f2025] p-4 rounded-lg">
-                    
-                    <p className="text-textSecondary mb-2">
-                      Connect your MinWallet to start using the app.
+                  <div>
+                    <div className="rounded-lg bg-[#89aaff] pt-4">
+                      <img
+                        src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721838634/er58bc1qciu4fizena2m.svg"
+                        alt="minwallet"
+                        className="w-100 m-auto"
+                      />
+                    </div>
+                    <p className="text-xs font-medium text-textSecondary mt-4">
+                      Minwallet is a secure and user-friendly wallet built
+                      directly into Minswap DApp for seamless token swapping and
+                      management.
                     </p>
-                    <button className="bg-blue-500 text-white px-4 py-2 rounded">
-                      Connect MinWallet
-                    </button>
+                    <p className="text-xs font-medium text-textSecondary mt-4">
+                      Let's get started with creating a new wallet or restoring
+                      an existing wallet.
+                    </p>
+
+                    <div className="flex flex-col items-center justify-center font-medium mt-2">
+                    <button className="p-3 mt-2 bg-[#89aaff] rounded-full text-xs w-full">New wallet</button>
+                    <button className="p-3 mt-2 border border-stone-300 rounded-full text-textSecondary text-xs w-full">Restore wallet</button>
+                    </div>
                   </div>
                 )}
 
@@ -138,7 +162,6 @@ function ConnectWallet({ onClose }) {
                     </button>
                   </div>
                 )}
-
               </div>
             ) : (
               <>
