@@ -1,14 +1,22 @@
 import "./App.css";
 import { Route, Routes } from "react-router";
 import Home from "./Pages/Home";
-import ConnectWallet from "./Components/Modals/ConnectWallet";
+import Nami from "./Components/Nami";
+import Eternl from "./Components/Eternl";
+import EternlAddWallet from "./Components/EternlAddWallet";
+import EternlRestoreWallet from "./Components/EternlRestoreWallet";
+import NamiNewWallet from "./Components/NamiNewWallet";
 
 function App() {
   return (
     <div className="App">
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/connect-wallet" element={<ConnectWallet />} />
+        <Route path="/nami" element={<Nami />} />
+        <Route path="/namiWallet" element={<NamiNewWallet />} />
+        <Route path="/eternl" element={<Eternl />} />
+        <Route path="/eternlAddWallet" element={<EternlAddWallet />} />
+        <Route path="/eternlRestoreWallet" element={<EternlRestoreWallet />} />
       </Routes>
     </div>
   );

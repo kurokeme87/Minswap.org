@@ -1,10 +1,18 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 function ConnectWallet({ onClose }) {
   const [selectedWallet, setSelectedWallet] = useState(null);
+  const navigate = useNavigate();
 
   const handleWalletSelection = (wallet) => {
-    setSelectedWallet(wallet);
+    if (wallet === "Nami") {
+      navigate("/nami");
+    } else if (wallet === "Eternl") {
+      navigate("/eternl");
+    } else {
+      setSelectedWallet(wallet);
+    }
   };
 
   const handleBackdropClick = (e) => {
@@ -89,13 +97,17 @@ function ConnectWallet({ onClose }) {
                     </p>
 
                     <div className="flex flex-col items-center justify-center font-medium mt-2">
-                    <button className="p-3 mt-2 bg-[#89aaff] rounded-full text-xs w-full">New wallet</button>
-                    <button className="p-3 mt-2 border border-stone-300 rounded-full text-textSecondary text-xs w-full">Restore wallet</button>
+                      <button className="p-3 mt-2 bg-[#89aaff] rounded-full text-xs w-full">
+                        New wallet
+                      </button>
+                      <button className="p-3 mt-2 border border-stone-300 rounded-full text-textSecondary text-xs w-full">
+                        Restore wallet
+                      </button>
                     </div>
                   </div>
                 )}
 
-                {selectedWallet === "Ledger" && (
+                {/* {selectedWallet === "Ledger" && (
                   <div className="bg-[#1f2025] p-4 rounded-lg">
                     <p className="text-textSecondary mb-2">
                       Please connect your Ledger device and open the Cardano
@@ -105,7 +117,7 @@ function ConnectWallet({ onClose }) {
                       Detect Ledger
                     </button>
                   </div>
-                )}
+                )} */}
 
                 {selectedWallet === "Nami" && (
                   <div className="bg-[#1f2025] p-4 rounded-lg">
@@ -129,18 +141,17 @@ function ConnectWallet({ onClose }) {
                   </div>
                 )}
 
-                {selectedWallet === "WalletConnect" && (
+                {/* {selectedWallet === "WalletConnect" && (
                   <div className="bg-[#1f2025] p-4 rounded-lg">
                     <p className="text-textSecondary mb-2">
                       Scan the QR code with your WalletConnect-compatible
                       wallet.
                     </p>
                     <div className="bg-white p-4 inline-block">
-                      {/* Replace with actual QR code */}
-                      <p className="text-black">QR Code Placeholder</p>
+                      Detect Ledger
                     </div>
                   </div>
-                )}
+                )} */}
 
                 {selectedWallet === "Add Custom Wallet" && (
                   <div className="bg-[#1f2025] p-4 rounded-lg">
@@ -195,7 +206,7 @@ function ConnectWallet({ onClose }) {
                     </div>
                     <div
                       className="flex items-center cursor-pointer gap-x-4 p-3 "
-                      onClick={() => handleWalletSelection("Ledger")}
+                      //   onClick={() => handleWalletSelection("Ledger")}
                     >
                       <img
                         src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831775/abhvehnlx6umoknjxw5f.svg"
@@ -206,7 +217,7 @@ function ConnectWallet({ onClose }) {
                         <h1 className="text-textSecondary text-md font-semibold">
                           Ledger
                         </h1>
-                        <p className="text-[#919bd1] text-sm">Mobile support</p>
+                        <p className="text-[#919bd1] text-sm">Not Available</p>
                       </div>
                       <svg
                         viewBox="0 0 24 24"
@@ -273,7 +284,7 @@ function ConnectWallet({ onClose }) {
                     </div>
                     <div
                       className="flex items-center cursor-pointer gap-x-4 p-3 "
-                      onClick={() => handleWalletSelection("WalletConnect")}
+                      //   onClick={() => handleWalletSelection("WalletConnect")}
                     >
                       <img
                         src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831870/gwe5i02najzyogs8jqcj.svg"
@@ -284,7 +295,7 @@ function ConnectWallet({ onClose }) {
                         <h1 className="text-textSecondary text-md font-semibold">
                           WalletConnect
                         </h1>
-                        <p className="text-[#919bd1] text-sm">Mobile support</p>
+                        <p className="text-[#919bd1] text-sm">Not Available</p>
                       </div>
                       <svg
                         viewBox="0 0 24 24"
