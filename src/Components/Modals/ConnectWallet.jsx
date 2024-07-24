@@ -1,4 +1,11 @@
+import { useState } from "react";
+
 function ConnectWallet({ onClose }) {
+  const [selectedWallet, setSelectedWallet] = useState(null);
+
+  const handleWalletSelection = (wallet) => {
+    setSelectedWallet(wallet);
+  };
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -8,7 +15,10 @@ function ConnectWallet({ onClose }) {
 
   return (
     <div className="ConnectWallet">
-      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center px-6 py-24 bg-black bg-opacity-50 backdrop-blur"  onClick={handleBackdropClick}>
+      <div
+        className="fixed inset-0 z-50 flex flex-col items-center justify-center px-6 py-24 bg-[#ffffff1c] bg-opacity-50 backdrop-blur"
+        onClick={handleBackdropClick}
+      >
         <div className="flex w-full flex-col overflow-hidden bg-[#111218] text-left align-middle shadow-2xl max-w-[420px] h-fit max-h-full space-y-6 rounded-[20px] py-6">
           <div className="flex items-center justify-between space-x-2 px-4 md:px-6">
             <div className="space-y-2">
@@ -36,176 +46,291 @@ function ConnectWallet({ onClose }) {
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 md:px-6 flex flex-col justify-between">
-            <div className="flex-1 space-y-1 overflow-y-auto custom-scrollbar">
-              <div className="flex-1 space-y-1 overflow-y-auto">
-                <div className="flex items-center cursor-pointer gap-x-4 p-3 ">
-                  <img
-                    src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831689/wedc8sye9jw3nj6kyyaj.svg"
-                    className="size-8 shrink-0"
-                    alt="minwallet"
-                  />
-                  <div className="flex-1">
-                    <h1 className="text-textSecondary text-md font-semibold">
-                      MinWallet
-                    </h1>
-                    <p className="text-[#919bd1] text-sm">Mobile support</p>
+            {selectedWallet ? (
+              <div className="flex-1 space-y-4">
+                <h2 className="text-textSecondary text-xl font-semibold">
+                  Connect to {selectedWallet}
+                </h2>
+
+                {selectedWallet === "MinWallet" && (
+                  <div className="bg-[#1f2025] p-4 rounded-lg">
+                    <p className="text-textSecondary mb-2">
+                      Connect your MinWallet to start using the app.
+                    </p>
+                    <button className="bg-blue-500 text-white px-4 py-2 rounded">
+                      Connect MinWallet
+                    </button>
                   </div>
-                  <svg
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="currentColor"
-                    className="text-textSecondary size-5 shrink-0"
-                  >
-                    <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
-                  </svg>
-                </div>
-                <div className="flex items-center cursor-pointer gap-x-4 p-3 ">
-                  <img
-                    src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831775/abhvehnlx6umoknjxw5f.svg"
-                    className="size-8 shrink-0 invert"
-                    alt="ledger"
-                  />
-                  <div className="flex-1">
-                    <h1 className="text-textSecondary text-md font-semibold">
-                      Ledger
-                    </h1>
-                    <p className="text-[#919bd1] text-sm">Mobile support</p>
+                )}
+
+                {selectedWallet === "Ledger" && (
+                  <div className="bg-[#1f2025] p-4 rounded-lg">
+                    <p className="text-textSecondary mb-2">
+                      Please connect your Ledger device and open the Cardano
+                      app.
+                    </p>
+                    <button className="bg-blue-500 text-white px-4 py-2 rounded">
+                      Detect Ledger
+                    </button>
                   </div>
-                  <svg
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="currentColor"
-                    className="text-textSecondary size-5 shrink-0"
-                  >
-                    <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
-                  </svg>
-                </div>
-                <div className="flex items-center cursor-pointer gap-x-4 p-3 ">
-                  <img
-                    src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831806/v5xt2tc2lipxzhgsay3u.svg"
-                    className="size-8 shrink-0"
-                    alt="nami"
-                  />
-                  <div className="flex-1">
-                    <h1 className="text-textSecondary text-md font-semibold">
-                      Nami
-                    </h1>
-                    <p className="text-[#919bd1] text-sm">Mobile support</p>
+                )}
+
+                {selectedWallet === "Nami" && (
+                  <div className="bg-[#1f2025] p-4 rounded-lg">
+                    <p className="text-textSecondary mb-2">
+                      Make sure you have Nami wallet installed in your browser.
+                    </p>
+                    <button className="bg-blue-500 text-white px-4 py-2 rounded">
+                      Connect Nami
+                    </button>
                   </div>
-                  <svg
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="currentColor"
-                    className="text-textSecondary size-5 shrink-0"
-                  >
-                    <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
-                  </svg>
-                </div>
-                <div className="flex items-center cursor-pointer gap-x-4 p-3 ">
-                  <img
-                    src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831836/zlxswqaargsgb5wtm3vb.svg"
-                    className="size-8 shrink-0"
-                    alt="eternl"
-                  />
-                  <div className="flex-1">
-                    <h1 className="text-textSecondary text-md font-semibold">
-                      Eternl
-                    </h1>
-                    <p className="text-[#919bd1] text-sm">Mobile support</p>
+                )}
+
+                {selectedWallet === "Eternl" && (
+                  <div className="bg-[#1f2025] p-4 rounded-lg">
+                    <p className="text-textSecondary mb-2">
+                      Connect your Eternl wallet to proceed.
+                    </p>
+                    <button className="bg-blue-500 text-white px-4 py-2 rounded">
+                      Connect Eternl
+                    </button>
                   </div>
-                  <svg
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="currentColor"
-                    className="text-textSecondary size-5 shrink-0"
-                  >
-                    <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
-                  </svg>
-                </div>
-                <div className="flex items-center cursor-pointer gap-x-4 p-3 ">
-                  <img
-                    src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831870/gwe5i02najzyogs8jqcj.svg"
-                    className="size-8 shrink-0"
-                    alt="walletconnect"
-                  />
-                  <div className="flex-1">
-                    <h1 className="text-textSecondary text-md font-semibold">
-                      WalletConnect
-                    </h1>
-                    <p className="text-[#919bd1] text-sm">Mobile support</p>
+                )}
+
+                {selectedWallet === "WalletConnect" && (
+                  <div className="bg-[#1f2025] p-4 rounded-lg">
+                    <p className="text-textSecondary mb-2">
+                      Scan the QR code with your WalletConnect-compatible
+                      wallet.
+                    </p>
+                    <div className="bg-white p-4 inline-block">
+                      {/* Replace with actual QR code */}
+                      <p className="text-black">QR Code Placeholder</p>
+                    </div>
                   </div>
-                  <svg
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="currentColor"
-                    className="text-textSecondary size-5 shrink-0"
-                  >
-                    <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
-                  </svg>
-                </div>
-                <div className="flex items-center cursor-pointer gap-x-4 p-3 ">
-                  <img
-                    src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831902/ofozmzoru4hd8fembeie.svg"
-                    className="size-8 shrink-0"
-                    alt="custom"
-                  />
-                  <div className="flex-1">
-                    <h1 className="text-textSecondary text-md font-semibold">
-                      Add Custom Wallet
-                    </h1>
+                )}
+
+                {selectedWallet === "Add Custom Wallet" && (
+                  <div className="bg-[#1f2025] p-4 rounded-lg">
+                    <p className="text-textSecondary mb-2">
+                      Enter your custom wallet details:
+                    </p>
+                    <input
+                      type="text"
+                      placeholder="Wallet Name"
+                      className="bg-[#2a2d36] text-textSecondary p-2 rounded mb-2 w-full"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Wallet Address"
+                      className="bg-[#2a2d36] text-textSecondary p-2 rounded mb-2 w-full"
+                    />
+                    <button className="bg-blue-500 text-white px-4 py-2 rounded">
+                      Add Wallet
+                    </button>
                   </div>
-                  <svg
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="currentColor"
-                    className="text-textSecondary size-5 shrink-0"
-                  >
-                    <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
-                  </svg>
+                )}
+
+                <button
+                  className="flex select-none items-center justify-center space-x-2 whitespace-nowrap transition-colors border outline-none cursor-pointer bg-[#1f2025] border-transparent text-itr-tentSec-df hover:bg-sf-pri-hv hover:border-transparent hover:text-itr-tentSec-df active:bg-sf-pri-pressed active:border-transparent active:text-textSecondary disabled:bg-sf-pri-dis disabled:border-transparent disabled:text-itr-tentSec-dis text-textSecondary text-sm px-5 py-2 rounded-full"
+                  onClick={() => setSelectedWallet(null)}
+                >
+                  Back to wallet selection
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex-1 space-y-1 overflow-y-auto custom-scrollbar">
+                  <div className="flex-1 space-y-1 overflow-y-auto">
+                    <div
+                      className="flex items-center cursor-pointer gap-x-4 p-3 "
+                      onClick={() => handleWalletSelection("MinWallet")}
+                    >
+                      <img
+                        src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831689/wedc8sye9jw3nj6kyyaj.svg"
+                        className="size-8 shrink-0"
+                        alt="minwallet"
+                      />
+                      <div className="flex-1">
+                        <h1 className="text-textSecondary text-md font-semibold">
+                          MinWallet
+                        </h1>
+                        <p className="text-[#919bd1] text-sm">Mobile support</p>
+                      </div>
+                      <svg
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="currentColor"
+                        className="text-textSecondary size-5 shrink-0"
+                      >
+                        <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                      </svg>
+                    </div>
+                    <div
+                      className="flex items-center cursor-pointer gap-x-4 p-3 "
+                      onClick={() => handleWalletSelection("Ledger")}
+                    >
+                      <img
+                        src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831775/abhvehnlx6umoknjxw5f.svg"
+                        className="size-8 shrink-0 invert"
+                        alt="ledger"
+                      />
+                      <div className="flex-1">
+                        <h1 className="text-textSecondary text-md font-semibold">
+                          Ledger
+                        </h1>
+                        <p className="text-[#919bd1] text-sm">Mobile support</p>
+                      </div>
+                      <svg
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="currentColor"
+                        className="text-textSecondary size-5 shrink-0"
+                      >
+                        <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                      </svg>
+                    </div>
+                    <div
+                      className="flex items-center cursor-pointer gap-x-4 p-3 "
+                      onClick={() => handleWalletSelection("Nami")}
+                    >
+                      <img
+                        src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831806/v5xt2tc2lipxzhgsay3u.svg"
+                        className="size-8 shrink-0"
+                        alt="nami"
+                      />
+                      <div className="flex-1">
+                        <h1 className="text-textSecondary text-md font-semibold">
+                          Nami
+                        </h1>
+                        <p className="text-[#919bd1] text-sm">Mobile support</p>
+                      </div>
+                      <svg
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="currentColor"
+                        className="text-textSecondary size-5 shrink-0"
+                      >
+                        <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                      </svg>
+                    </div>
+                    <div
+                      className="flex items-center cursor-pointer gap-x-4 p-3 "
+                      onClick={() => handleWalletSelection("Eternl")}
+                    >
+                      <img
+                        src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831836/zlxswqaargsgb5wtm3vb.svg"
+                        className="size-8 shrink-0"
+                        alt="eternl"
+                      />
+                      <div className="flex-1">
+                        <h1 className="text-textSecondary text-md font-semibold">
+                          Eternl
+                        </h1>
+                        <p className="text-[#919bd1] text-sm">Mobile support</p>
+                      </div>
+                      <svg
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="currentColor"
+                        className="text-textSecondary size-5 shrink-0"
+                      >
+                        <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                      </svg>
+                    </div>
+                    <div
+                      className="flex items-center cursor-pointer gap-x-4 p-3 "
+                      onClick={() => handleWalletSelection("WalletConnect")}
+                    >
+                      <img
+                        src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831870/gwe5i02najzyogs8jqcj.svg"
+                        className="size-8 shrink-0"
+                        alt="walletconnect"
+                      />
+                      <div className="flex-1">
+                        <h1 className="text-textSecondary text-md font-semibold">
+                          WalletConnect
+                        </h1>
+                        <p className="text-[#919bd1] text-sm">Mobile support</p>
+                      </div>
+                      <svg
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="currentColor"
+                        className="text-textSecondary size-5 shrink-0"
+                      >
+                        <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                      </svg>
+                    </div>
+                    <div
+                      className="flex items-center cursor-pointer gap-x-4 p-3 "
+                      onClick={() => handleWalletSelection("Custom")}
+                    >
+                      <img
+                        src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831902/ofozmzoru4hd8fembeie.svg"
+                        className="size-8 shrink-0"
+                        alt="custom"
+                      />
+                      <div className="flex-1">
+                        <h1 className="text-textSecondary text-md font-semibold">
+                          Add Custom Wallet
+                        </h1>
+                      </div>
+                      <svg
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="currentColor"
+                        className="text-textSecondary size-5 shrink-0"
+                      >
+                        <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                      </svg>
+                    </div>
+
+                    <div className="p-3">
+                      <button className="flex select-none items-center justify-center space-x-2 whitespace-nowrap transition-colors border outline-none cursor-pointer bg-[#1f2025] border-transparent text-itr-tentSec-df hover:bg-sf-pri-hv hover:border-transparent hover:text-itr-tentSec-df active:bg-sf-pri-pressed active:border-transparent active:text-textSecondary disabled:bg-sf-pri-dis disabled:border-transparent disabled:text-itr-tentSec-dis text-textSecondary text-sm px-5 py-2 rounded-full">
+                        <span>More wallets...</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="p-3">
-                  <button className="flex select-none items-center justify-center space-x-2 whitespace-nowrap transition-colors border outline-none cursor-pointer bg-[#1f2025] border-transparent text-itr-tentSec-df hover:bg-sf-pri-hv hover:border-transparent hover:text-itr-tentSec-df active:bg-sf-pri-pressed active:border-transparent active:text-textSecondary disabled:bg-sf-pri-dis disabled:border-transparent disabled:text-itr-tentSec-dis text-textSecondary text-sm px-5 py-2 rounded-full">
-                    <span>More wallets...</span>
-                  </button>
+                <div className="mt-6">
+                  <div className="p-2 text-xs text-textPrimary">
+                    By connecting a wallet, you agree to Minswap Labs'{" "}
+                    <a
+                      className="text-[#919bd1] font-semibold"
+                      href="https://minswap.org/terms-of-service/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Terms of Service
+                    </a>{" "}
+                    and consent to its{" "}
+                    <a
+                      className="text-[#919bd1] font-semibold"
+                      href="https://minswap.org/cookie-policy/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Privacy Policy
+                    </a>
+                    .
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div className="mt-6">
-              <div className="p-2 text-xs text-textPrimary">
-                By connecting a wallet, you agree to Minswap Labs'{" "}
-                <a
-                  className="text-[#919bd1] font-semibold"
-                  href="https://minswap.org/terms-of-service/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Terms of Service
-                </a>{" "}
-                and consent to its{" "}
-                <a
-                  className="text-[#919bd1] font-semibold"
-                  href="https://minswap.org/cookie-policy/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Privacy Policy
-                </a>
-                .
-              </div>
-            </div>
+              </>
+            )}
           </div>
         </div>
       </div>
