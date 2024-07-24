@@ -1,8 +1,18 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import ConnectWallet from "./Modals/ConnectWallet";
 
 function Navigation() {
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const navRef = useRef(null);
+
+  const openWalletModal = () => {
+    setIsWalletModalOpen(true);
+  };
+
+  const closeWalletModal = () => {
+    setIsWalletModalOpen(false);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -101,10 +111,12 @@ function Navigation() {
               <div className="hidden lg:block hover:bg-[#303137] duration-100 px-3 py-2 rounded-full">
                 <i className="fa-solid fa-gear text-textSecondary text-xl"></i>
               </div>
-              <button className="bg-[#8aaaff] hover:bg-textSecondary duration-100 px-3 sm:px-5 py-1 sm:py-2 rounded-full font-medium text-sm sm:text-base">
+              <button className="bg-[#8aaaff] hover:bg-textSecondary duration-100 px-3 sm:px-5 py-1 sm:py-2 rounded-full font-medium text-sm sm:text-base" onClick={openWalletModal}>
                 <i className="fa-solid fa-wallet text-[#030b25] text-lg me-2 hidden lg:inline"></i>{" "}
                 Connect <span className="hidden lg:inline">Wallet</span>
               </button>
+
+              {isWalletModalOpen && <ConnectWallet onClose={closeWalletModal} />}
             </div>
           </div>
         </div>
