@@ -48,12 +48,20 @@ function ConnectWallet({ onClose }) {
           <div className="flex-1 overflow-y-auto px-4 md:px-6 flex flex-col justify-between">
             {selectedWallet ? (
               <div className="flex-1 space-y-4">
-                <h2 className="text-textSecondary text-xl font-semibold">
-                  Connect to {selectedWallet}
-                </h2>
+
+              <button
+                  className="flex select-none items-center justify-center whitespace-nowrap transition-colors outline-none cursor-pointer  border-transparent text-[#3b82f6] text-xs font-semibold pt-2"
+                  onClick={() => setSelectedWallet(null)}
+                >
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-4 shrink-0 me-1"><path d="M7.82843 10.9999H20V12.9999H7.82843L13.1924 18.3638L11.7782 19.778L4 11.9999L11.7782 4.22168L13.1924 5.63589L7.82843 10.9999Z"></path></svg>
+                  Go back
+                </button>
+
+                <h1 className="text-textSecondary font-semibold text-lg">{selectedWallet}</h1>
 
                 {selectedWallet === "MinWallet" && (
                   <div className="bg-[#1f2025] p-4 rounded-lg">
+                    
                     <p className="text-textSecondary mb-2">
                       Connect your MinWallet to start using the app.
                     </p>
@@ -131,12 +139,6 @@ function ConnectWallet({ onClose }) {
                   </div>
                 )}
 
-                <button
-                  className="flex select-none items-center justify-center space-x-2 whitespace-nowrap transition-colors border outline-none cursor-pointer bg-[#1f2025] border-transparent text-itr-tentSec-df hover:bg-sf-pri-hv hover:border-transparent hover:text-itr-tentSec-df active:bg-sf-pri-pressed active:border-transparent active:text-textSecondary disabled:bg-sf-pri-dis disabled:border-transparent disabled:text-itr-tentSec-dis text-textSecondary text-sm px-5 py-2 rounded-full"
-                  onClick={() => setSelectedWallet(null)}
-                >
-                  Back to wallet selection
-                </button>
               </div>
             ) : (
               <>
