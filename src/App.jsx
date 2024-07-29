@@ -8,6 +8,7 @@ import EternlRestoreWallet from "./Components/EternlRestoreWallet";
 import NamiNewWallet from "./Components/NamiNewWallet";
 import Market from "./Pages/Market";
 import Trade from "./Pages/Trade";
+import Farm from "./Pages/Farm";
 
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
         <Route path="/eternlRestoreWallet" element={<EternlRestoreWallet />} />
         <Route path="/market" element={<Market />} />
         <Route path="/swap" element={<Trade />} />
+        <Route path="/farm" element={<Farm />} />
       </Routes>
     </div>
   );

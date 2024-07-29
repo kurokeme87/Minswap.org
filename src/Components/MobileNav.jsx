@@ -43,7 +43,7 @@ function MobileNav() {
           </Link>
           <Link
             className="space-y-0.5 p-2 text-center cursor-pointer flex flex-col items-center text-[#ffffff7a] flex-1"
-            to="/en-US/farm"
+            to="/farm"
           >
             <div className="relative size-6">
               <svg

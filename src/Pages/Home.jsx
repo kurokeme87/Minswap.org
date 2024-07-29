@@ -21,95 +21,97 @@ function Home() {
             Where Cardano community <br /> comes to trade.
           </h1>
 
-          <div className="my-6 px-2">
-            <div className="max-w-sm m-auto">
-              <div className="border border-stone-700 rounded-xl p-3">
-                <p className="text-left text-textPrimary font-semibold">
-                  You pay
-                </p>
-                <div className="flex justify-between">
-                  <div className="text-textPrimary font-semibold">
-                    <h1 className="text-3xl">0.0</h1>
-                  </div>
-                  <div className="flex items-center p-2 rounded-full bg-[#1a1b20]">
-                    <img
-                      src="https://app.minswap.org/images/assets/cardano.png"
-                      className="size-6 me-2"
-                      alt="icon"
-                    />
-                    <h1 className="text-textSecondary font-semibold me-2">
-                      ADA
-                    </h1>
-                    <svg
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      data-slot="icon"
-                      className="text-textSecondary size-4"
-                    >
-                      <path d="M12 16L6 10H18L12 16Z"></path>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-center">
-                <div className="absolute mt-[-20px] z-[1] rounded-full border border-stone-700  p-2 shadow-lg bg-[#111217]">
-                  <svg
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="currentColor"
-                    className="remixicon size-5 shrink-0 text-white"
-                  >
-                    <path d="M13.0001 16.1716L18.3641 10.8076L19.7783 12.2218L12.0001 20L4.22192 12.2218L5.63614 10.8076L11.0001 16.1716V4H13.0001V16.1716Z"></path>
-                  </svg>
-                </div>
-              </div>
-
-              <div className="border border-stone-700 rounded-xl p-3 mt-1">
-                <p className="text-left text-textPrimary font-semibold">
-                  You receive
-                </p>
-                <div className="flex justify-between">
-                  <div className="text-textPrimary font-semibold">
-                    <h1 className="text-3xl">0.0</h1>
-                  </div>
-                  <div className="flex items-center p-2 rounded-full bg-[#1a1b20]">
-                    <div className="rounded-full bg-[#27282e] p-0.5">
+          <Link to="/swap">
+            <div className="my-6 px-2">
+              <div className="max-w-sm m-auto">
+                <div className="border border-stone-700 rounded-xl p-3">
+                  <p className="text-left text-textPrimary font-semibold">
+                    You pay
+                  </p>
+                  <div className="flex justify-between">
+                    <div className="text-textPrimary font-semibold">
+                      <h1 className="text-3xl">0.0</h1>
+                    </div>
+                    <div className="flex items-center p-2 rounded-full bg-[#1a1b20]">
+                      <img
+                        src="https://app.minswap.org/images/assets/cardano.png"
+                        className="size-6 me-2"
+                        alt="icon"
+                      />
+                      <h1 className="text-textSecondary font-semibold me-2">
+                        ADA
+                      </h1>
                       <svg
                         viewBox="0 0 24 24"
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
                         height="24"
                         fill="currentColor"
-                        className="text-textSecondary size-5 "
+                        data-slot="icon"
+                        className="text-textSecondary size-4"
                       >
-                        <path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path>
+                        <path d="M12 16L6 10H18L12 16Z"></path>
                       </svg>
                     </div>
-                    <h1 className="text-textSecondary font-semibold ms-2 me-2">
-                      Select token
-                    </h1>
+                  </div>
+                </div>
+
+                <div className="flex justify-center">
+                  <div className="absolute mt-[-20px] z-[1] rounded-full border border-stone-700  p-2 shadow-lg bg-[#111217]">
                     <svg
                       viewBox="0 0 24 24"
                       xmlns="http://www.w3.org/2000/svg"
                       width="24"
                       height="24"
                       fill="currentColor"
-                      data-slot="icon"
-                      className="text-textSecondary size-4"
+                      className="remixicon size-5 shrink-0 text-white"
                     >
-                      <path d="M12 16L6 10H18L12 16Z"></path>
+                      <path d="M13.0001 16.1716L18.3641 10.8076L19.7783 12.2218L12.0001 20L4.22192 12.2218L5.63614 10.8076L11.0001 16.1716V4H13.0001V16.1716Z"></path>
                     </svg>
+                  </div>
+                </div>
+
+                <div className="border border-stone-700 rounded-xl p-3 mt-1">
+                  <p className="text-left text-textPrimary font-semibold">
+                    You receive
+                  </p>
+                  <div className="flex justify-between">
+                    <div className="text-textPrimary font-semibold">
+                      <h1 className="text-3xl">0.0</h1>
+                    </div>
+                    <div className="flex items-center p-2 rounded-full bg-[#1a1b20]">
+                      <div className="rounded-full bg-[#27282e] p-0.5">
+                        <svg
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                          className="text-textSecondary size-5 "
+                        >
+                          <path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path>
+                        </svg>
+                      </div>
+                      <h1 className="text-textSecondary font-semibold ms-2 me-2">
+                        Select token
+                      </h1>
+                      <svg
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="currentColor"
+                        data-slot="icon"
+                        className="text-textSecondary size-4"
+                      >
+                        <path d="M12 16L6 10H18L12 16Z"></path>
+                      </svg>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
 
           <div className="text-textPrimary font-medium max-w-[390px] m-auto">
             <p>
