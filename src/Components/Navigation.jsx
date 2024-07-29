@@ -51,7 +51,7 @@ function Navigation() {
                   <Link to="/">Trade</Link>
                 </div>
                 <div className="hover:bg-[#303137] hover:text-[#a3b7ea] duration-100 px-3 py-2 rounded-full">
-                  <Link to="/">Market</Link>
+                  <Link to="/market">Market</Link>
                 </div>
                 <div className="group hover:bg-[#303137] hover:text-[#a3b7ea] duration-100 px-3 py-2 rounded-full">
                   <Link to="/" className="flex items-center">
