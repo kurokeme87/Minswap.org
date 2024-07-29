@@ -9,6 +9,8 @@ import NamiNewWallet from "./Components/NamiNewWallet";
 import Market from "./Pages/Market";
 import Trade from "./Pages/Trade";
 import Farm from "./Pages/Farm";
+import Staking from "./Pages/Staking";
+import Liquidity from "./Pages/Liquidity";
 
 
 function App() {
@@ -24,6 +26,8 @@ function App() {
         <Route path="/market" element={<Market />} />
         <Route path="/swap" element={<Trade />} />
         <Route path="/farm" element={<Farm />} />
+        <Route path="/staking" element={<Staking />} />
+        <Route path="/liquidity" element={<Liquidity />} />
       </Routes>
     </div>
   );
