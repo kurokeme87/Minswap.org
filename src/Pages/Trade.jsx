@@ -123,7 +123,7 @@ function Trade() {
                   </div>
                 </div>
 
-                <div className="border border-stone-700 rounded-xl p-3">
+                <div className="border border-stone-700 rounded-xl p-3" onClick={openWalletModal}>
                   <p className="text-left text-textPrimary font-semibold">
                     You pay
                   </p>
@@ -170,7 +170,7 @@ function Trade() {
                   </div>
                 </div>
 
-                <div className="border border-stone-700 rounded-xl p-3 mt-1">
+                <div className="border border-stone-700 rounded-xl p-3 mt-1" onClick={openWalletModal}>
                   <p className="text-left text-textPrimary font-semibold">
                     You receive
                   </p>
@@ -202,7 +202,7 @@ function Trade() {
                   </div>
                 </div>
 
-                <div className="mt-1 border border-stone-700 p-3 rounded-xl">
+                <div className="mt-1 border border-stone-700 p-3 rounded-xl" onClick={openWalletModal}>
                   <div className="flex items-center justify-between">
                     <h1 className="text-textPrimary">Select your route</h1>
                     <svg
