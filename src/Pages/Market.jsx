@@ -66,7 +66,7 @@ function Market() {
             </h2>
             <div className="space-y-6 lg:space-y-8">
               <div className="space-y-2">
-                <div className="sticky top-[52px] z-10 space-y-4 bg-base-bg py-2 lg:top-[78px] lg:pt-4">
+                <div className=" space-y-4 bg-base-bg py-2 lg:top-[78px] lg:pt-4">
                   <div className="flex items-center justify-between space-x-2 bg-[#111217] py-2">
                     {/* Tab Selection */}
                     <div className="relative z-0 inline-flex items-center gap-x-1 rounded-full p-1 bg-[#1f2025] text-sm">

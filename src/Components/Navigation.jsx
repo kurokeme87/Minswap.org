@@ -39,7 +39,7 @@ function Navigation() {
         <div className="max-w-screen-2xl m-auto">
           <div className="flex items-center justify-between px-2 md:px-4">
             <div className="flex items-center gap-6">
-              <Link>
+              <Link to='/'>
                 <img
                   src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721491707/xqjsie1x0o884byjfbmz.svg"
                   alt="logo"
