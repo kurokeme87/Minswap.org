@@ -85,10 +85,12 @@ function Trade() {
                 width="200"
                 className="m-auto"
               />
-              <p className="text-textSecondary text-center mt-3 text-xl font-semibold">Chart is unavailable for this pair</p>
+              <p className="text-textSecondary text-center mt-3 text-xl font-semibold">
+                Chart is unavailable for this pair
+              </p>
             </div>
             <div className="my-6 max-w-md w-full m-auto md:m-0">
-              <div className="p-3 border border-stone-700 rounded-xl">
+              <div className="p-3 border border-stone-700 rounded-xl drop-shadow-xl">
                 <div className="mb-8 px-3 flex items-center justify-between">
                   <div className="flex items-center text-textPrimary gap-3">
                     <h1 className="text-textSecondary">Market</h1>
@@ -123,7 +125,10 @@ function Trade() {
                   </div>
                 </div>
 
-                <div className="border border-stone-700 rounded-xl p-3" onClick={openWalletModal}>
+                <div
+                  className="border border-stone-700 rounded-xl p-3"
+                  onClick={openWalletModal}
+                >
                   <p className="text-left text-textPrimary font-semibold">
                     You pay
                   </p>
@@ -170,7 +175,10 @@ function Trade() {
                   </div>
                 </div>
 
-                <div className="border border-stone-700 rounded-xl p-3 mt-1" onClick={openWalletModal}>
+                <div
+                  className="border border-stone-700 rounded-xl p-3 mt-1"
+                  onClick={openWalletModal}
+                >
                   <p className="text-left text-textPrimary font-semibold">
                     You receive
                   </p>
@@ -202,7 +210,10 @@ function Trade() {
                   </div>
                 </div>
 
-                <div className="mt-1 border border-stone-700 p-3 rounded-xl" onClick={openWalletModal}>
+                <div
+                  className="mt-1 border border-stone-700 p-3 rounded-xl"
+                  onClick={openWalletModal}
+                >
                   <div className="flex items-center justify-between">
                     <h1 className="text-textPrimary">Select your route</h1>
                     <svg
@@ -254,6 +265,55 @@ function Trade() {
                 <ConnectWallet onClose={closeWalletModal} />
               )}
             </div>
+          </div>
+
+          <div className="mt-8">
+            <h1 className="text-textSecondary text-2xl font-medium">
+              Trading history
+            </h1>
+
+            <div className="flex items-start sm:items-center flex-col sm:flex-row gap-2 mt-4">
+              <div className="flex w-full items-center space-x-2 border border-stone-700 hover:border-2 hover:border-bd-pri-hv px-3 py-2 hover:px-[11px] hover:py-[7px] rounded-full text-sm max-w-xs">
+                <span className="shrink-0 text-textPrimary">
+                  <i className="fa-solid fa-magnifying-glass text-textSecondary"></i>
+                </span>
+                <input
+                  className="min-w-0 flex-1 bg-transparent focus:outline-none text-p-sm text-textSecondary"
+                  placeholder="Search by address or stake key"
+                  type="text"
+                />
+              </div>
+              <button
+                className="select-none items-center justify-center space-x-2 whitespace-nowrap transition-colors border outline-none cursor-pointer bg-[#8aaaff]  border-transparent text-cpn-tent hover:bg-itr-tentSec-df hover:border-transparent hover:text-itr-tone-tent active:bg-itr-tentSec-sub active:border-transparent active:text-itr-tone-tent disabled:border-transparent disabled:bg-sf-pri-dis disabled:text-itr-tentSec-dis text-label-sm-sec px-5 py-2 rounded-full flex text-sm"
+                onClick={openWalletModal}
+              >
+                <span className="size-5 [&>svg]:size-5">
+                  <svg
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    className="remixicon "
+                  >
+                    <path d="M10 18H14V16H10V18ZM3 6V8H21V6H3ZM6 13H18V11H6V13Z"></path>
+                  </svg>
+                </span>
+                <span>Filter</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-20 max-w-md m-auto text-center">
+            <img src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1722279215/no-history-dark.924504ba_kfrbpn.webp" width='250' className="m-auto" alt="error" />
+            <h1 className="text-textSecondary font-bold text-xl mt-5">No result found</h1>
+            <p className="text-textPrimary text-sm mt-3 mb-4">There is no result found, try adjust filter</p>
+            <button
+              className="flex m-auto select-none items-center justify-center space-x-2 whitespace-nowrap transition-colors border outline-none cursor-pointer bg-[#8aaaff]  border-transparent text-black font-medium hover:bg-itr-tentSec-df hover:border-transparent hover:text-itr-tone-tent active:bg-itr-tentSec-sub active:border-transparent active:text-itr-tone-tent disabled:border-transparent disabled:bg-sf-pri-dis disabled:text-itr-tentSec-dis px-6 py-2.5 rounded-full"
+              onClick={openWalletModal}
+            >
+              <span>Clear search</span>
+            </button>
           </div>
         </div>
       </div>
