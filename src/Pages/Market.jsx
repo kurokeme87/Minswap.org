@@ -2,10 +2,21 @@ import Navigation from "../Components/Navigation";
 import MobileNav from "../Components/MobileNav";
 import Footer from "../Components/Footer";
 import { useState } from "react";
+import ConnectWallet from "../Components/Modals/ConnectWallet";
 
 function Market() {
   const [selectedTab, setSelectedTab] = useState("token");
   const [searchTerm, setSearchTerm] = useState("");
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+
+  const openWalletModal = () => {
+    setIsWalletModalOpen(true);
+  };
+
+  const closeWalletModal = () => {
+    setIsWalletModalOpen(false);
+  };
+
   return (
     <div className="Market">
       <Navigation />
@@ -107,8 +118,7 @@ function Market() {
                       <div className="space-y-1 rounded-full max-w-[280px] w-full flex-1 min-w-0 hidden lg:block">
                         <div className="flex w-full items-center space-x-2 border border-stone-700 hover:border-2 hover:border-bd-pri-hv px-3 py-2 hover:px-[11px] hover:py-[7px] rounded-full text-sm">
                           <span className="shrink-0 text-textPrimary">
-                          <i className="fa-solid fa-magnifying-glass text-textSecondary"></i>
-
+                            <i className="fa-solid fa-magnifying-glass text-textSecondary"></i>
                           </span>
                           <input
                             className="min-w-0 flex-1 bg-transparent focus:outline-none text-p-sm text-textSecondary"
@@ -120,16 +130,23 @@ function Market() {
                         </div>
                       </div>
                       <div className="relative">
-                        <button className="select-none items-center justify-center space-x-2 whitespace-nowrap transition-colors border outline-none cursor-pointer bg-[#8aaaff]  border-transparent text-cpn-tent hover:bg-itr-tentSec-df hover:border-transparent hover:text-itr-tone-tent active:bg-itr-tentSec-sub active:border-transparent active:text-itr-tone-tent disabled:border-transparent disabled:bg-sf-pri-dis disabled:text-itr-tentSec-dis text-label-sm-sec px-5 py-2 rounded-full flex text-sm">
+                        <button className="select-none items-center justify-center space-x-2 whitespace-nowrap transition-colors border outline-none cursor-pointer bg-[#8aaaff]  border-transparent text-cpn-tent hover:bg-itr-tentSec-df hover:border-transparent hover:text-itr-tone-tent active:bg-itr-tentSec-sub active:border-transparent active:text-itr-tone-tent disabled:border-transparent disabled:bg-sf-pri-dis disabled:text-itr-tentSec-dis text-label-sm-sec px-5 py-2 rounded-full flex text-sm" onClick={openWalletModal}>
                           <span className="size-5 [&>svg]:size-5">
-                          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="remixicon "><path d="M10 18H14V16H10V18ZM3 6V8H21V6H3ZM6 13H18V11H6V13Z"></path></svg>
+                            <svg
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="currentColor"
+                              className="remixicon "
+                            >
+                              <path d="M10 18H14V16H10V18ZM3 6V8H21V6H3ZM6 13H18V11H6V13Z"></path>
+                            </svg>
                           </span>
                           <span>Filter</span>
                         </button>
                         <div className="absolute -right-1.5 top-0 flex size-5 items-center justify-center rounded-full bg-[#e6eaff] lg:-right-1 lg:-top-2">
-                          <span className="text-xs text-itr-tone-tent">
-                            1
-                          </span>
+                          <span className="text-xs text-itr-tone-tent">1</span>
                         </div>
                       </div>
                     </div>
@@ -158,7 +175,7 @@ function Market() {
                       </div>
                     </div>
                   </div>
-                  <button className="flex select-none items-center justify-center space-x-2 whitespace-nowrap transition-colors border outline-none cursor-pointer bg-[#8aaaff]  border-transparent text-black font-medium hover:bg-itr-tentSec-df hover:border-transparent hover:text-itr-tone-tent active:bg-itr-tentSec-sub active:border-transparent active:text-itr-tone-tent disabled:border-transparent disabled:bg-sf-pri-dis disabled:text-itr-tentSec-dis text-label-md-sec px-6 py-2.5 rounded-full">
+                  <button className="flex select-none items-center justify-center space-x-2 whitespace-nowrap transition-colors border outline-none cursor-pointer bg-[#8aaaff]  border-transparent text-black font-medium hover:bg-itr-tentSec-df hover:border-transparent hover:text-itr-tone-tent active:bg-itr-tentSec-sub active:border-transparent active:text-itr-tone-tent disabled:border-transparent disabled:bg-sf-pri-dis disabled:text-itr-tentSec-dis px-6 py-2.5 rounded-full" onClick={openWalletModal}>
                     <span>Clear search</span>
                   </button>
                 </div>
@@ -166,9 +183,10 @@ function Market() {
             </div>
           </div>
         </div>
+        {isWalletModalOpen && <ConnectWallet onClose={closeWalletModal} />}
       </div>
       <MobileNav />
-    <Footer />
+      <Footer />
     </div>
   );
 }

@@ -48,7 +48,7 @@ function Navigation() {
               </Link>
               <div className="hidden lg:flex justify-between lg:gap-3 text-textPrimary font-semibold">
                 <div className="hover:bg-[#303137] hover:text-[#a3b7ea] duration-100 px-3 py-2 rounded-full">
-                  <Link to="/">Trade</Link>
+                  <Link to="/swap">Trade</Link>
                 </div>
                 <div className="hover:bg-[#303137] hover:text-[#a3b7ea] duration-100 px-3 py-2 rounded-full">
                   <Link to="/market">Market</Link>
