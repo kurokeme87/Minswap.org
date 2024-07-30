@@ -14,6 +14,7 @@ function Navigation() {
     setIsWalletModalOpen(false);
   };
 
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 0) {
@@ -92,13 +93,13 @@ function Navigation() {
                       </Link>
                       <Link to="/staking">
                         <li className="border-b border-stone-800 pt-2 pb-2 px-3 hover:text-[#a3b7ea] duration-100 hover:bg-[#303137] flex items-center gap-2">
-                        <i className="fa-solid fa-coins"></i>
+                          <i className="fa-solid fa-coins"></i>
                           Staking
                         </li>
                       </Link>
                       <Link to="/liquidity">
                         <li className="pt-2 pb-2 px-3 hover:text-[#a3b7ea] duration-100 hover:bg-[#303137] rounded-b-xl flex items-center gap-2">
-                        <i className="fa-solid fa-droplet"></i>
+                          <i className="fa-solid fa-droplet"></i>
                           Liquidity
                         </li>
                       </Link>
@@ -106,7 +107,6 @@ function Navigation() {
                   </div>
                 </div>
 
-                
                 <div className="group hover:bg-[#303137] px-5 py-2 rounded-full">
                   <Link to="/" className=" hover:text-[#a3b7ea] duration-100">
                     <i className="fa-solid fa-ellipsis"></i>
@@ -116,19 +116,19 @@ function Navigation() {
                     <ul className="flex flex-col justify-evenly text-sm">
                       <Link to="/analytics">
                         <li className="border-b border-stone-800 pt-2 pb-2 px-3 hover:text-[#a3b7ea] duration-100 hover:bg-[#303137] rounded-t-xl flex items-center gap-2">
-                        <i className="fa-solid fa-chart-simple text-xs"></i>
+                          <i className="fa-solid fa-chart-simple text-xs"></i>
                           Analytics
                         </li>
                       </Link>
                       <Link to="/launch-bowl">
                         <li className="border-b border-stone-800 pt-2 pb-2 px-3 hover:text-[#a3b7ea] duration-100 hover:bg-[#303137] flex items-center gap-2">
-                        <i className="fa-solid fa-rocket text-xs"></i>
+                          <i className="fa-solid fa-rocket text-xs"></i>
                           Launch Bowl
                         </li>
                       </Link>
                       <Link to="/governance">
                         <li className="pt-2 pb-2 px-3 hover:text-[#a3b7ea] duration-100 hover:bg-[#303137] rounded-b-xl flex items-center gap-2">
-                        <i className="fa-solid fa-warehouse text-xs"></i>
+                          <i className="fa-solid fa-warehouse text-xs"></i>
                           Governance
                         </li>
                       </Link>
@@ -187,6 +187,117 @@ function Navigation() {
           </div>
         </div>
       </div>
+
+      <nav className="block sm:hidden">
+        <ul className="bg-[#111217] h-[100vh] text-textSecondary px-5 pt-20 flex flex-col gap-5">
+          <li
+            className="flex items-center justify-between"
+            onClick={openWalletModal}
+          >
+            Connect Wallet
+            <svg
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="currentColor"
+              className="remixicon size-5 shrink-0"
+            >
+              <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+            </svg>
+          </li>
+          <Link to="/liquidity">
+            <li className="flex items-center justify-between">
+              Liquidity
+              <svg
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="currentColor"
+                className="remixicon size-5 shrink-0"
+              >
+                <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+              </svg>
+            </li>
+          </Link>
+          <Link to="/staking">
+            <li className="flex items-center justify-between">
+              Staking
+              <svg
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="currentColor"
+                className="remixicon size-5 shrink-0"
+              >
+                <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+              </svg>
+            </li>
+          </Link>
+          <Link to="/launch-bowl">
+            <li className="flex items-center justify-between">
+              Launch Bowl
+              <svg
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="currentColor"
+                className="remixicon size-5 shrink-0"
+              >
+                <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+              </svg>
+            </li>
+          </Link>
+          <Link to="/governance">
+            <li className="flex items-center justify-between">
+              Governance
+              <svg
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="currentColor"
+                className="remixicon size-5 shrink-0"
+              >
+                <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+              </svg>
+            </li>
+          </Link>
+          <Link to="analytics">
+            <li className="flex items-center justify-between">
+              Analytics
+              <svg
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="currentColor"
+                className="remixicon size-5 shrink-0"
+              >
+                <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+              </svg>
+            </li>
+          </Link>
+          <Link to="/">
+            <li className="flex items-center justify-between">
+              Settings
+              <svg
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="currentColor"
+                className="remixicon size-5 shrink-0"
+              >
+                <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+              </svg>
+            </li>
+          </Link>
+        </ul>
+      </nav>
     </div>
   );
 }
