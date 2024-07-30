@@ -69,6 +69,69 @@ function LaunchBowl() {
               </div>
             </div>
           </div>
+
+          <div className="flex gap-8 mt-6 flex-col md:flex-row">
+            <div className="flex md:flex-row text-center md:text-left flex-col justify-between items-center border border-stone-800 p-5 rounded-xl">
+              <div>
+                <h1 className="text-[#9da7dc] font-semibold text-xl mb-2">
+                  Phase 1
+                </h1>
+                <h1 className="text-textSecondary text-4xl font-semibold mb-5">
+                  Discovery
+                </h1>
+                <p className="text-textPrimary max-w-[400px]">
+                  Participants supply ADA, entering the period of Price
+                  Discovery and Liquidity Bootstrapping
+                </p>
+              </div>
+              <img
+                src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1722372974/o097pih3jjytn5ykp76b.png"
+                width="150"
+                alt="icon"
+              />
+            </div>
+            <div className="flex md:flex-row text-center md:text-left flex-col  justify-between items-center border border-stone-800 p-5 rounded-xl">
+              <div>
+                <h1 className="text-[#9da7dc] font-semibold text-xl mb-2">
+                  Phase 2
+                </h1>
+                <h1 className="text-textSecondary text-4xl font-semibold mb-5">
+                  Encounter
+                </h1>
+                <p className="text-textPrimary max-w-[400px]">
+                  Participants receive LP tokens for the ADA supplied, which
+                  they can then use to Farm
+                </p>
+              </div>
+              <img
+                src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1722293525/uuutxyrqchzzoalxjfyn.webp"
+                width="150"
+                alt="icon"
+              />
+            </div>
+          </div>
+
+          <div className="mt-20 mb-20">
+            <div className="flex gap-8 text-sm">
+              <h1 className="text-textSecondary font-semiBold">Live launch</h1>
+              <h1 className="text-textPrimary font-semibold">Upcoming</h1>
+              <h1 className="text-textPrimary font-semibold">Completed</h1>
+            </div>
+            <div className="border-b border-stone-400 mt-1"></div>
+
+            <div className="mt-20">
+              <div className="max-w-sm text-center m-auto">
+                <img
+                  src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1722373001/rzeltuvi339uaclbebjt.webp"
+                  width="200"
+                  alt="icon"
+                  className="m-auto"
+                />
+                <h1 className="text-textSecondary font-semibold">No project available</h1>
+                <p className="text-textPrimary font-semibold">There is no project available.</p>
+              </div>
+            </div>
+          </div>
         </div>
         {isWalletModalOpen && <ConnectWallet onClose={closeWalletModal} />}
       </div>
