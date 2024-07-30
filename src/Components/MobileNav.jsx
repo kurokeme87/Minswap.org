@@ -1,8 +1,23 @@
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
+import { useState } from "react";
+import ConnectWallet from "./Modals/ConnectWallet";
 
 function MobileNav() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  const openWalletModal = () => {
+    setIsWalletModalOpen(true);
+  };
+
+  const closeWalletModal = () => {
+    setIsWalletModalOpen(false);
+  };
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
   return (
-    <div className='MobileNav fixed bottom-0 left-0 right-0 z-50'>
+    <div className="MobileNav fixed bottom-0 left-0 right-0 z-50">
       <nav className="bg-[#111218] w-full shrink-0 sm:hidden text-xs">
         <div className="flex items-center bg-[#ffffff0a]">
           <Link
@@ -59,7 +74,10 @@ function MobileNav() {
             </div>
             <span className="block text-label-xs-sec">Farm</span>
           </Link>
-          <div className="space-y-0.5 p-2 text-center cursor-pointer flex flex-col items-center text-[#ffffff7a] flex-1">
+          <div
+            className="space-y-0.5 p-2 text-center cursor-pointer flex flex-col items-center text-[#ffffff7a] flex-1"
+            onClick={toggleMenu}
+          >
             <div className="relative size-6">
               <svg
                 viewBox="0 0 24 24"
@@ -74,10 +92,125 @@ function MobileNav() {
             </div>
             <span className="block text-label-xs-sec">Menu</span>
           </div>
+
+          {isMenuOpen && (
+            <nav className="bg-[#111217] h-[100vh] text-textSecondary px-5 pt-20 fixed top-0 left-0 right-0 -z-50">
+              <ul className=" flex flex-col gap-5">
+                <li
+                  className="flex items-center justify-between"
+                  onClick={openWalletModal}
+                >
+                  Connect Wallet
+                  <svg
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    className="remixicon size-5 shrink-0"
+                  >
+                    <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                  </svg>
+                </li>
+                <Link to="/liquidity">
+                  <li className="flex items-center justify-between">
+                    Liquidity
+                    <svg
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      fill="currentColor"
+                      className="remixicon size-5 shrink-0"
+                    >
+                      <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                    </svg>
+                  </li>
+                </Link>
+                <Link to="/staking">
+                  <li className="flex items-center justify-between">
+                    Staking
+                    <svg
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      fill="currentColor"
+                      className="remixicon size-5 shrink-0"
+                    >
+                      <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                    </svg>
+                  </li>
+                </Link>
+                <Link to="/launch-bowl">
+                  <li className="flex items-center justify-between">
+                    Launch Bowl
+                    <svg
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      fill="currentColor"
+                      className="remixicon size-5 shrink-0"
+                    >
+                      <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                    </svg>
+                  </li>
+                </Link>
+                <Link to="/governance">
+                  <li className="flex items-center justify-between">
+                    Governance
+                    <svg
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      fill="currentColor"
+                      className="remixicon size-5 shrink-0"
+                    >
+                      <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                    </svg>
+                  </li>
+                </Link>
+                <Link to="analytics">
+                  <li className="flex items-center justify-between">
+                    Analytics
+                    <svg
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      fill="currentColor"
+                      className="remixicon size-5 shrink-0"
+                    >
+                      <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                    </svg>
+                  </li>
+                </Link>
+                <Link to="/">
+                  <li className="flex items-center justify-between">
+                    Settings
+                    <svg
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      fill="currentColor"
+                      className="remixicon size-5 shrink-0"
+                    >
+                      <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                    </svg>
+                  </li>
+                </Link>
+              </ul>
+            </nav>
+          )}
         </div>
       </nav>
+
+       {isWalletModalOpen && <ConnectWallet onClose={closeWalletModal} />}
     </div>
-  )
+  );
 }
 
-export default MobileNav
+export default MobileNav;

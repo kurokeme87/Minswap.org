@@ -34,10 +34,10 @@ function Navigation() {
   return (
     <div className="Navigation">
       <div
-        className="bg-primaryColor fixed left-0 right-0 p-3 md:p-5 z-10"
+        className="bg-primaryColor fixed left-0 right-0 p-3 md:p-5 z-100"
         ref={navRef}
       >
-        <div className="max-w-screen-2xl m-auto">
+        <div className="max-w-screen-2xl m-auto z-100">
           <div className="flex items-center justify-between px-2 md:px-4">
             <div className="flex items-center gap-6">
               <Link to="/">
