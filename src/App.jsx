@@ -24,7 +24,7 @@ function App() {
         <Route path="/eternlAddWallet" element={<EternlAddWallet />} />
         <Route path="/eternlRestoreWallet" element={<EternlRestoreWallet />} />
         <Route path="/market" element={<Market />} />
-        <Route path="/swap" element={<Trade />} />
+        <Route path="/app/minswap" element={<Trade />} />
         <Route path="/farm" element={<Farm />} />
         <Route path="/staking" element={<Staking />} />
         <Route path="/liquidity" element={<Liquidity />} />

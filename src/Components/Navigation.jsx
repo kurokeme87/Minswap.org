@@ -49,7 +49,7 @@ function Navigation() {
               </Link>
               <div className="hidden lg:flex justify-between lg:gap-3 text-textPrimary font-semibold">
                 <div className="hover:bg-[#303137] hover:text-[#a3b7ea] duration-100 px-3 py-2 rounded-full">
-                  <Link to="/swap">Trade</Link>
+                  <Link to="/app/minswap">Trade</Link>
                 </div>
                 <div className="hover:bg-[#303137] hover:text-[#a3b7ea] duration-100 px-3 py-2 rounded-full">
                   <Link to="/market">Market</Link>
@@ -188,7 +188,7 @@ function Navigation() {
         </div>
       </div>
 
-      <nav className="block sm:hidden">
+      <nav className="hidden sm:hidden">
         <ul className="bg-[#111217] h-[100vh] text-textSecondary px-5 pt-20 flex flex-col gap-5">
           <li
             className="flex items-center justify-between"

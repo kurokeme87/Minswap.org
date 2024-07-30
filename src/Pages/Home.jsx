@@ -21,7 +21,7 @@ function Home() {
             Where Cardano community <br /> comes to trade.
           </h1>
 
-          <Link to="/swap">
+          <Link to="/app/minswap">
             <div className="my-6 px-2">
               <div className="max-w-sm m-auto">
                 <div className="border border-stone-700 rounded-xl p-3">

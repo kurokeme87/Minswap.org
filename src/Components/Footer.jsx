@@ -12,7 +12,7 @@ function Footer() {
             <div>
               <Link
                 className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
-                to="/en-US/swap"
+                to="/app/minswap"
               >
                 Trade
               </Link>

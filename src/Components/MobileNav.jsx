@@ -7,7 +7,7 @@ function MobileNav() {
         <div className="flex items-center bg-[#ffffff0a]">
           <Link
             className="space-y-0.5 p-2 text-center cursor-pointer flex flex-col items-center text-[#ffffff7a] flex-1"
-            to="/swap"
+            to="/app/minswap"
           >
             <div className="relative size-6">
               <svg
