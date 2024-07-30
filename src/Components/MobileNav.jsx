@@ -94,7 +94,7 @@ function MobileNav() {
           </div>
 
           {isMenuOpen && (
-            <nav className="bg-[#111217] h-[100vh] text-textSecondary px-5 pt-20 fixed top-0 left-0 right-0 -z-50">
+            <nav className="bg-[#111217] h-[100vh] text-textSecondary px-5 pt-20 fixed top-0 left-0 right-0 z-[-100]">
               <ul className=" flex flex-col gap-5">
                 <li
                   className="flex items-center justify-between"

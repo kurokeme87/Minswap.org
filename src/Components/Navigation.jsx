@@ -34,7 +34,7 @@ function Navigation() {
   return (
     <div className="Navigation">
       <div
-        className="bg-primaryColor fixed left-0 right-0 p-3 md:p-5 z-100"
+        className="bg-primaryColor fixed left-0 right-0 p-3 md:p-5 z-[200]"
         ref={navRef}
       >
         <div className="max-w-screen-2xl m-auto z-100">
