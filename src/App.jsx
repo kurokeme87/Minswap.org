@@ -11,6 +11,8 @@ import Trade from "./Pages/Trade";
 import Farm from "./Pages/Farm";
 import Staking from "./Pages/Staking";
 import Liquidity from "./Pages/Liquidity";
+import Analytics from "./Pages/Analytics";
+import LaunchBowl from "./Pages/LaunchBowl";
 
 
 function App() {
@@ -28,6 +30,8 @@ function App() {
         <Route path="/farm" element={<Farm />} />
         <Route path="/staking" element={<Staking />} />
         <Route path="/liquidity" element={<Liquidity />} />
+        <Route path="/analytics" element={<Analytics />} />
+        <Route path="/launch-bowl" element={<LaunchBowl />} />
       </Routes>
     </div>
   );
