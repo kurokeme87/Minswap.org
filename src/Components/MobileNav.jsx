@@ -172,7 +172,7 @@ function MobileNav() {
                     </svg>
                   </li>
                 </Link>
-                <Link to="analytics">
+                <Link to="/analytics">
                   <li className="flex items-center justify-between">
                     Analytics
                     <svg
