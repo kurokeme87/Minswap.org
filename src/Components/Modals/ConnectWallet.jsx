@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router";
+import { Link } from "react-router-dom";
 
 function ConnectWallet({ onClose }) {
   const [selectedWallet, setSelectedWallet] = useState(null);
@@ -647,23 +648,23 @@ function ConnectWallet({ onClose }) {
                 <div className="mt-6">
                   <div className="p-2 text-xs text-textPrimary">
                     By connecting a wallet, you agree to Minswap Labs'{" "}
-                    <a
+                    <Link
                       className="text-[#919bd1] font-semibold"
                       href="https://minswap.org/terms-of-service/"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
                       Terms of Service
-                    </a>{" "}
+                    </Link>{" "}
                     and consent to its{" "}
-                    <a
+                    <Link
                       className="text-[#919bd1] font-semibold"
                       href="https://minswap.org/cookie-policy/"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
                       Privacy Policy
-                    </a>
+                    </Link>
                     .
                   </div>
                 </div>

@@ -20,7 +20,7 @@ function Footer() {
             <div>
               <Link
                 className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
-                to="/en-US/market?crypto=token"
+                to="/market"
               >
                 Tokens
               </Link>
@@ -28,7 +28,7 @@ function Footer() {
             <div>
               <Link
                 className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
-                to="/en-US/market?crypto=pool"
+                to="/market"
               >
                 Pools
               </Link>
@@ -36,7 +36,7 @@ function Footer() {
             <div>
               <Link
                 className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
-                to="/en-US/liquidity?type=zap"
+                to="/liquidity"
               >
                 Zap In
               </Link>
@@ -44,7 +44,7 @@ function Footer() {
             <div>
               <Link
                 className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
-                to="/en-US/farm"
+                to="/farm"
               >
                 Farm
               </Link>
@@ -52,7 +52,7 @@ function Footer() {
             <div>
               <Link
                 className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
-                to="/en-US/launch-bowl"
+                to="/launch-bowl"
               >
                 Launch Bowl
               </Link>
@@ -95,7 +95,7 @@ function Footer() {
             <div>
               <Link
                 className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
-                to="/en-US/governance"
+                to="/governance"
               >
                 Governance
               </Link>
@@ -281,7 +281,7 @@ function Footer() {
           <div className="ml-4 mt-4 md:ml-0 md:mt-0">
             <Link
               className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
-              to="/en-US/terms-of-service"
+              to="/terms-of-service"
             >
               Terms of service
             </Link>
@@ -289,7 +289,7 @@ function Footer() {
           <div className="ml-4 mt-4 md:ml-0 md:mt-0">
             <Link
               className="text-p-sm text-textPrimary text-sm font-semibold hover:text-textSecondary"
-              to="/en-US/cookie-policy"
+              to="/cookie-policy"
             >
               Cookie policy
             </Link>

@@ -13,6 +13,7 @@ import Staking from "./Pages/Staking";
 import Liquidity from "./Pages/Liquidity";
 import Analytics from "./Pages/Analytics";
 import LaunchBowl from "./Pages/LaunchBowl";
+import Governance from "./Pages/Governance";
 
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
         <Route path="/liquidity" element={<Liquidity />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/launch-bowl" element={<LaunchBowl />} />
+        <Route path="/governance" element={<Governance />} />
       </Routes>
     </div>
   );
