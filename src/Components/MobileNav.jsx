@@ -95,7 +95,7 @@ function MobileNav() {
 
           {isMenuOpen && (
             <nav className="bg-[#111217] h-[100vh] text-textSecondary px-5 pt-20 fixed top-0 left-0 right-0 z-[-100]">
-              <ul className=" flex flex-col gap-5">
+              <ul className=" flex flex-col gap-5 text-base">
                 <li
                   className="flex items-center justify-between"
                   onClick={openWalletModal}
