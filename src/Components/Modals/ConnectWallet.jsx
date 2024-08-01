@@ -205,7 +205,7 @@ function ConnectWallet({ onClose }) {
   return (
     <div className="ConnectWallet">
       <div
-        className="fixed inset-0 z-50 flex flex-col items-center justify-center px-6 py-24 bg-[#ffffff1c] bg-opacity-50 backdrop-blur"
+        className="fixed inset-0 z-[500] flex flex-col items-center justify-center px-6 py-24 bg-[#ffffff1c] bg-opacity-50 backdrop-blur"
         onClick={handleBackdropClick}
       >
         <div className="flex w-full flex-col overflow-hidden bg-[#111218] text-left align-middle shadow-2xl max-w-[420px] h-fit max-h-full space-y-6 rounded-[20px] py-6">

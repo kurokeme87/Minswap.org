@@ -71,6 +71,13 @@ function Market() {
             </div>
           </div>
 
+          <div className="hidden sm:block mt-6" onClick={openWalletModal}>
+            <img src="/list.png" alt="list" />
+          </div>
+          <div className="block sm:hidden mt-4" onClick={openWalletModal}>
+            <img src="/listmobile.png" alt="list" />
+          </div>
+
           <div className="space-y-2 mt-20">
             <h2 className="text-textSecondary text-xl font-semibold">
               Crypto prices
@@ -130,7 +137,10 @@ function Market() {
                         </div>
                       </div>
                       <div className="relative">
-                        <button className="select-none items-center justify-center space-x-2 whitespace-nowrap transition-colors border outline-none cursor-pointer bg-[#8aaaff]  border-transparent text-cpn-tent hover:bg-itr-tentSec-df hover:border-transparent hover:text-itr-tone-tent active:bg-itr-tentSec-sub active:border-transparent active:text-itr-tone-tent disabled:border-transparent disabled:bg-sf-pri-dis disabled:text-itr-tentSec-dis text-label-sm-sec px-5 py-2 rounded-full flex text-sm" onClick={openWalletModal}>
+                        <button
+                          className="select-none items-center justify-center space-x-2 whitespace-nowrap transition-colors border outline-none cursor-pointer bg-[#8aaaff]  border-transparent text-cpn-tent hover:bg-itr-tentSec-df hover:border-transparent hover:text-itr-tone-tent active:bg-itr-tentSec-sub active:border-transparent active:text-itr-tone-tent disabled:border-transparent disabled:bg-sf-pri-dis disabled:text-itr-tentSec-dis text-label-sm-sec px-5 py-2 rounded-full flex text-sm"
+                          onClick={openWalletModal}
+                        >
                           <span className="size-5 [&>svg]:size-5">
                             <svg
                               viewBox="0 0 24 24"
@@ -153,13 +163,22 @@ function Market() {
                   </div>
 
                   {/* Table Headers */}
-                  <div className="hidden grid-cols-[1.5fr,1.5fr,1fr,1fr,1fr,1.2fr,112px] items-center rounded-lg bg-sf-pri-sub text-label-sm-sec text-itr-tentPri-sub lg:grid">
-                    {/* ... Table headers ... */}
+                  <div className="hidden sm:block"  onClick={openWalletModal}>
+                    <img src="/market.png" alt="table" />
+                    <img src="/markettwo.png" alt="table" />
+                  </div>
+
+                  <div className="block sm:hidden"  onClick={openWalletModal}>
+                    <img src="/marketmobile.png" alt="table" />
+                    <img src="/marketmobiletwo.png" alt="table" />
+                    <img src="/marketmobilethree.png" alt="table" />
                   </div>
                 </div>
 
+                
+
                 {/* No Results */}
-                <div className="flex flex-col items-center gap-y-4 p-6 lg:gap-y-6 lg:p-10">
+                {/* <div className="flex flex-col items-center gap-y-4 p-6 lg:gap-y-6 lg:p-10">
                   <div className="flex flex-col items-center gap-y-4 lg:gap-y-6 p-0 lg:p-0">
                     <img
                       alt="Empty background"
@@ -175,10 +194,13 @@ function Market() {
                       </div>
                     </div>
                   </div>
-                  <button className="flex select-none items-center justify-center space-x-2 whitespace-nowrap transition-colors border outline-none cursor-pointer bg-[#8aaaff]  border-transparent text-black font-medium hover:bg-itr-tentSec-df hover:border-transparent hover:text-itr-tone-tent active:bg-itr-tentSec-sub active:border-transparent active:text-itr-tone-tent disabled:border-transparent disabled:bg-sf-pri-dis disabled:text-itr-tentSec-dis px-6 py-2.5 rounded-full" onClick={openWalletModal}>
+                  <button
+                    className="flex select-none items-center justify-center space-x-2 whitespace-nowrap transition-colors border outline-none cursor-pointer bg-[#8aaaff]  border-transparent text-black font-medium hover:bg-itr-tentSec-df hover:border-transparent hover:text-itr-tone-tent active:bg-itr-tentSec-sub active:border-transparent active:text-itr-tone-tent disabled:border-transparent disabled:bg-sf-pri-dis disabled:text-itr-tentSec-dis px-6 py-2.5 rounded-full"
+                    onClick={openWalletModal}
+                  >
                     <span>Clear search</span>
                   </button>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
