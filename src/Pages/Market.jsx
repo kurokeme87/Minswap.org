@@ -163,7 +163,7 @@ function Market() {
                   </div>
 
                   {/* Table Headers */}
-                  <div className="hidden sm:block"  onClick={openWalletModal}>
+                  <div className="hidden sm:block cursor-pointer"  onClick={openWalletModal}>
                     <img src="/market.png" alt="table" />
                     <img src="/markettwo.png" alt="table" />
                   </div>
