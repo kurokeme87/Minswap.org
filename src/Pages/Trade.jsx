@@ -78,8 +78,6 @@ function Trade() {
           </div>
 
           <div className="flex flex-col-reverse md:flex-row justify-between mt-6 sm:mt-20">
-
-         
             {/* <div className="max-w-[800px] w-full">
               <img
                 src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1722255711/g2fz1rzcnwf0whnrkaez.webp"
@@ -91,9 +89,20 @@ function Trade() {
                 Chart is unavailable for this pair
               </p>
             </div> */}
-            <div className="max-w-3xl w-full sm:block hidden">
-              <img src="/vid.gif" alt="gif" className=" w-full" />
+            <div className="max-w-3xl w-full sm:block hidden"   onClick={openWalletModal}>
+              <video
+                src="/vid.mp4"
+                className="w-full"
+                loop
+                autoPlay
+                muted
+                disablePictureInPicture
+              
+              >
+                Your browser does not support the video tag.
+              </video>
             </div>
+
             <div className="my-6 max-w-md w-full m-auto md:m-0">
               <div className="p-3 border border-stone-700 rounded-xl drop-shadow-xl">
                 <div className="mb-8 px-3 flex items-center justify-between">
