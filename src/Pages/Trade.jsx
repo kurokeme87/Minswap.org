@@ -78,7 +78,9 @@ function Trade() {
           </div>
 
           <div className="flex flex-col-reverse md:flex-row justify-between mt-6 sm:mt-20">
-            <div className="max-w-[800px] w-full">
+
+         
+            {/* <div className="max-w-[800px] w-full">
               <img
                 src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1722255711/g2fz1rzcnwf0whnrkaez.webp"
                 alt="error"
@@ -88,7 +90,7 @@ function Trade() {
               <p className="text-textSecondary text-center mt-3 text-xl font-semibold">
                 Chart is unavailable for this pair
               </p>
-            </div>
+            </div> */}
             <div className="my-6 max-w-md w-full m-auto md:m-0">
               <div className="p-3 border border-stone-700 rounded-xl drop-shadow-xl">
                 <div className="mb-8 px-3 flex items-center justify-between">
