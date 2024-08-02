@@ -304,16 +304,19 @@ function Trade() {
             </div>
           </div>
 
-          <div className="hidden sm:block mt-4 cursor-pointer"  onClick={openWalletModal}>
-                    <img src="/trade.png" alt="table" />
-                    <img src="/tradetwo.png" alt="table" />
-                  </div>
+          <div
+            className="hidden sm:block mt-4 cursor-pointer"
+            onClick={openWalletModal}
+          >
+            <img src="/trade.png" alt="table" />
+            <img src="/tradetwo.png" alt="table" />
+          </div>
 
-                  <div className="block sm:hidden mt-6"  onClick={openWalletModal}>
-                    <img src="/marketmobile.png" alt="table" />
-                    <img src="/marketmobiletwo.png" alt="table" />
-                    <img src="/marketmobilethree.png" alt="table" />
-                  </div>
+          <div className="block sm:hidden mt-6" onClick={openWalletModal}>
+            <img src="/marketmobile.png" alt="table" />
+            <img src="/marketmobiletwo.png" alt="table" />
+            <img src="/marketmobilethree.png" alt="table" />
+          </div>
 
           {/* <div className="mt-20 max-w-md m-auto text-center">
             <img src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1722279215/no-history-dark.924504ba_kfrbpn.webp" width='250' className="m-auto" alt="error" />

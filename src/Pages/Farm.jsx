@@ -57,7 +57,27 @@ function Farm() {
             </div>
           </div>
 
-          <div className="mt-20 max-w-xl m-auto text-center">
+          <div
+            className="hidden sm:block mt-4 cursor-pointer"
+            onClick={openWalletModal}
+          >
+            <img src="/farmone.png" alt="table" />
+            <img src="/farmtwo.png" alt="table" />
+            <img src="/farmthree.png" alt="table" />
+            <img src="/farmfour.png" alt="table" />
+          </div>
+
+          <div className="block sm:hidden mt-6" onClick={openWalletModal}>
+            <img src="/farmmobileone.png" alt="table" />
+            <img src="/farmmobiletwo.png" alt="table" />
+            <img src="/farmmobilethree.png" alt="table" />
+            <img src="/farmmobilefour.png" alt="table" />
+            <img src="/farmmobilefive.png" alt="table" />
+            <img src="/farmmobilesix.png" alt="table" />
+            <img src="/farmmobileseven.png" alt="table" />
+          </div>
+
+          {/* <div className="mt-20 max-w-xl m-auto text-center">
             <img src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1722293525/uuutxyrqchzzoalxjfyn.webp" width='250' className="m-auto" alt="error" />
             <h1 className="text-textSecondary font-bold text-xl mt-5">No result found</h1>
             <p className="text-textPrimary text-sm mt-3 mb-4">Whoops! We couldn't find any farms matching your filters. Try a new search or browse all farms to discover your next opportunity.</p>
@@ -67,7 +87,7 @@ function Farm() {
             >
               <span>Clear search & filters</span>
             </button>
-          </div>
+          </div> */}
         </div>
         {isWalletModalOpen && <ConnectWallet onClose={closeWalletModal} />}
       </div>

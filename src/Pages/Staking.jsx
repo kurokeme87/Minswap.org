@@ -18,7 +18,16 @@ function Staking() {
       <Navigation />
       <div className="max-w-screen-xl m-auto">
         <div className="pt-[80px] sm:pt-[130px] pb-[100px] px-5 lg:px-0">
-          <div className="mt-20 max-w-xl m-auto text-center">
+          <div>
+            <h1 className="text-textSecondary text-3xl font-medium">MIN Staking</h1>
+            <p className="text-textPrimary font-medium text-sm">
+            Stake your MIN today to start earning rewards and boosting your portfolio.
+            </p>
+          </div>
+
+         
+
+          {/* <div className="mt-20 max-w-xl m-auto text-center">
             <img
               src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1722295212/rtvohkmcvdlzl8lww1ae.svg"
               width="250"
@@ -37,7 +46,7 @@ function Staking() {
             >
               <span>Retry</span>
             </button>
-          </div>
+          </div> */}
         </div>
         {isWalletModalOpen && <ConnectWallet onClose={closeWalletModal} />}
       </div>
