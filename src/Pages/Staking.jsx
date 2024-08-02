@@ -30,10 +30,28 @@ function Staking() {
 
           <div className="mt-4 flex flex-col md:flex-row justify-between gap-4">
             <div className="border border-stone-700  rounded-xl drop-shadow-xl p-4 text-center w-full max-h-[250px]">
-            <div>
-
-            </div>
-              <h1 className="text-textSecondary text-xl font-medium mt-14 mb-3">
+              <div className="flex items-center gap-3 justify-center mt-6">
+                <div className="border rounded-full p-3 border-stone-700">
+                  <img
+                    src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831689/wedc8sye9jw3nj6kyyaj.svg"
+                    alt="icon"
+                    width='28'
+                  />
+                </div>
+                <div className="border rounded-full px-3 py-4 border-stone-700">
+                  <img
+                    src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831870/gwe5i02najzyogs8jqcj.svg"
+                    alt="icon"
+                  />
+                </div>
+                <div className="border rounded-full p-3 border-stone-700">
+                  <img
+                    src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831902/ofozmzoru4hd8fembeie.svg"
+                    alt="icon"
+                  />
+                </div>
+              </div>
+              <h1 className="text-textSecondary text-xl font-medium mt-4 mb-3">
                 Connect your wallet to Stake
               </h1>
               <p className="text-textPrimary font-medium text-xs mb-3">
