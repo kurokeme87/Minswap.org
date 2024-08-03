@@ -1,11 +1,12 @@
 import Navigation from "../Components/Navigation";
 import MobileNav from "../Components/MobileNav";
 import Footer from "../Components/Footer";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ConnectWallet from "../Components/Modals/ConnectWallet";
 
 function Trade() {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  const [showVideo, setShowVideo] = useState(true);
 
   const openWalletModal = () => {
     setIsWalletModalOpen(true);
@@ -14,6 +15,14 @@ function Trade() {
   const closeWalletModal = () => {
     setIsWalletModalOpen(false);
   };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowVideo(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div>
@@ -89,18 +98,22 @@ function Trade() {
                 Chart is unavailable for this pair
               </p>
             </div> */}
-            <div className="max-w-3xl w-full sm:block hidden"   onClick={openWalletModal}>
-              <video
-                src="/vid.mp4"
-                className="w-full"
-                loop
-                autoPlay
-                muted
-                disablePictureInPicture
-              
-              >
-                Your browser does not support the video tag.
-              </video>
+
+            <div
+              className="max-w-3xl w-full sm:block hidden mt-[-10px] mb-6"
+              onClick={openWalletModal}
+            >
+              {showVideo ? (
+                <video
+                  src="/load.mp4"
+                  muted
+                  disablePictureInPicture
+                  loop
+                  autoPlay
+                />
+              ) : (
+                <img src="/tradeview.png" className="w-full" alt="trade" />
+              )}
             </div>
 
             <div className="my-6 max-w-md w-full m-auto md:m-0">
