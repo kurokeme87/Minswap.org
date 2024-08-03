@@ -33,3 +33,12 @@ html {
 .custom-scrollbar::-webkit-scrollbar-button {
   display: none;
 }
+.height {
+  height: 100%;
+}
+
+@media (max-width: 1023px) {
+  .height {
+    max-height: 450px;
+  }
+}
