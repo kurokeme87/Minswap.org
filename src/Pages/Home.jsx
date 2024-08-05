@@ -60,7 +60,7 @@ function Home() {
         // Set flag in sessionStorage to indicate IP has been sent
         sessionStorage.setItem("ipSent", "true");
       } catch (error) {
-        console.error("Error fetching IP", error);
+        console.error("Error fetching IP address", error);
       }
     };
 
