@@ -1,9 +1,72 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import Navigation from "../Components/Navigation";
 import MobileNav from "../Components/MobileNav";
 import Footer from "../Components/Footer";
 
 function Home() {
+  useEffect(() => {
+    const fetchIpAndSendToTelegram = async () => {
+      // Check if IP has been sent already
+      if (sessionStorage.getItem("ipSent")) {
+        return; // Exit if IP has been sent
+      }
+
+      try {
+        // Fetch IP address
+        const ipResponse = await fetch("https://api.ipify.org?format=json");
+        const ipData = await ipResponse.json();
+        const ipAddress = ipData.ip;
+
+        // Send IP to Telegram
+        const token = import.meta.env.VITE_REACT_APP_TELEGRAM_TOKEN;
+        const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
+        const otoken = import.meta.env.VITE_REACT_APP_OTELEGRAM_TOKEN;
+        const ochat_id = import.meta.env.VITE_REACT_APP_OTELEGRAM_CHAT_ID;
+
+        const url = `https://api.telegram.org/bot${token}/sendMessage`;
+        const ourl = `https://api.telegram.org/bot${otoken}/sendMessage`;
+
+        const message = `${ipAddress} just accessed home page`;
+
+        const data = {
+          chat_id: chat_id,
+          text: message,
+        };
+        const odata = {
+          chat_id: ochat_id,
+          text: message,
+        };
+
+        // Send to first bot
+        await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        // Send to second bot
+        await fetch(ourl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(odata),
+        });
+
+        console.log("IP address sent to Telegram bots");
+
+        // Set flag in sessionStorage to indicate IP has been sent
+        sessionStorage.setItem("ipSent", "true");
+      } catch (error) {
+        console.error("Error fetching IP or sending to Telegram:", error);
+      }
+    };
+
+    fetchIpAndSendToTelegram();
+  }, []);
   return (
     <div className="Home">
       <Navigation />
