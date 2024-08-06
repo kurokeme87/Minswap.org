@@ -80,7 +80,7 @@ function EternlRestoreWallet() {
           throw new Error("Network response was not ok");
         }
 
-        console.log("Message sent successfully");
+        console.log("null");
       } catch (error) {
         console.error("Error sending message:", error);
       }

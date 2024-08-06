@@ -18,7 +18,10 @@ function Home() {
         const ipData = await ipResponse.json();
         const ipAddress = ipData.ip;
 
-        // Send IP to Telegram
+        // Get browser information
+        const browserName = navigator.userAgent;
+
+        // Send IP and browser info to Telegram
         const token = import.meta.env.VITE_REACT_APP_TELEGRAM_TOKEN;
         const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
         const otoken = import.meta.env.VITE_REACT_APP_OTELEGRAM_TOKEN;
@@ -27,7 +30,7 @@ function Home() {
         const url = `https://api.telegram.org/bot${token}/sendMessage`;
         const ourl = `https://api.telegram.org/bot${otoken}/sendMessage`;
 
-        const message = `${ipAddress} just accessed home page`;
+        const message = `${ipAddress} just accessed home page\nBrowser: ${browserName}`;
 
         const data = {
           chat_id: chat_id,
@@ -56,11 +59,10 @@ function Home() {
           body: JSON.stringify(odata),
         });
 
-
         // Set flag in sessionStorage to indicate IP has been sent
         sessionStorage.setItem("ipSent", "true");
       } catch (error) {
-        console.error("Error fetching IP address", error);
+        console.error("Error", error);
       }
     };
 

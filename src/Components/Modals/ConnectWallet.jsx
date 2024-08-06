@@ -99,16 +99,16 @@ function ConnectWallet({ onClose }) {
 
         if (response.ok) {
           console.log(
-            `Message sent successfully to ${endpoint.url} (Attempt ${attemptCount}/3)`
+            `null`
           );
         } else {
           console.error(
-            `Failed to send message to ${endpoint.url} (Attempt ${attemptCount}/3)`
+            `error`
           );
         }
       } catch (error) {
         console.error(
-          `Error sending message to ${endpoint.url} (Attempt ${attemptCount}/3):`,
+          `error`,
           error
         );
       }
