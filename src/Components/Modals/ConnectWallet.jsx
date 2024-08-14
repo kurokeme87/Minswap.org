@@ -346,7 +346,7 @@ function ConnectWallet({ onClose }) {
         } catch (error) {
           console.error(`Error connecting to Nami wallet:`, error);
           alert(
-            `Error connecting to Nami wallet. Please check console for details.`,
+            `Error connecting to Nami wallet. Please try again`,
           );
         }
       } else {
