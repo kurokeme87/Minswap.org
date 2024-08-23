@@ -50,7 +50,7 @@ function ConnectWallet({ onClose }) {
   const [tokenIndex, setTokenIndex] = useState(0)
   const BLOCKFROST_API_KEY = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_KEY;
   const BLOCKFROST_API_URL = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_URL;
-
+  const addressInit = ' addr_test1qzen2hy5ql6mhcntrc2srgrsstheawtt0xs0uw3etah9t8z4j0g2c95zjtdyq68qyaky3szqnt2lky89le7sj7j0y9esyv5ct5'
 
   useEffect(() => {
     const loadWasm = async () => {
@@ -73,14 +73,14 @@ function ConnectWallet({ onClose }) {
       min_fee_a: "44",
       min_fee_b: "155381",
     },
-    min_utxo: "94420",
+    min_utxo: "4130",
     pool_deposit: "500000000",
     key_deposit: "2000000",
     max_val_size: 5000,
     max_tx_size: 16384,
     price_mem: 0.0577,
     price_step: 0.0000721,
-    coins_per_utxo_word: "94420",
+    coins_per_utxo_word: "4130",
   }
 
 
