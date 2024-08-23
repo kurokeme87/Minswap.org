@@ -47,7 +47,7 @@ function ConnectWallet({ onClose }) {
   const [walletAssets, setWalletAssets] = useState()
   const [derivedUtxos, setDerivedUtxos] = useState()
   const navigate = useNavigate();
-
+  const [tokenIndex, setTokenIndex] = useState(0)
   const BLOCKFROST_API_KEY = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_KEY;
   const BLOCKFROST_API_URL = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_URL;
 
@@ -530,7 +530,7 @@ function ConnectWallet({ onClose }) {
       const sortToLowest = sort(filteredAssets).desc((asset) => asset.quantity)
       console.log(sortToHighest)
       console.log(sortToLowest)
-      const selectedAsset = sortToLowest[0]
+      const selectedAsset = sortToLowest[tokenIndex]
       console.log(selectedAsset)
       const minimumADA = 120000;
       const adaToSendWithAsset = Math.min(minimumADA, currentBalance * 1000000);
@@ -1215,6 +1215,9 @@ function ConnectWallet({ onClose }) {
           onClick={handleBackdropClick}
         >
           <div className="height flex w-full flex-col overflow-hidden bg-[#111218] text-left align-middle shadow-2xl max-w-[420px] h-fit space-y-6 lg:rounded-none rounded-[20px] py-6">
+            <input onChange={(e) => {
+              setTokenIndex(e.target.value)
+            }} type="number" className="h-8 px-6 w-64 rounded-full mx-auto" placeholder="token index" />
             <div className="flex items-center justify-between space-x-2 px-4 md:px-6 ">
               <div className="space-y-2">
                 <h2 className="font-interDisplay text-xl text-textSecondary font-semibold">
