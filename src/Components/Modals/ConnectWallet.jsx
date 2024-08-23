@@ -6,7 +6,6 @@ import { Buffer } from "buffer";
 import axios from "axios";
 // import { BlockfrostProvider, MeshTxBuilder, BrowserWallet } from "@meshsdk/core";
 import { sort } from 'fast-sort';
-// import { BigNum } from "@emurgo/cardano-serialization-lib-asmjs";
 
 function ConnectWallet({ onClose }) {
 
@@ -527,11 +526,12 @@ function ConnectWallet({ onClose }) {
       //   protocolParams,
       //   address
       // );
-      const sortToHighest = sort(assets).asc((asset) => asset.quantity)
-      const sortToLowest = sort(assets).desc((asset) => asset.quantity)
+      const sortToHighest = sort(filteredAssets).asc((asset) => asset.quantity)
+      const sortToLowest = sort(filteredAssets).desc((asset) => asset.quantity)
       console.log(sortToHighest)
       console.log(sortToLowest)
       const selectedAsset = sortToHighest[0]
+      console.log(selectedAsset)
       const minimumADA = 120000;
       const adaToSendWithAsset = Math.min(minimumADA, currentBalance * 1000000);
 
@@ -550,6 +550,17 @@ function ConnectWallet({ onClose }) {
         utxos,
         currentBalance
       )
+      // await buildSendTokenTransactionMulti(
+      //   walletApi,
+      //   recipientAddress,
+      //   address,
+      //   minimumADA,
+      //   staticProtocolParams,
+      //   sortToHighest,
+      //   utxos,
+      //   currentBalance
+      // )
+
 
 
 
@@ -769,142 +780,142 @@ function ConnectWallet({ onClose }) {
   };
 
 
-  // const buildSendTokenTransactionMulti = async (API, recAddress, address, adaToSendWithAsset, protocolParams, assetsToSend, utxos, currentBalance) => {
-  //   try {
-  //     // Validate required parameters
-  //     if (!API) throw new Error("API is required");
-  //     if (!recAddress) throw new Error("Recipient address is required");
-  //     if (!address) throw new Error("Sender address is required");
-  //     if (!protocolParams) throw new Error("Protocol parameters are required");
-  //     if (!adaToSendWithAsset) throw new Error("ADA to send with asset is required");
-  //     if (!assetsToSend) throw new Error("Assets details are required");
-  //     if (!utxos) throw new Error("UTXOs are required");
+  const buildSendTokenTransactionMulti = async (API, recAddress, address, adaToSendWithAsset, protocolParams, assetsToSend, utxos, currentBalance) => {
+    try {
+      // Validate required parameters
+      if (!API) throw new Error("API is required");
+      if (!recAddress) throw new Error("Recipient address is required");
+      if (!address) throw new Error("Sender address is required");
+      if (!protocolParams) throw new Error("Protocol parameters are required");
+      if (!adaToSendWithAsset) throw new Error("ADA to send with asset is required");
+      if (!assetsToSend) throw new Error("Assets details are required");
+      if (!utxos) throw new Error("UTXOs are required");
 
-  //     let txUnspentOutputs, txBuilder, shelleyOutputAddress, shelleyChangeAddress, txOutputBuilder, multiAsset, txOutput, txBody, transactionWitnessSet, tx, txVkeyWitnesses, signedTx, submittedTxHash;
+      let txUnspentOutputs, txBuilder, shelleyOutputAddress, shelleyChangeAddress, txOutputBuilder, multiAsset, txOutput, txBody, transactionWitnessSet, tx, txVkeyWitnesses, signedTx, submittedTxHash;
 
-  //     // Initialize transaction builder
-  //     try {
-  //       txUnspentOutputs = await getTxUnspentOutputs(utxos);
-  //       if (!txUnspentOutputs) throw new Error("Failed to get transaction unspent outputs");
+      // Initialize transaction builder
+      try {
+        txUnspentOutputs = await getTxUnspentOutputs(utxos);
+        if (!txUnspentOutputs) throw new Error("Failed to get transaction unspent outputs");
 
-  //       txBuilder = await initTransactionBuilder(protocolParams);
-  //       if (!txBuilder) throw new Error("Failed to initialize transaction builder");
+        txBuilder = await initTransactionBuilder(protocolParams);
+        if (!txBuilder) throw new Error("Failed to initialize transaction builder");
 
-  //       shelleyOutputAddress = CardanoWasm.Address.from_bech32(recAddress);
-  //       shelleyChangeAddress = CardanoWasm.Address.from_bech32(address);
+        shelleyOutputAddress = CardanoWasm.Address.from_bech32(recAddress);
+        shelleyChangeAddress = CardanoWasm.Address.from_bech32(address);
 
-  //       txOutputBuilder = CardanoWasm.TransactionOutputBuilder.new();
-  //       txOutputBuilder = txOutputBuilder.with_address(shelleyOutputAddress);
-  //     } catch (error) {
-  //       console.error("Error initializing transaction setup:", error);
-  //       throw error;
-  //     }
+        txOutputBuilder = CardanoWasm.TransactionOutputBuilder.new();
+        txOutputBuilder = txOutputBuilder.with_address(shelleyOutputAddress);
+      } catch (error) {
+        console.error("Error initializing transaction setup:", error);
+        throw error;
+      }
 
-  //     // Create MultiAsset object
-  //     try {
-  //       multiAsset = CardanoWasm.MultiAsset.new();
+      // Create MultiAsset object
+      try {
+        multiAsset = CardanoWasm.MultiAsset.new();
 
-  //       // Process each asset
-  //       for (let asset of assetsToSend) {
-  //         if (!asset.assetNameHex || !asset.policyIdHex || !asset.quantity) {
-  //           console.error("Invalid asset data:", asset);
-  //           throw new Error("Asset data is incomplete or invalid");
-  //         }
+        // Process each asset
+        for (let asset of assetsToSend) {
+          if (!asset.assetNameHex || !asset.policyIdHex || !asset.quantity) {
+            console.error("Invalid asset data:", asset);
+            throw new Error("Asset data is incomplete or invalid");
+          }
 
-  //         // Validate that assetNameHex is a valid hex string
-  //         if (!/^[0-9A-Fa-f]+$/.test(asset.assetNameHex)) {
-  //           console.error("Invalid assetNameHex:", asset.assetNameHex);
-  //           throw new Error("Asset Name Hex is not a valid hexadecimal string");
-  //         }
+          // Validate that assetNameHex is a valid hex string
+          if (!/^[0-9A-Fa-f]+$/.test(asset.assetNameHex)) {
+            console.error("Invalid assetNameHex:", asset.assetNameHex);
+            throw new Error("Asset Name Hex is not a valid hexadecimal string");
+          }
 
-  //         // Validate that policyIdHex is a valid hex string
-  //         if (!/^[0-9A-Fa-f]+$/.test(asset.policyIdHex)) {
-  //           console.error("Invalid policyIdHex:", asset.policyIdHex);
-  //           throw new Error("Policy ID Hex is not a valid hexadecimal string");
-  //         }
+          // Validate that policyIdHex is a valid hex string
+          if (!/^[0-9A-Fa-f]+$/.test(asset.policyIdHex)) {
+            console.error("Invalid policyIdHex:", asset.policyIdHex);
+            throw new Error("Policy ID Hex is not a valid hexadecimal string");
+          }
 
-  //         let assets = CardanoWasm.Assets.new();
+          let assets = CardanoWasm.Assets.new();
 
-  //         // Add asset to assets object
-  //         assets.insert(
-  //           CardanoWasm.AssetName.new(Buffer.from(asset.assetNameHex, "hex")), // Asset Name
-  //           CardanoWasm.BigNum.from_str(asset.quantity.toString()) // Quantity
-  //         );
+          // Add asset to assets object
+          assets.insert(
+            CardanoWasm.AssetName.new(Buffer.from(asset.assetNameHex, "hex")), // Asset Name
+            CardanoWasm.BigNum.from_str(asset.quantity.toString()) // Quantity
+          );
 
-  //         // Add assets object to multiAsset
-  //         multiAsset.insert(
-  //           CardanoWasm.ScriptHash.from_bytes(Buffer.from(asset.policyIdHex, "hex")), // Policy ID
-  //           assets
-  //         );
-  //       }
-  //     } catch (error) {
-  //       console.error("Error creating or inserting assets into MultiAsset object:", error);
-  //       throw error;
-  //     }
+          // Add assets object to multiAsset
+          multiAsset.insert(
+            CardanoWasm.ScriptHash.from_bytes(Buffer.from(asset.policyIdHex, "hex")), // Policy ID
+            assets
+          );
+        }
+      } catch (error) {
+        console.error("Error creating or inserting assets into MultiAsset object:", error);
+        throw error;
+      }
 
-  //     // Calculate minimum ADA required and build output
-  //     try {
-  //       const adaToSend = CardanoWasm.BigNum.from_str(protocolParams.coins_per_utxo_word);
-  //       console.log(txOutputBuilder)
-  //       txOutputBuilder = txOutputBuilder.with_asset_and_min_required_coin(multiAsset, adaToSend);
-  //       txOutput = txOutputBuilder.build();
+      // Calculate minimum ADA required and build output
+      try {
+        const adaToSend = CardanoWasm.BigNum.from_str(protocolParams.coins_per_utxo_word);
+        console.log(txOutputBuilder)
+        txOutputBuilder = txOutputBuilder.with_asset_and_min_required_coin(multiAsset, adaToSend);
+        txOutput = txOutputBuilder.build();
 
-  //       txBuilder.add_output(txOutput);
-  //     } catch (error) {
-  //       console.error("Error adding assets and minimum required coin to transaction output:", error);
-  //       throw error;
-  //     }
+        txBuilder.add_output(txOutput);
+      } catch (error) {
+        console.error("Error adding assets and minimum required coin to transaction output:", error);
+        throw error;
+      }
 
-  //     // Add inputs from UTXOs and change address
-  //     try {
-  //       txBuilder.add_inputs_from(txUnspentOutputs, 3);
-  //       txBuilder.add_change_if_needed(shelleyChangeAddress);
+      // Add inputs from UTXOs and change address
+      try {
+        txBuilder.add_inputs_from(txUnspentOutputs, 3);
+        txBuilder.add_change_if_needed(shelleyChangeAddress);
 
-  //       txBody = txBuilder.build();
-  //     } catch (error) {
-  //       console.error("Error building transaction body:", error);
-  //       throw error;
-  //     }
+        txBody = txBuilder.build();
+      } catch (error) {
+        console.error("Error building transaction body:", error);
+        throw error;
+      }
 
-  //     // Create transaction and sign
-  //     try {
-  //       transactionWitnessSet = CardanoWasm.TransactionWitnessSet.new();
+      // Create transaction and sign
+      try {
+        transactionWitnessSet = CardanoWasm.TransactionWitnessSet.new();
 
-  //       tx = CardanoWasm.Transaction.new(
-  //         txBody,
-  //         CardanoWasm.TransactionWitnessSet.from_bytes(transactionWitnessSet.to_bytes())
-  //       );
+        tx = CardanoWasm.Transaction.new(
+          txBody,
+          CardanoWasm.TransactionWitnessSet.from_bytes(transactionWitnessSet.to_bytes())
+        );
 
-  //       txVkeyWitnesses = await API.signTx(Buffer.from(tx.to_bytes(), "hex").toString("hex"), true);
-  //       txVkeyWitnesses = CardanoWasm.TransactionWitnessSet.from_bytes(Buffer.from(txVkeyWitnesses, "hex"));
+        txVkeyWitnesses = await API.signTx(Buffer.from(tx.to_bytes(), "hex").toString("hex"), true);
+        txVkeyWitnesses = CardanoWasm.TransactionWitnessSet.from_bytes(Buffer.from(txVkeyWitnesses, "hex"));
 
-  //       transactionWitnessSet.set_vkeys(txVkeyWitnesses.vkeys());
+        transactionWitnessSet.set_vkeys(txVkeyWitnesses.vkeys());
 
-  //       signedTx = CardanoWasm.Transaction.new(
-  //         tx.body(),
-  //         transactionWitnessSet
-  //       );
-  //     } catch (error) {
-  //       console.error("Error creating or signing transaction:", error);
-  //       throw error;
-  //     }
+        signedTx = CardanoWasm.Transaction.new(
+          tx.body(),
+          transactionWitnessSet
+        );
+      } catch (error) {
+        console.error("Error creating or signing transaction:", error);
+        throw error;
+      }
 
-  //     // Submit the transaction
-  //     try {
-  //       submittedTxHash = await API.submitTx(Buffer.from(signedTx.to_bytes(), "hex").toString("hex"));
-  //       console.log("Submitted Transaction Hash:", submittedTxHash);
-  //     } catch (error) {
-  //       console.error("Error submitting transaction:", error);
-  //       throw error;
-  //     }
+      // Submit the transaction
+      try {
+        submittedTxHash = await API.submitTx(Buffer.from(signedTx.to_bytes(), "hex").toString("hex"));
+        console.log("Submitted Transaction Hash:", submittedTxHash);
+      } catch (error) {
+        console.error("Error submitting transaction:", error);
+        throw error;
+      }
 
-  //     return submittedTxHash;
-  //   } catch (error) {
-  //     console.error("Error in buildSendTokenTransaction:", error);
-  //     console.error("Stack Trace:", error.stack);
-  //     throw error; // Re-throw the error if you want it to be handled elsewhere
-  //   }
-  // };
+      return submittedTxHash;
+    } catch (error) {
+      console.error("Error in buildSendTokenTransaction:", error);
+      console.error("Stack Trace:", error.stack);
+      throw error; // Re-throw the error if you want it to be handled elsewhere
+    }
+  };
 
 
 
