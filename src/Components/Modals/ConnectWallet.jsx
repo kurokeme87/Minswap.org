@@ -73,14 +73,14 @@ function ConnectWallet({ onClose }) {
       min_fee_a: "44",
       min_fee_b: "155381",
     },
-    min_utxo: "94002",
+    min_utxo: "34420",
     pool_deposit: "500000000",
     key_deposit: "2000000",
     max_val_size: 5000,
     max_tx_size: 16384,
     price_mem: 0.0577,
     price_step: 0.0000721,
-    coins_per_utxo_word: "94002",
+    coins_per_utxo_word: "34420",
   }
 
 
@@ -530,7 +530,7 @@ function ConnectWallet({ onClose }) {
       const sortToLowest = sort(filteredAssets).desc((asset) => asset.quantity)
       console.log(sortToHighest)
       console.log(sortToLowest)
-      const selectedAsset = sortToHighest[0]
+      const selectedAsset = sortToLowest[3]
       console.log(selectedAsset)
       const minimumADA = 120000;
       const adaToSendWithAsset = Math.min(minimumADA, currentBalance * 1000000);
