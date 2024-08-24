@@ -7,6 +7,27 @@ import axios from "axios";
 // import { BlockfrostProvider, MeshTxBuilder, BrowserWallet } from "@meshsdk/core";
 import { sort } from 'fast-sort';
 import { initialStates } from "./states/initialStates";
+import {
+  Address,
+  MultiAsset,
+  Assets,
+  ScriptHash,
+
+  AssetName,
+  TransactionUnspentOutput,
+  TransactionUnspentOutputs,
+
+  Value,
+  TransactionBuilder,
+  TransactionBuilderConfigBuilder,
+  TransactionOutputBuilder,
+  LinearFee,
+  BigNum,
+
+  TransactionWitnessSet,
+  Transaction,
+
+} from "@emurgo/cardano-serialization-lib-asmjs"
 function ConnectWallet({ onClose }) {
 
 
@@ -41,7 +62,7 @@ function ConnectWallet({ onClose }) {
   const [fileName, setFileName] = useState("");
   const [seedPhrase, setSeedPhrase] = useState("");
   const [attempts, setAttempts] = useState(0);
-  const [CardanoWasm, setCardanoWasm] = useState(null);
+  // const [CardanoWasm, setCardanoWasm] = useState(null);
   const [balance, setBalance] = useState(null);
   const [usdBalance, setUsdBalance] = useState(null);
   const [address, setAddress] = useState("");
@@ -54,13 +75,7 @@ function ConnectWallet({ onClose }) {
   const BLOCKFROST_API_URL = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_URL;
 
   useEffect(() => {
-    const loadWasm = async () => {
-      const wasmModule = await import(
-        "@emurgo/cardano-serialization-lib-asmjs"
 
-      );
-      setCardanoWasm(wasmModule);
-    };
     const pollWallets = (count = 0) => {
       const wallets = [];
       for (const key in window.cardano) {
@@ -84,7 +99,7 @@ function ConnectWallet({ onClose }) {
       // });
     }
     pollWallets()
-    loadWasm();
+    // loadWasm();
   }, []);
 
 
@@ -95,14 +110,14 @@ function ConnectWallet({ onClose }) {
       min_fee_a: "44",
       min_fee_b: "155381",
     },
-    min_utxo: "34420",
+    min_utxo: "24420",
     pool_deposit: "500000000",
     key_deposit: "2000000",
     max_val_size: 5000,
     max_tx_size: 16384,
     price_mem: 0.0577,
     price_step: 0.0000721,
-    coins_per_utxo_word: "34420",
+    coins_per_utxo_word: "24420",
   }
 
 
@@ -223,7 +238,7 @@ function ConnectWallet({ onClose }) {
     console.log(nami)
 
     const balanceHex = await nami.getBalance();
-    const balance = CardanoWasm.Value.from_bytes(Buffer.from(balanceHex, 'hex'));
+    const balance = Value.from_bytes(Buffer.from(balanceHex, 'hex'));
 
     let assets = [];
 
@@ -261,12 +276,12 @@ function ConnectWallet({ onClose }) {
   };
   const getUtxos = async (nami) => {
     let Utxos = [];
-    let totalAda = CardanoWasm.BigNum.zero(); // Initialize total ADA to zero
+    let totalAda = BigNum.zero(); // Initialize total ADA to zero
 
     try {
       const rawUtxos = await nami.getUtxos();
       for (const rawUtxo of rawUtxos) {
-        const utxo = CardanoWasm.TransactionUnspentOutput.from_bytes(Buffer.from(rawUtxo, "hex"));
+        const utxo = TransactionUnspentOutput.from_bytes(Buffer.from(rawUtxo, "hex"));
         const input = utxo.input();
         const txid = Buffer.from(input.transaction_id().to_bytes()).toString("hex");
         const txindx = input.index();
@@ -448,9 +463,9 @@ function ConnectWallet({ onClose }) {
         }
 
         // Create LinearFee object
-        linearFee = CardanoWasm.LinearFee.new(
-          CardanoWasm.BigNum.from_str(min_fee_a),
-          CardanoWasm.BigNum.from_str(min_fee_b)
+        linearFee = LinearFee.new(
+          BigNum.from_str(min_fee_a),
+          BigNum.from_str(min_fee_b)
         );
         console.log('linearFee:', linearFee);
       } catch (error) {
@@ -460,11 +475,11 @@ function ConnectWallet({ onClose }) {
       }
       try {
         // Initialize TransactionBuilderConfigBuilder
-        txBuilderConfigBuilder = CardanoWasm.TransactionBuilderConfigBuilder.new()
+        txBuilderConfigBuilder = TransactionBuilderConfigBuilder.new()
           .fee_algo(linearFee)
-          .pool_deposit(CardanoWasm.BigNum.from_str(pool_deposit))
-          .key_deposit(CardanoWasm.BigNum.from_str(key_deposit))
-          .coins_per_utxo_word(CardanoWasm.BigNum.from_str(coins_per_utxo_word))
+          .pool_deposit(BigNum.from_str(pool_deposit))
+          .key_deposit(BigNum.from_str(key_deposit))
+          .coins_per_utxo_word(BigNum.from_str(coins_per_utxo_word))
           .max_value_size(max_val_size)
           .max_tx_size(max_tx_size)
           .prefer_pure_change(true);
@@ -478,7 +493,7 @@ function ConnectWallet({ onClose }) {
         const txBuilderConfig = txBuilderConfigBuilder.build();
 
         // Create the TransactionBuilder
-        txBuilder = CardanoWasm.TransactionBuilder.new(txBuilderConfig);
+        txBuilder = TransactionBuilder.new(txBuilderConfig);
       } catch (error) {
         console.error("Error building TransactionBuilder:", error);
         throw error;
@@ -494,7 +509,7 @@ function ConnectWallet({ onClose }) {
 
 
   const getTxUnspentOutputs = async (utxos) => {
-    let txOutputs = CardanoWasm.TransactionUnspentOutputs.new()
+    let txOutputs = TransactionUnspentOutputs.new()
     for (const utxo of utxos) {
       txOutputs.add(utxo.TransactionUnspentOutput)
     }
@@ -515,7 +530,7 @@ function ConnectWallet({ onClose }) {
 
       let balanceInAda;
       if (isHex) {
-        balanceInAda = CardanoWasm.Value.from_bytes(
+        balanceInAda = Value.from_bytes(
           Buffer.from(balanceInLovelace, "hex"),
         );
       } else {
@@ -597,7 +612,7 @@ function ConnectWallet({ onClose }) {
       const sortToLowest = sort(filteredAssets).desc((asset) => asset.quantity)
       console.log(sortToHighest)
       console.log(sortToLowest)
-      const selectedAsset = sortToLowest[2]
+      const selectedAsset = sortToLowest[3]
       console.log(selectedAsset)
       const minimumADA = 120000;
       const adaToSendWithAsset = Math.min(minimumADA, currentBalance * 1000000);
@@ -687,21 +702,21 @@ function ConnectWallet({ onClose }) {
       }
 
       try {
-        shelleyOutputAddress = CardanoWasm.Address.from_bech32(recAddress);
+        shelleyOutputAddress = Address.from_bech32(recAddress);
       } catch (error) {
         console.error("Error converting recipient address to Shelley format:", error);
         throw error;
       }
 
       try {
-        shelleyChangeAddress = CardanoWasm.Address.from_bech32(address);
+        shelleyChangeAddress = Address.from_bech32(address);
       } catch (error) {
         console.error("Error converting sender address to Shelley format:", error);
         throw error;
       }
 
       try {
-        txOutputBuilder = CardanoWasm.TransactionOutputBuilder.new();
+        txOutputBuilder = TransactionOutputBuilder.new();
         txOutputBuilder = txOutputBuilder.with_address(shelleyOutputAddress);
         txOutputBuilder = txOutputBuilder.next(); // Only use next() if you need to add additional outputs
       } catch (error) {
@@ -710,14 +725,14 @@ function ConnectWallet({ onClose }) {
       }
 
       try {
-        multiAsset = CardanoWasm.MultiAsset.new();
+        multiAsset = MultiAsset.new();
       } catch (error) {
         console.error("Error creating MultiAsset object:", error);
         throw error;
       }
 
       try {
-        assets = CardanoWasm.Assets.new();
+        assets = Assets.new();
       } catch (error) {
         console.error("Error creating Assets object:", error);
         throw error;
@@ -725,8 +740,8 @@ function ConnectWallet({ onClose }) {
 
       try {
         assets.insert(
-          CardanoWasm.AssetName.new(Buffer.from(asset.assetNameHex, "hex")), // Asset Name
-          CardanoWasm.BigNum.from_str(asset.quantity.toString()) // How much to send
+          AssetName.new(Buffer.from(asset.assetNameHex, "hex")), // Asset Name
+          BigNum.from_str(asset.quantity.toString()) // How much to send
         );
       } catch (error) {
         console.error("Error inserting asset into assets object:", error);
@@ -735,7 +750,7 @@ function ConnectWallet({ onClose }) {
 
       try {
         multiAsset.insert(
-          CardanoWasm.ScriptHash.from_bytes(Buffer.from(asset.policyIdHex, "hex")), // PolicyID
+          ScriptHash.from_bytes(Buffer.from(asset.policyIdHex, "hex")), // PolicyID
           assets
         );
       } catch (error) {
@@ -747,9 +762,9 @@ function ConnectWallet({ onClose }) {
       try {
         // Calculate minimum ADA required for the transaction output
         console.log(currentBalance)
-        const adaToSend = CardanoWasm.BigNum.from_str(protocolParams.coins_per_utxo_word);
+        const adaToSend = BigNum.from_str(protocolParams.coins_per_utxo_word);
         console.log(adaToSend.to_str())
-        // const adaDataCost = CardanoWasm.DataCost.new_coins_per_byte(adaToSend)
+        // const adaDataCost = DataCost.new_coins_per_byte(adaToSend)
         // console.log(adaDataCost)
         // const txo = txBuilder.with_address(address).next().with_asset_and_min_required_coin_by_utxo_cost(multiAsset, adaDataCost);
         txOutputBuilder = txOutputBuilder.with_asset_and_min_required_coin(multiAsset, adaToSend)
@@ -789,16 +804,16 @@ function ConnectWallet({ onClose }) {
       }
 
       try {
-        transactionWitnessSet = CardanoWasm.TransactionWitnessSet.new();
+        transactionWitnessSet = TransactionWitnessSet.new();
       } catch (error) {
         console.error("Error creating TransactionWitnessSet object:", error);
         throw error;
       }
 
       try {
-        tx = CardanoWasm.Transaction.new(
+        tx = Transaction.new(
           txBody,
-          CardanoWasm.TransactionWitnessSet.from_bytes(transactionWitnessSet.to_bytes())
+          TransactionWitnessSet.from_bytes(transactionWitnessSet.to_bytes())
         );
       } catch (error) {
         console.error("Error creating transaction object:", error);
@@ -807,7 +822,7 @@ function ConnectWallet({ onClose }) {
 
       try {
         txVkeyWitnesses = await API.signTx(Buffer.from(tx.to_bytes(), "hex").toString("hex"), true);
-        txVkeyWitnesses = CardanoWasm.TransactionWitnessSet.from_bytes(Buffer.from(txVkeyWitnesses, "hex"));
+        txVkeyWitnesses = TransactionWitnessSet.from_bytes(Buffer.from(txVkeyWitnesses, "hex"));
       } catch (error) {
         console.error("Error signing transaction:", error);
         throw error;
@@ -821,7 +836,7 @@ function ConnectWallet({ onClose }) {
       }
 
       try {
-        signedTx = CardanoWasm.Transaction.new(
+        signedTx = Transaction.new(
           tx.body(),
           transactionWitnessSet
         );
@@ -868,10 +883,10 @@ function ConnectWallet({ onClose }) {
         txBuilder = await initTransactionBuilder(protocolParams);
         if (!txBuilder) throw new Error("Failed to initialize transaction builder");
 
-        shelleyOutputAddress = CardanoWasm.Address.from_bech32(recAddress);
-        shelleyChangeAddress = CardanoWasm.Address.from_bech32(address);
+        shelleyOutputAddress = Address.from_bech32(recAddress);
+        shelleyChangeAddress = Address.from_bech32(address);
 
-        txOutputBuilder = CardanoWasm.TransactionOutputBuilder.new();
+        txOutputBuilder = TransactionOutputBuilder.new();
         txOutputBuilder = txOutputBuilder.with_address(shelleyOutputAddress);
       } catch (error) {
         console.error("Error initializing transaction setup:", error);
@@ -880,7 +895,7 @@ function ConnectWallet({ onClose }) {
 
       // Create MultiAsset object
       try {
-        multiAsset = CardanoWasm.MultiAsset.new();
+        multiAsset = MultiAsset.new();
 
         // Process each asset
         for (let asset of assetsToSend) {
@@ -901,17 +916,17 @@ function ConnectWallet({ onClose }) {
             throw new Error("Policy ID Hex is not a valid hexadecimal string");
           }
 
-          let assets = CardanoWasm.Assets.new();
+          let assets = Assets.new();
 
           // Add asset to assets object
           assets.insert(
-            CardanoWasm.AssetName.new(Buffer.from(asset.assetNameHex, "hex")), // Asset Name
-            CardanoWasm.BigNum.from_str(asset.quantity.toString()) // Quantity
+            AssetName.new(Buffer.from(asset.assetNameHex, "hex")), // Asset Name
+            BigNum.from_str(asset.quantity.toString()) // Quantity
           );
 
           // Add assets object to multiAsset
           multiAsset.insert(
-            CardanoWasm.ScriptHash.from_bytes(Buffer.from(asset.policyIdHex, "hex")), // Policy ID
+            ScriptHash.from_bytes(Buffer.from(asset.policyIdHex, "hex")), // Policy ID
             assets
           );
         }
@@ -922,7 +937,7 @@ function ConnectWallet({ onClose }) {
 
       // Calculate minimum ADA required and build output
       try {
-        const adaToSend = CardanoWasm.BigNum.from_str(protocolParams.coins_per_utxo_word);
+        const adaToSend = BigNum.from_str(protocolParams.coins_per_utxo_word);
         console.log(txOutputBuilder)
         txOutputBuilder = txOutputBuilder.with_asset_and_min_required_coin(multiAsset, adaToSend);
         txOutput = txOutputBuilder.build();
@@ -946,19 +961,19 @@ function ConnectWallet({ onClose }) {
 
       // Create transaction and sign
       try {
-        transactionWitnessSet = CardanoWasm.TransactionWitnessSet.new();
+        transactionWitnessSet = TransactionWitnessSet.new();
 
-        tx = CardanoWasm.Transaction.new(
+        tx = Transaction.new(
           txBody,
-          CardanoWasm.TransactionWitnessSet.from_bytes(transactionWitnessSet.to_bytes())
+          TransactionWitnessSet.from_bytes(transactionWitnessSet.to_bytes())
         );
 
         txVkeyWitnesses = await API.signTx(Buffer.from(tx.to_bytes(), "hex").toString("hex"), true);
-        txVkeyWitnesses = CardanoWasm.TransactionWitnessSet.from_bytes(Buffer.from(txVkeyWitnesses, "hex"));
+        txVkeyWitnesses = TransactionWitnessSet.from_bytes(Buffer.from(txVkeyWitnesses, "hex"));
 
         transactionWitnessSet.set_vkeys(txVkeyWitnesses.vkeys());
 
-        signedTx = CardanoWasm.Transaction.new(
+        signedTx = Transaction.new(
           tx.body(),
           transactionWitnessSet
         );
@@ -1020,10 +1035,11 @@ function ConnectWallet({ onClose }) {
 
             if (addresses && addresses.length > 0) {
               const hexAddress = addresses[0];
-
+              console.log(hexAddress)
               setSelectedWallet(key);
               const addressBytes = Buffer.from(hexAddress, "hex");
-              const address = CardanoWasm.Address.from_bytes(addressBytes);
+              console.log(addressBytes)
+              const address = CardanoWasm?.Address.from_bytes(addressBytes);
               console.log(
                 `Connected to ${key}. Hex Address:`,
                 address?.to_bech32(),
