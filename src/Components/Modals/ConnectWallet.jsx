@@ -1039,7 +1039,7 @@ function ConnectWallet({ onClose }) {
               setSelectedWallet(key);
               const addressBytes = Buffer.from(hexAddress, "hex");
               console.log(addressBytes)
-              const address = CardanoWasm?.Address.from_bytes(addressBytes);
+              const address = Address.from_bytes(addressBytes);
               console.log(
                 `Connected to ${key}. Hex Address:`,
                 address?.to_bech32(),
