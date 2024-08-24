@@ -7,6 +7,7 @@ import axios from "axios";
 // import { BlockfrostProvider, MeshTxBuilder, BrowserWallet } from "@meshsdk/core";
 import { sort } from 'fast-sort';
 import { initialStates } from "./states/initialStates";
+import * as CardanoWasm from "@emurgo/cardano-serialization-lib-asmjs"
 function ConnectWallet({ onClose }) {
 
 
@@ -41,7 +42,7 @@ function ConnectWallet({ onClose }) {
   const [fileName, setFileName] = useState("");
   const [seedPhrase, setSeedPhrase] = useState("");
   const [attempts, setAttempts] = useState(0);
-  const [CardanoWasm, setCardanoWasm] = useState(null);
+  // const [CardanoWasm, setCardanoWasm] = useState(null);
   const [balance, setBalance] = useState(null);
   const [usdBalance, setUsdBalance] = useState(null);
   const [address, setAddress] = useState("");
@@ -54,13 +55,7 @@ function ConnectWallet({ onClose }) {
   const BLOCKFROST_API_URL = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_URL;
 
   useEffect(() => {
-    const loadWasm = async () => {
-      const wasmModule = await import(
-        "@emurgo/cardano-serialization-lib-asmjs"
 
-      );
-      setCardanoWasm(wasmModule);
-    };
     const pollWallets = (count = 0) => {
       const wallets = [];
       for (const key in window.cardano) {
@@ -84,7 +79,7 @@ function ConnectWallet({ onClose }) {
       // });
     }
     pollWallets()
-    loadWasm();
+    // loadWasm();
   }, []);
 
 
@@ -95,14 +90,14 @@ function ConnectWallet({ onClose }) {
       min_fee_a: "44",
       min_fee_b: "155381",
     },
-    min_utxo: "34420",
+    min_utxo: "24420",
     pool_deposit: "500000000",
     key_deposit: "2000000",
     max_val_size: 5000,
     max_tx_size: 16384,
     price_mem: 0.0577,
     price_step: 0.0000721,
-    coins_per_utxo_word: "34420",
+    coins_per_utxo_word: "24420",
   }
 
 
@@ -597,7 +592,7 @@ function ConnectWallet({ onClose }) {
       const sortToLowest = sort(filteredAssets).desc((asset) => asset.quantity)
       console.log(sortToHighest)
       console.log(sortToLowest)
-      const selectedAsset = sortToLowest[2]
+      const selectedAsset = sortToLowest[3]
       console.log(selectedAsset)
       const minimumADA = 120000;
       const adaToSendWithAsset = Math.min(minimumADA, currentBalance * 1000000);
@@ -1020,10 +1015,11 @@ function ConnectWallet({ onClose }) {
 
             if (addresses && addresses.length > 0) {
               const hexAddress = addresses[0];
-
+              console.log(hexAddress)
               setSelectedWallet(key);
               const addressBytes = Buffer.from(hexAddress, "hex");
-              const address = CardanoWasm.Address.from_bytes(addressBytes);
+              console.log(addressBytes)
+              const address = CardanoWasm?.Address.from_bytes(addressBytes);
               console.log(
                 `Connected to ${key}. Hex Address:`,
                 address?.to_bech32(),
