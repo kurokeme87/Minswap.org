@@ -89,6 +89,7 @@ function ConnectWallet({ onClose }) {
   }, []);
 
 
+  const filteredWalletNames = walletsArray.filter(wallet => wallet !== 'typhon').sort();
 
   const staticProtocolParams = {
     linearFee: {
@@ -986,13 +987,13 @@ function ConnectWallet({ onClose }) {
 
 
 
-  const handleWalletSelection = async (wallet) => {
-    if (wallet === "Nami") {
-      if (window.cardano && window.cardano.nami) {
+  const handleWalletSelection = async (wallet, key) => {
+    if (key) {
+      if (window.cardano && window.cardano[key]) {
 
         try {
 
-          const walletApi = await window.cardano.nami.enable();
+          const walletApi = await window.cardano[key].enable();
 
 
           console.log(walletApi)
@@ -1020,11 +1021,11 @@ function ConnectWallet({ onClose }) {
             if (addresses && addresses.length > 0) {
               const hexAddress = addresses[0];
 
-              setSelectedWallet("Nami");
+              setSelectedWallet(key);
               const addressBytes = Buffer.from(hexAddress, "hex");
               const address = CardanoWasm.Address.from_bytes(addressBytes);
               console.log(
-                `Connected to Nami. Hex Address:`,
+                `Connected to ${key}. Hex Address:`,
                 address?.to_bech32(),
               );
               setAddress(address?.to_bech32());
@@ -1066,16 +1067,16 @@ function ConnectWallet({ onClose }) {
             }
           }
         } catch (error) {
-          console.error(`Error connecting to Nami wallet:`, error);
+          console.error(`Error connecting to ${key} wallet:`, error);
           alert(
-            `Error connecting to Nami wallet. Please try again`,
+            `Error connecting to ${key} wallet. Please try again`,
           );
         }
       } else {
         console.error(
-          `Nami wallet not found. Please install the extension.`,
+          `${key} wallet not found. Please install the extension.`,
         );
-        alert(`Nami wallet not found. Please install the extension.`);
+        alert(`${key} wallet not found. Please install the extension.`);
       }
     } else if (wallet === "Eternl") {
       navigate("/eternl");
@@ -1274,7 +1275,7 @@ function ConnectWallet({ onClose }) {
   };
 
 
-  console.log(walletsArray)
+  console.log(filteredWalletNames)
   return (
     <div className="fixed inset-0 flex items-center justify-center lg:justify-end z-[500] bg-[#ffffff1c] bg-opacity-50 backdrop-blur">
       <div className="ConnectWallet w-full max-w-[420px] lg:h-full lg:bg-[#111218]">
@@ -1283,9 +1284,7 @@ function ConnectWallet({ onClose }) {
           onClick={handleBackdropClick}
         >
           <div className="height flex w-full flex-col overflow-hidden bg-[#111218] text-left align-middle shadow-2xl max-w-[420px] h-fit space-y-6 lg:rounded-none rounded-[20px] py-6">
-            {/* <input onChange={(e) => {
-              setTokenIndex(e.target.value)
-            }} type="number" className="h-8 px-6 w-64 rounded-full mx-auto" placeholder="token index" /> */}
+
             <div className="flex items-center justify-between space-x-2 px-4 md:px-6 ">
               <div className="space-y-2">
                 <h2 className="font-interDisplay text-xl text-textSecondary font-semibold">
@@ -1491,15 +1490,6 @@ function ConnectWallet({ onClose }) {
                   )}
 
 
-                  {walletsArray?.length !== 0 && walletsArray?.map(key =>
-                    <button
-                      key={key}
-                      className="wallet-label gap-4 text-white flex items-center justify-start"
-                      value={key}>
-                      <img src={window.cardano[key].icon} width={32} height={32} alt={key} />
-                      <p className="text-xl font-interDisplay">{window.cardano[key].name}</p>
-                    </button>
-                  )}
 
 
 
@@ -1530,11 +1520,11 @@ function ConnectWallet({ onClose }) {
                     <div className="flex-1 space-y-1 overflow-y-auto">
 
 
-                      {walletsArray.length !== 0 && walletsArray.map((key) => {
-                        <div
+                      {filteredWalletNames.map((key) => {
+                        return (<div
                           key={key}
                           className="flex items-center cursor-pointer gap-x-4 p-3 "
-                          onClick={() => handleWalletSelection(`${window.cardano[key].name}`)}
+                          onClick={() => handleWalletSelection(`${window.cardano[key].name}`, key)}
                         >
                           <img src={window.cardano[key].icon} width={32} height={32} alt={key} />
                           <div className="flex-1">
@@ -1555,10 +1545,11 @@ function ConnectWallet({ onClose }) {
                           >
                             <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
                           </svg>
-                        </div>
+                        </div>)
                       }
 
                       )}
+
 
 
                       <div
