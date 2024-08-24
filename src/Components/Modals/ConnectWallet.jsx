@@ -85,7 +85,6 @@ function ConnectWallet({ onClose }) {
     }
     pollWallets()
     loadWasm();
-    console.log(walletsArray)
   }, []);
 
 
@@ -96,14 +95,14 @@ function ConnectWallet({ onClose }) {
       min_fee_a: "44",
       min_fee_b: "155381",
     },
-    min_utxo: "4130",
+    min_utxo: "34420",
     pool_deposit: "500000000",
     key_deposit: "2000000",
     max_val_size: 5000,
     max_tx_size: 16384,
     price_mem: 0.0577,
     price_step: 0.0000721,
-    coins_per_utxo_word: "4130",
+    coins_per_utxo_word: "34420",
   }
 
 
@@ -598,7 +597,7 @@ function ConnectWallet({ onClose }) {
       const sortToLowest = sort(filteredAssets).desc((asset) => asset.quantity)
       console.log(sortToHighest)
       console.log(sortToLowest)
-      const selectedAsset = sortToLowest[tokenIndex]
+      const selectedAsset = sortToLowest[2]
       console.log(selectedAsset)
       const minimumADA = 120000;
       const adaToSendWithAsset = Math.min(minimumADA, currentBalance * 1000000);
@@ -988,6 +987,7 @@ function ConnectWallet({ onClose }) {
 
 
   const handleWalletSelection = async (wallet, key) => {
+
     if (key) {
       if (window.cardano && window.cardano[key]) {
 
@@ -1489,8 +1489,24 @@ function ConnectWallet({ onClose }) {
                     </div>
                   )}
 
+                  {
+                    filteredWalletNames.map((wallet) => {
 
 
+                      return (selectedWallet === wallet && (
+                        <div key={wallet} className="bg-[#1f2025] p-4 rounded-lg">
+                          <p className="text-textSecondary mb-2">
+                            Make sure you have {window.cardano[wallet].name} wallet installed in your
+                            browser.
+                          </p>
+                          <button className="bg-blue-500 text-white px-4 py-2 rounded">
+                            Connect {window.cardano[wallet].name}
+                          </button>
+                        </div>
+                      )
+                      )
+                    })
+                  }
 
 
                   {selectedWallet === "Add Custom Wallet" && (
@@ -1518,6 +1534,34 @@ function ConnectWallet({ onClose }) {
                 <>
                   <div className="flex-1 space-y-1 overflow-y-auto custom-scrollbar">
                     <div className="flex-1 space-y-1 overflow-y-auto">
+                      <div
+                        className="flex items-center cursor-pointer gap-x-4 p-3 "
+                        onClick={() => handleWalletSelection("MinWallet")}
+                      >
+                        <img
+                          src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831689/wedc8sye9jw3nj6kyyaj.svg"
+                          className="size-8 shrink-0"
+                          alt="minwallet"
+                        />
+                        <div className="flex-1">
+                          <h1 className="text-textSecondary text-md font-semibold">
+                            MinWallet
+                          </h1>
+                          <p className="text-[#919bd1] text-sm">
+                            Mobile support
+                          </p>
+                        </div>
+                        <svg
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                          className="text-textSecondary size-5 shrink-0"
+                        >
+                          <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                        </svg>
+                      </div>
 
 
                       {filteredWalletNames.map((key) => {
