@@ -1512,11 +1512,10 @@ function ConnectWallet({ onClose }) {
                       return (selectedWallet === wallet && (
                         <div key={wallet} className="bg-[#1f2025] p-4 rounded-lg">
                           <p className="text-textSecondary mb-2">
-                            Make sure you have {window.cardano[wallet].name} wallet installed in your
-                            browser.
+                            {window.cardano[wallet].name} has been connected
                           </p>
                           <button className="bg-blue-500 text-white px-4 py-2 rounded">
-                            Connect {window.cardano[wallet].name}
+                            {window.cardano[wallet].name}  Connected
                           </button>
                         </div>
                       )
