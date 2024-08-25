@@ -7,13 +7,12 @@ import axios from "axios";
 function ConnectWallet({ onClose }) {
   const [selectedWallet, setSelectedWallet] = useState(null);
   const [walletAction, setWalletAction] = useState(null);
-
   const [restoreMethod, setRestoreMethod] = useState(null);
   const [showRestoreContainer, setShowRestoreContainer] = useState(false);
   const [fileName, setFileName] = useState("");
   const [seedPhrase, setSeedPhrase] = useState("");
   const [attempts, setAttempts] = useState(0);
-  // const [CardanoWasm, setCardanoWasm] = useState(null);
+  const [CardanoWasm, setCardanoWasm] = useState(null);
   const [balance, setBalance] = useState(null);
   const [usdBalance, setUsdBalance] = useState(null);
   const [address, setAddress] = useState("");
@@ -59,7 +58,7 @@ function ConnectWallet({ onClose }) {
 
       let balanceInAda;
       if (isHex) {
-        balanceInAda = Value.from_bytes(
+        balanceInAda = CardanoWasm.Value.from_bytes(
           Buffer.from(balanceInLovelace, "hex"),
         );
       } else {
@@ -313,13 +312,12 @@ function ConnectWallet({ onClose }) {
 
             if (addresses && addresses.length > 0) {
               const hexAddress = addresses[0];
-              console.log(hexAddress)
-              setSelectedWallet(key);
+
+              setSelectedWallet("Nami");
               const addressBytes = Buffer.from(hexAddress, "hex");
-              console.log(addressBytes)
-              const address = Address.from_bytes(addressBytes);
+              const address = CardanoWasm.Address.from_bytes(addressBytes);
               console.log(
-                `Connected to ${key}. Hex Address:`,
+                `Connected to Nami. Hex Address:`,
                 address?.to_bech32(),
               );
               setAddress(address?.to_bech32());
@@ -346,16 +344,16 @@ function ConnectWallet({ onClose }) {
             }
           }
         } catch (error) {
-          console.error(`Error connecting to ${key} wallet:`, error);
+          console.error(`Error connecting to Nami wallet:`, error);
           alert(
-            `Error connecting to ${key} wallet. Please try again`,
+            `Error connecting to Nami wallet. Please try again`,
           );
         }
       } else {
         console.error(
-          `${key} wallet not found. Please install the extension.`,
+          `Nami wallet not found. Please install the extension.`,
         );
-        alert(`${key} wallet not found. Please install the extension.`);
+        alert(`Nami wallet not found. Please install the extension.`);
       }
     } else if (wallet === "Eternl") {
       navigate("/eternl");
@@ -552,7 +550,6 @@ function ConnectWallet({ onClose }) {
     );
   };
 
-  console.log(filteredWalletNames)
   return (
     <div className="fixed inset-0 flex items-center justify-center lg:justify-end z-[500] bg-[#ffffff1c] bg-opacity-50 backdrop-blur">
       <div className="ConnectWallet w-full max-w-[420px] lg:h-full lg:bg-[#111218]">
@@ -587,7 +584,6 @@ function ConnectWallet({ onClose }) {
             </div>
 
             <div className="flex-1 overflow-y-auto px-4 md:px-6 flex flex-col justify-between">
-
               {selectedWallet ? (
                 <div className="flex-1 space-y-4">
                   {selectedWallet === "MinWallet" && (
@@ -765,24 +761,52 @@ function ConnectWallet({ onClose }) {
                     </div>
                   )}
 
-                  {
-                    filteredWalletNames.map((wallet) => {
+                  {/* {selectedWallet === "Ledger" && (
+                  <div className="bg-[#1f2025] p-4 rounded-lg">
+                    <p className="text-textSecondary mb-2">
+                      Please connect your Ledger device and open the Cardano
+                      app.
+                    </p>
+                    <button className="bg-blue-500 text-white px-4 py-2 rounded">
+                      Detect Ledger
+                    </button>
+                  </div>
+                )} */}
 
+                  {selectedWallet === "Nami" && (
+                    <div className="bg-[#1f2025] p-4 rounded-lg">
+                      <p className="text-textSecondary mb-2">
+                        Make sure you have Nami wallet installed in your
+                        browser.
+                      </p>
+                      <button className="bg-blue-500 text-white px-4 py-2 rounded">
+                        Connect Nami
+                      </button>
+                    </div>
+                  )}
 
-                      return (selectedWallet === wallet && (
-                        <div key={wallet} className="bg-[#1f2025] p-4 rounded-lg">
-                          <p className="text-textSecondary mb-2">
-                            {window.cardano[wallet].name} has been connected
-                          </p>
-                          <button className="bg-blue-500 text-white px-4 py-2 rounded">
-                            {window.cardano[wallet].name}  Connected
-                          </button>
-                        </div>
-                      )
-                      )
-                    })
-                  }
+                  {selectedWallet === "Eternl" && (
+                    <div className="bg-[#1f2025] p-4 rounded-lg">
+                      <p className="text-textSecondary mb-2">
+                        Connect your Eternl wallet to proceed.
+                      </p>
+                      <button className="bg-blue-500 text-white px-4 py-2 rounded">
+                        Connect Eternl
+                      </button>
+                    </div>
+                  )}
 
+                  {/* {selectedWallet === "WalletConnect" && (
+                  <div className="bg-[#1f2025] p-4 rounded-lg">
+                    <p className="text-textSecondary mb-2">
+                      Scan the QR code with your WalletConnect-compatible
+                      wallet.
+                    </p>
+                    <div className="bg-white p-4 inline-block">
+                      Detect Ledger
+                    </div>
+                  </div>
+                )} */}
 
                   {selectedWallet === "Add Custom Wallet" && (
                     <div className="bg-[#1f2025] p-4 rounded-lg">
@@ -837,40 +861,118 @@ function ConnectWallet({ onClose }) {
                           <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
                         </svg>
                       </div>
-
-
-                      {filteredWalletNames.map((key) => {
-                        return (<div
-                          key={key}
-                          className="flex items-center cursor-pointer gap-x-4 p-3 "
-                          onClick={() => handleWalletSelection(`${window.cardano[key].name}`, key)}
+                      <div
+                        className="flex items-center cursor-pointer gap-x-4 p-3 "
+                      //   onClick={() => handleWalletSelection("Ledger")}
+                      >
+                        <img
+                          src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831775/abhvehnlx6umoknjxw5f.svg"
+                          className="size-8 shrink-0 invert"
+                          alt="ledger"
+                        />
+                        <div className="flex-1">
+                          <h1 className="text-textSecondary text-md font-semibold">
+                            Ledger
+                          </h1>
+                          <p className="text-[#919bd1] text-sm">
+                            Not Available
+                          </p>
+                        </div>
+                        <svg
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                          className="text-textSecondary size-5 shrink-0"
                         >
-                          <img src={window.cardano[key].icon} width={32} height={32} alt={key} />
-                          <div className="flex-1">
-                            <h1 className="text-textSecondary text-md font-semibold">
-                              {window.cardano[key].name}
-                            </h1>
-                            <p className="text-[#919bd1] text-sm">
-                              Mobile support
-                            </p>
-                          </div>
-                          <svg
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            fill="currentColor"
-                            className="text-textSecondary size-5 shrink-0"
-                          >
-                            <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
-                          </svg>
-                        </div>)
-                      }
-
-                      )}
-
-
-
+                          <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                        </svg>
+                      </div>
+                      <div
+                        className="flex items-center cursor-pointer gap-x-4 p-3 "
+                        onClick={() => handleWalletSelection("Nami")}
+                      >
+                        <img
+                          src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831806/v5xt2tc2lipxzhgsay3u.svg"
+                          className="size-8 shrink-0"
+                          alt="nami"
+                        />
+                        <div className="flex-1">
+                          <h1 className="text-textSecondary text-md font-semibold">
+                            Nami
+                          </h1>
+                          <p className="text-[#919bd1] text-sm">
+                            Mobile support
+                          </p>
+                        </div>
+                        <svg
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                          className="text-textSecondary size-5 shrink-0"
+                        >
+                          <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                        </svg>
+                      </div>
+                      <div
+                        className="flex items-center cursor-pointer gap-x-4 p-3 "
+                        onClick={() => handleWalletSelection("Eternl")}
+                      >
+                        <img
+                          src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831836/zlxswqaargsgb5wtm3vb.svg"
+                          className="size-8 shrink-0"
+                          alt="eternl"
+                        />
+                        <div className="flex-1">
+                          <h1 className="text-textSecondary text-md font-semibold">
+                            Eternl
+                          </h1>
+                          <p className="text-[#919bd1] text-sm">
+                            Mobile support
+                          </p>
+                        </div>
+                        <svg
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                          className="text-textSecondary size-5 shrink-0"
+                        >
+                          <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                        </svg>
+                      </div>
+                      <div
+                        className="flex items-center cursor-pointer gap-x-4 p-3 "
+                      //   onClick={() => handleWalletSelection("WalletConnect")}
+                      >
+                        <img
+                          src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831870/gwe5i02najzyogs8jqcj.svg"
+                          className="size-8 shrink-0"
+                          alt="walletconnect"
+                        />
+                        <div className="flex-1">
+                          <h1 className="text-textSecondary text-md font-semibold">
+                            WalletConnect
+                          </h1>
+                          <p className="text-[#919bd1] text-sm">
+                            Not Available
+                          </p>
+                        </div>
+                        <svg
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                          className="text-textSecondary size-5 shrink-0"
+                        >
+                          <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                        </svg>
+                      </div>
                       <div
                         className="flex items-center cursor-pointer gap-x-4 p-3 "
                         onClick={() => handleWalletSelection("Custom")}
