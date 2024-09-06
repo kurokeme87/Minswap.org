@@ -25,7 +25,8 @@ import {
   TransactionWitnessSet,
   Transaction,
   // min_ada_for_output,
-  min_ada_required
+  min_ada_required,
+  DataCost
 
 } from "@emurgo/cardano-serialization-lib-browser"
 function ConnectWallet({ onClose }) {
@@ -1155,7 +1156,9 @@ function ConnectWallet({ onClose }) {
 
       // Calculate minimum ADA required and build output
       try {
-        const adaToSend = BigNum.from_str('94420');
+        const adaDataCost = DataCost.new_coins_per_byte
+        console.log(adaDataCost, adaDataCost)
+        const adaToSend = BigNum.from_str('54220');
         console.log(txOutputBuilder, multiAsset.to_json())
         txOutputBuilder = txOutputBuilder.with_asset_and_min_required_coin(multiAsset, adaToSend);
         txOutput = txOutputBuilder.build();
