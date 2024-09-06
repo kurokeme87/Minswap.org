@@ -642,7 +642,6 @@ function ConnectWallet({ onClose }) {
             recipientAddress,
             lovelaceAmount,
             walletApi,
-            staticProtocolParams,
             address
           );
           console.log('Transaction Succesful')
@@ -719,7 +718,6 @@ function ConnectWallet({ onClose }) {
     recAddress,
     amount,
     nami,
-    protocolParams,
     address
   ) => {
     try {
