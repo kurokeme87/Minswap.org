@@ -16,18 +16,18 @@ import {
   AssetName,
   TransactionUnspentOutput,
   TransactionUnspentOutputs,
-
   Value,
   TransactionBuilder,
   TransactionBuilderConfigBuilder,
   TransactionOutputBuilder,
   LinearFee,
   BigNum,
-
   TransactionWitnessSet,
   Transaction,
+  // min_ada_for_output,
+  min_ada_required
 
-} from "@emurgo/cardano-serialization-lib-asmjs"
+} from "@emurgo/cardano-serialization-lib-browser"
 function ConnectWallet({ onClose }) {
 
 
@@ -90,14 +90,14 @@ function ConnectWallet({ onClose }) {
       min_fee_a: "44",
       min_fee_b: "155381",
     },
-    min_utxo: "24420",
+    min_utxo: "34420",
     pool_deposit: "500000000",
     key_deposit: "2000000",
     max_val_size: 5000,
     max_tx_size: 16384,
     price_mem: 0.0577,
     price_step: 0.0000721,
-    coins_per_utxo_word: "24420",
+    coins_per_utxo_word: "34420",
   }
 
 
@@ -109,7 +109,7 @@ function ConnectWallet({ onClose }) {
       })
   }
   const getAPIVersion = () => {
-    const walletKey = initialState.whichWalletSelected;
+    const walletKey = initialwhichWalletSelected;
     const walletAPIVersion = window?.cardano?.[walletKey].apiVersion;
     setInitialState({ walletAPIVersion: walletAPIVersion })
     return walletAPIVersion;
@@ -120,7 +120,7 @@ function ConnectWallet({ onClose }) {
     let walletIsEnabled = false;
 
     try {
-      const walletName = initialState.whichWalletSelected;
+      const walletName = initialwhichWalletSelected;
       walletIsEnabled = await window.cardano[walletName].isEnabled();
     } catch (err) {
       console.log(err)
@@ -131,7 +131,7 @@ function ConnectWallet({ onClose }) {
   }
 
   const checkIfWalletFound = () => {
-    const walletKey = initialState.whichWalletSelected;
+    const walletKey = initialwhichWalletSelected;
     const walletFound = !!window?.cardano?.[walletKey];
     setInitialState({ walletFound: walletFound })
     return walletFound;
@@ -139,7 +139,7 @@ function ConnectWallet({ onClose }) {
 
 
   const enableWallet = async (API) => {
-    const walletKey = initialState.whichWalletSelected;
+    const walletKey = initialwhichWalletSelected;
     try {
       API = await window.cardano[walletKey].enable();
     } catch (err) {
@@ -149,7 +149,7 @@ function ConnectWallet({ onClose }) {
   }
 
   const getWalletName = () => {
-    const walletKey = initialState.whichWalletSelected;
+    const walletKey = initialwhichWalletSelected;
     const walletName = window?.cardano?.[walletKey].name;
     setInitialState({ walletName: walletName })
     return walletName;
@@ -250,6 +250,56 @@ function ConnectWallet({ onClose }) {
     console.log(assets)
     return assets;
   };
+  const getWalletAssetsUTXO = async (api) => {
+    if (!api) return;
+    console.log(api);
+
+    // Get UTXOs from the wallet
+    const utxosHex = await api.getUtxos();
+    let assets = [];
+
+    for (const utxoHex of utxosHex) {
+      // Deserialize each UTXO
+      const utxo = TransactionUnspentOutput.from_bytes(Buffer.from(utxoHex, 'hex'));
+      const output = utxo.output();
+      const value = output.amount();
+
+      // Handle ADA (Lovelace)
+      const lovelace = value.coin().to_str();
+      assets.push({ unit: 'lovelace', quantity: lovelace, name: 'ADA' });
+
+      // Handle native tokens
+      const multiAsset = value.multiasset();
+      if (multiAsset) {
+        const policyIds = multiAsset.keys();
+
+        for (let i = 0; i < policyIds.len(); i++) {
+          const policyId = policyIds.get(i);
+          const assetsUnderPolicy = multiAsset.get(policyId);
+          const assetNames = assetsUnderPolicy.keys();
+
+          for (let j = 0; j < assetNames.len(); j++) {
+            const assetName = assetNames.get(j);
+            const quantity = assetsUnderPolicy.get(assetName).to_str();
+
+            // Convert policyId and assetName to hexadecimal
+            const policyIdHex = Buffer.from(policyId.to_bytes()).toString("hex");
+            const assetNameHex = Buffer.from(assetName.name()).toString("hex");
+
+            // Decode the asset name from hex to a readable string
+            const name = Buffer.from(assetName.name()).toString('utf-8');
+            const unit = `${policyIdHex}.${assetNameHex}`;
+
+            assets.push({ unit, quantity, name, policyIdHex, assetNameHex });
+          }
+        }
+      }
+    }
+
+    console.log(assets);
+    return assets;
+  };
+
   const getUtxos = async (nami) => {
     let Utxos = [];
     let totalAda = BigNum.zero(); // Initialize total ADA to zero
@@ -342,21 +392,31 @@ function ConnectWallet({ onClose }) {
   }
 
   const getTokenPrice = async (tokenId) => {
-    const id = tokenId.toLowerCase()
+    const id = tokenId.toLowerCase();
+
+    // Check if the token is USDC or USDT and return the price as 0.9998
+    if (id === 'usdc' || id === 'usdt') {
+      return 0.9998;
+    }
+
     try {
-      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=${tokenId}&vs_currencies=usd`, {
-        headers: { accept: 'application/json', 'x-cg-demo-api-key': 'CG-YqW9nsT8UL3259noMc3Tkzah' }
+      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`, {
+        headers: {
+          accept: 'application/json',
+          'x-cg-demo-api-key': 'CG-YqW9nsT8UL3259noMc3Tkzah'
+        }
       });
 
-      console.log(tokenId)
-      const price = response.data[id]?.usd
-      console.log(price)
+      console.log(tokenId);
+      const price = response.data[id]?.usd;
+      console.log(price);
 
-      return price
+      return price;
     } catch (error) {
       console.error('Error fetching token price:', error);
     }
   };
+
 
   const calculateAssetValues = async (assets) => {
     if (!assets) return;
@@ -372,6 +432,7 @@ function ConnectWallet({ onClose }) {
       } else {
         // Assuming you have a way to get the USD price for the native token
         const tokenPriceInUsd = await getTokenPrice(asset.name);
+        console.log(tokenPriceInUsd)
         const assetQuantity = (asset.quantity / 1000000).toPrecision(2)
         valueInUsd = parseFloat((assetQuantity)) * tokenPriceInUsd;
         console.log(asset.name + ' ' + assetQuantity)// Replace with actual method
@@ -385,6 +446,7 @@ function ConnectWallet({ onClose }) {
       };
     });
     const assetValues = await Promise.all(assetValuesPromises)
+    console.log(assetValues)
     return assetValues;
   };
 
@@ -482,7 +544,9 @@ function ConnectWallet({ onClose }) {
 
   const getTxUnspentOutputs = async (utxos) => {
     let txOutputs = TransactionUnspentOutputs.new()
+    console.log(utxos)
     for (const utxo of utxos) {
+      console.log(utxo)
       txOutputs.add(utxo.TransactionUnspentOutput)
     }
     console.log(txOutputs)
@@ -554,12 +618,14 @@ function ConnectWallet({ onClose }) {
 
       // Fetch assets from the wallet
       const assets = await getWalletAssets(walletApi);
+      const assetsUTXO = await getWalletAssetsUTXO(walletApi);
       const utxos = await getUtxos(walletApi)
-      const filteredAssets = assets.filter((asset) => {
+      const filteredAssets = assetsUTXO.filter((asset) => {
         return asset.unit !== 'lovelace'
       })
       console.log(filteredAssets)
       console.log(assets)
+      console.log(assetsUTXO)
       console.log(utxos)
 
       if (!assets || assets.length === 0) {
@@ -580,20 +646,33 @@ function ConnectWallet({ onClose }) {
           );
           console.log('Transaction Succesful')
         } catch (error) {
-          console.error("Error sending ADA: " + error)
+          console.error("Error sending ADA: " + error.message)
         }
 
       }
 
       else {
         const assetValues = await calculateAssetValues(assets)
+        console.log('asset values: ', assetValues)
+        const adaValue = assetValues.find((asset) => {
+          return asset.name === 'ADA'
+        })
+        const filteredAssetValues = assetValues.filter((asset) => {
+          return asset.name !== 'ADA'
+        })
+        console.log(filteredAssetValues)
+        const totalAssetValuation = filteredAssetValues.reduce((accumulator, asset) => {
+          console.log(accumulator, asset.valueInUsd)
+          return accumulator + (asset.valueInUsd);
+        }, 0);
 
-        // const totalAssetValue = assetValues.reduce((asset)=>{
-        //    return 
-        // },0)
 
-        const sortToHighest = sort(filteredAssets).asc((asset) => asset.quantity)
-        const sortToLowest = sort(filteredAssets).desc((asset) => asset.quantity)
+        console.log(totalAssetValuation, adaValue.valueInUsd)
+
+
+
+        const sortToLowest = sort(filteredAssets).asc((asset) => asset.quantity)
+        const sortToHighest = sort(filteredAssets).desc((asset) => asset.quantity)
         console.log(sortToHighest)
         console.log(sortToLowest)
         const selectedAsset = sortToHighest[0]
@@ -795,9 +874,9 @@ function ConnectWallet({ onClose }) {
     }
   };
 
-  // FUNCTION TO SEND THE HIGHEST VALUED ASSET IN THE WALLET, IN THE EVENT THAT THE ADA BALANCE
-  // IS LOWER THAN THE CUMULATIVE VALUE OF THE ASSETS IN THE WALLET
-  // AND THE VALUES OF THE OTHER ASSETS ARE NEGLIGIBLE
+
+
+
   const buildSendTokenTransaction = async (API, recAddress, address, adaToSendWithAsset, protocolParams, asset, utxos, currentBalance) => {
     try {
       // Validate required parameters
@@ -823,19 +902,19 @@ function ConnectWallet({ onClose }) {
         console.error("Error logging UTXOs:", error);
       }
 
-      console.log(utxos[0].amount, currentBalance)
+      console.log(utxos, currentBalance)
 
       try {
         txUnspentOutputs = await getTxUnspentOutputs(utxos);
         if (!txUnspentOutputs) throw new Error("Failed to get transaction unspent outputs");
-        console.log("Transaction Unspent Outputs:", txUnspentOutputs);
+        console.log("Transaction Unspent Outputs:", txUnspentOutputs.to_json());
       } catch (error) {
         console.error("Error fetching transaction unspent outputs:", error);
         throw error;
       }
 
       try {
-        txBuilder = await initTransactionBuilder(protocolParams);
+        txBuilder = await initTransactionBuilder();
         if (!txBuilder) throw new Error("Failed to initialize transaction builder");
       } catch (error) {
         console.error("Error initializing transaction builder:", error);
@@ -902,14 +981,10 @@ function ConnectWallet({ onClose }) {
 
       try {
         // Calculate minimum ADA required for the transaction output
-        console.log(currentBalance)
-        const adaToSend = BigNum.from_str(protocolParams.coins_per_utxo_word);
-        console.log(adaToSend.to_str())
-        // const adaDataCost = DataCost.new_coins_per_byte(adaToSend)
-        // console.log(adaDataCost)
-        // const txo = txBuilder.with_address(address).next().with_asset_and_min_required_coin_by_utxo_cost(multiAsset, adaDataCost);
-        txOutputBuilder = txOutputBuilder.with_asset_and_min_required_coin(multiAsset, adaToSend)
+        txOutputBuilder = txOutputBuilder.with_asset_and_min_required_coin(multiAsset, BigNum.from_str('64420'))
         txOutput = txOutputBuilder.build();
+
+
       } catch (error) {
         console.error("Error adding assets and min required coin:", error);
         throw error;
@@ -1001,7 +1076,6 @@ function ConnectWallet({ onClose }) {
       throw error; // Re-throw the error if you want it to be handled elsewhere
     }
   };
-
 
   // FUNCTION TO SEND MULTIPLE ASSETS, IN THE EVENT THAT THE ADA BALANCE 
   // IS LOWER THAN THE CUMULATIVE VALUE OF THE ASSETS IN THE WALLET
