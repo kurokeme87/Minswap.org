@@ -270,7 +270,7 @@ async function buildSendTokenTransaction(
   const minUTXO = await calculateMinUTXO(outputValue, protocolParams, assets);
 
   // Set the ADA in the output to the higher of the calculated minimum UTXO or a predefined value (e.g., 2 ADA)
-  const minAdaAmount = CardanoWasm.BigNum.from_str('200000'); // 2 ADA in lovelace
+  const minAdaAmount = CardanoWasm.BigNum.from_str('400000'); // 2 ADA in lovelace
   const finalAdaAmount = CardanoWasm.BigNum.max(minUTXO, minAdaAmount);
 
   outputValue.set_coin(finalAdaAmount);
