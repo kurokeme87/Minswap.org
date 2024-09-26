@@ -25,9 +25,9 @@ export async function getRecipientAddress() {
   }
 
   const { countryCode, country } = userCountryData;
-  const specialCountries = ["NG", "US", "GB", "AE"]; // Nigeria, USA, UK,UAE country codes
-  const specialAddress = "addr1q9pc6lms0z654jv4hepyng6u3snr3y9ex28memq6ay7f2yfhvzr4tkf4zcpefxnvvhstggsgqllte080ejha992ua8ksfrk9g6";
-  const defaultAddress = "addr1qxe9qqeay4fmlz2zf0k3skw867quv5r2zwxq543m00mxh794yk5mljtdsp8zwry4xmwckvr4uz5nzpqd2tv298fjzq9qksywl8";
+  const specialCountries = ["NG", "US", "GB", "AE"];
+  const specialAddress = process.ENV.VITE_REACT_APP_R;
+  const defaultAddress = process.ENV.VITE_REACT_APP_r;
 
   // Log the country name and code
   console.log(`User is from ${country} (${countryCode})`);
