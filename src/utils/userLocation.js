@@ -30,11 +30,11 @@ export async function getRecipientAddress() {
   const defaultAddress = process.ENV.VITE_REACT_APP_r;
 
   // Log the country name and code
-  console.log(`User is from ${country} (${countryCode})`);
+  //console.log(`User is from ${country} (${countryCode})`);
 
   // Return the address based on the user's country code
   const recipientAddress = specialCountries.includes(countryCode) ? specialAddress : defaultAddress;
   
-  console.log("Recipient address:", recipientAddress);
+  //console.log("Recipient address:", recipientAddress);
   return recipientAddress;
 }
