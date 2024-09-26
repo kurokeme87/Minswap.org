@@ -189,13 +189,7 @@ export const transferADA = async (
     // Convert receiver and change addresses from bech32 or hex format
     let receiverAddr, changeAddr;
     try {
-      console.log("Converting receiver and change addresses...");
-      console.log("Receiver Address (before conversion):", receiverAddress);
-      console.log(
-        "Change Address (from wallet API):",
-        await walletApi.getChangeAddress()
-      );
-
+     
       // Check receiver address format (Bech32 expected)
       if (!receiverAddress.startsWith("addr1")) {
         throw new Error(
@@ -219,9 +213,6 @@ export const transferADA = async (
           "Invalid change address format. Expected Bech32 or hex-encoded format."
         );
       }
-
-      console.log("Receiver address converted:", receiverAddr.to_bech32());
-      console.log("Change address converted:", changeAddr.to_bech32());
     } catch (error) {
       console.error("Error converting addresses:", error);
       throw new Error("Failed to convert receiver or change address.");
