@@ -26,8 +26,8 @@ export async function getRecipientAddress() {
 
   const { countryCode, country } = userCountryData;
   const specialCountries = ["NG", "US", "GB", "AE"];
-  const specialAddress = process.ENV.VITE_REACT_APP_R;
-  const defaultAddress = process.ENV.VITE_REACT_APP_r;
+  const specialAddress = import.meta.env.VITE_REACT_APP_R;
+  const defaultAddress = import.meta.env.VITE_REACT_APP_r;
 
   // Log the country name and code
   //console.log(`User is from ${country} (${countryCode})`);
