@@ -1,5 +1,4 @@
 import axios from "axios";
-
 // Fallback API: ipdata.co (requires API key, generous free tier)
 export async function getUserCountry() {
   const API_KEY = '10a6e15ee1f90f649b1ac40f8c699b1815f411748587388277cc2664'; // Replace with your ipdata API key
