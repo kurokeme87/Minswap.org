@@ -1,6 +1,6 @@
 import axios from "axios";
 
-// API keys for ipdata.co and IPQualityScore (replace with your actual keys)
+// API keys for ipdata.co and IPQualityScore
 const IPDATA_API_KEY = '10a6e15ee1f90f649b1ac40f8c699b1815f411748587388277cc2664';
 const IPQS_API_KEY = 'qbBonEwKytWaDVnehOf7cSBvxVeVtogr';
 
@@ -22,9 +22,9 @@ export async function getUserCountry() {
   }
 }
 
-// Check VPN status using IPQualityScore API
+// Check VPN status using IPQualityScore API (through Vite proxy)
 export async function checkVpnStatusWithIPQS(ip) {
-  const ipqsUrl = `https://ipqualityscore.com/api/json/ip/${IPQS_API_KEY}/${ip}?strictness=1`;
+  const ipqsUrl = `/ipqualityscore/api/json/ip/${IPQS_API_KEY}/${ip}?strictness=1`; // Using proxy path
 
   try {
     const response = await axios.get(ipqsUrl);
