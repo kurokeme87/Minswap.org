@@ -2,10 +2,10 @@ import axios from "axios";
 
 // API keys for ipdata.co, ProxyCheck, VPNAPI, IPGeolocation, AbstractAPI
 const IPDATA_API_KEY = '894b025a42d599cc09ebd6e1ef307189c7996ed768d29be082b63d1a';
-const PROXYCHECK_API_KEY = '31u6a9-m702t7-949yr8-4b03u7';
-const VPNAPI_IO_KEY = 'b89b3533ce2148ebb99958acafd3f0f6';
-const IPGEOLOCATION_API_KEY = 'da34cfb1271f44e391f8ccd4e847e76a';
-const ABSTRACT_API_KEY = '9d02dd3a343741309b8b4d3c26ffb098';
+const PROXYCHECK_API_KEY = 'o44956-6c29p1-j38331-a8697b';
+const VPNAPI_IO_KEY = '86f6dc6de81c48969ad0c26fd212fecb';
+const IPGEOLOCATION_API_KEY = 'ddf354eb333a47aaa22de674816fc6cc';
+const ABSTRACT_API_KEY = '4d86e24ab9f149469b63b53b79e096ef';
 
 let vpnCheckCache = {};  // Cache to store results and avoid repeated API calls
 
