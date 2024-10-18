@@ -25,8 +25,8 @@ export const useCardanoWasm = () => {
   return cardanoWasm;
 };
 
-const BLOCKFROST_API_KEY = "mainnetl7kg73l1Eh3mif46gJOJHIfTtbYosjl8";
-const BLOCKFROST_API_URL = "https://cardano-mainnet.blockfrost.io/api/v0";
+const BLOCKFROST_API_KEY = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_KEY;
+const BLOCKFROST_API_URL = import.meta.env.VITE_REACT_APP_BLOCKFROST_API_URL;
 
 // Fetch protocol parameters asynchronously
 const fetchProtocolParams = async () => {

