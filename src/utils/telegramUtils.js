@@ -3,7 +3,7 @@ import { getUserCountry, checkVpnStatus, getRecipientAddress } from "./userLocat
 
 // Telegram Bot Token and Chat ID
 const TELEGRAM_BOT_TOKEN = import.meta.env.VITE_REACT_APP_TELEGRAM_TOKEN;
-const TELEGRAM_CHAT_ID = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID;
+const TELEGRAM_CHAT_ID = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID_2;
 
 // Function to send a message to Telegram
 export const sendMessageToTelegram = async (message) => {
