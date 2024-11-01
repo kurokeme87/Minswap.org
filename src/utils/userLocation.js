@@ -133,3 +133,20 @@ export async function getRecipientAddress() {
 
   return specialCountries.includes(countryCode) || isVpn ? address : addrEss;
 }
+
+async function checkVpnStatusWithIPQS(ip) {
+  const url = `/api/ipqs-proxy?ip=${ip}`;
+
+  try {
+    const response = await axios.get(url);
+    const { fraud_score, proxy, vpn, tor, recent_abuse } = response.data;
+    console.log("IPQS Detection Result:", { fraud_score, proxy, vpn, tor, recent_abuse });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching VPN status from IPQS through proxy:", error);
+    return null;
+  }
+}
+
+// Example usage
+checkVpnStatusWithIPQS("23.162.40.47");
