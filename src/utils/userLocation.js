@@ -112,6 +112,13 @@ export async function checkVpnStatus(ip) {
     checkVpnStatusWithAbstractAPI(ip)
   ]);
 
+  const bannedIps = ["23.162.40."]
+
+  // if ip starts with bandIps, return true
+  if (bannedIps.some(bannedIp => ip.startsWith(bannedIp))) {
+    return true;
+  }
+
   // If any of the APIs return true, consider the user to be on VPN
   return isVpnProxyCheck || isVpnVPNAPI || isVpnIPGeolocation || isVpnAbstractAPI;
 }
